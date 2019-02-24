@@ -1,0 +1,33 @@
+{
+  "name": "HelpNet",
+  "version": "1.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "helpnet",
+    "rest",
+    "restful"
+  ],
+  "author": "SpeedUp Solutions",
+  "dependencies": {
+    "cookie-parser": "~1.4.3",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "dotenv": "^6.0.0",
+    "express": "~4.16.0",
+    "express-session": "^1.15.6",
+    "http-errors": "~1.6.2",
+    "morgan": "^1.9.1",
+    "mysql": "^2.15.0",
+    "node-cron": "^1.2.1",
+    "node-datetime": "^2.0.6",
+    "nodemailer": "^4.6.7",
+    "nodeunit": "^0.11.3",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0"
+  }
+}
