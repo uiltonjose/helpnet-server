@@ -2,6 +2,7 @@ const dateTime = require("node-datetime");
 const emailUtil = require("../utils/EmailUtil");
 const contentDAO = require("../dao/contentDAO");
 const osDAO = require("../dao/osDAO");
+const StringUtil = require("../utils/StringUtil");
 
 function createOSNumber(providerId) {
   const dt = dateTime.create();
@@ -37,25 +38,26 @@ module.exports = {
 
   canOpen: function canOpen(providerId, customerId, callback) {
     let resultResponse = {};
-    if (providerId === undefined || providerId === "") {
+
+    if (StringUtil.isNullOrEmpty(providerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Provider";
       callback(resultResponse);
-    } else if (customerId === undefined || customerId === "") {
+    } else if (StringUtil.isNullOrEmpty(customerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Customer";
       callback(resultResponse);
     } else {
-      osDAO.canOpen(providerId, customerId, function(err, result) {
+      osDAO.canOpen(providerId, customerId, (err, result) => {
         if (err) {
           resultResponse.code = 400;
-          resultResponse.message = "Occur a problem during consult query.";
+          resultResponse.message = "Something went wrong in your query.";
         } else {
           resultResponse.code = 200;
           if (result[0].total > 0) {
-            resultResponse.message = "true";
+            resultResponse.data = { canOpen: "true" };
           } else {
-            resultResponse.message = "false";
+            resultResponse.data = { canOpen: "false" };
           }
         }
         callback(resultResponse);
