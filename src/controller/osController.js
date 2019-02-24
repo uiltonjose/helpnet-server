@@ -55,9 +55,12 @@ module.exports = {
         } else {
           resultResponse.code = 200;
           if (result[0].total > 0) {
-            resultResponse.data = { canOpen: "true" };
+            resultResponse.data = {
+              canOpen: "false",
+              countOs: result[0].total
+            };
           } else {
-            resultResponse.data = { canOpen: "false" };
+            resultResponse.data = { canOpen: "true" };
           }
         }
         callback(resultResponse);
