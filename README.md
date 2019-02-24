@@ -4,9 +4,7 @@ This project is the HelpNet webservice/Backoffice
 
 ## Development server
 
-To start the webserver locally, navigate to the folder called `webservice` and execute in the terminal `npm start`. It's recommended using the POSTMAN to execute all requests.
-
-About the BackOffice, temporally was implemented a simple html that consumes Firebase and webserver. The main goal is convert this to React project. To access this temp BO, go to:`/../site/helpnet-bo/internal-bo`
+To start the webserver locally, execute at the terminal `npm start` or if you have `nodemon` installed you can use it. It's recommended using the POSTMAN to execute all requests.
 
 ## REST API interface
 
