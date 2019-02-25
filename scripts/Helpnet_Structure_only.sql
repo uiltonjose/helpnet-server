@@ -43,7 +43,8 @@ CREATE TABLE `cliente` (
   `cadastro` varchar(20) DEFAULT NULL,
   `plano` varchar(50) DEFAULT NULL,
   `complemento` varchar(255) DEFAULT NULL,
-  `bloqueio_abrir_os` char(20) DEFAULT NULL,
+  `bloqueio_notificacao` bigint(20) DEFAULT NULL,
+  `bloqueio_abrir_os` char(20) NOT NULL DEFAULT 'false',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -77,6 +78,7 @@ CREATE TABLE `notificacao` (
   `mensagem` varchar(255) NOT NULL,
   `data_envio` datetime NOT NULL,
   `provider_id` bigint(20) DEFAULT NULL,
+  `usuario_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
