@@ -5,9 +5,10 @@ const app = require("./src/app_config.js"),
   contentController = require("./src/controller/contentController"),
   notificationController = require("./src/controller/notificationController"),
   userController = require("./src/controller/userController");
+require("dotenv").load();
 
 app.get("/", (req, res) => {
-  res.send(JSON.stringify("HelpNet - Webservice alive! Ready to work."));
+  res.json("HelpNet - Webservice alive! Ready to work.");
 });
 // Begin Content
 app.get("/api/content/boot", (req, res) => {
