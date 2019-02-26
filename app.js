@@ -155,9 +155,9 @@ app.get("/api/user/info", (req, res) => {
 // End USER
 
 // Begin OS
-app.get("/api/os/listSituations", (req, res) => {
-  osController.listSituations(function(err, result) {
-    res.send(JSON.stringify(result));
+app.get("/api/os/listSituations", res => {
+  osController.listSituations(result => {
+    handleResult(result, res);
   });
 });
 
@@ -171,11 +171,8 @@ app.get("/api/os/listByProviderId", (req, res) => {
 app.get("/api/os/listBySituation", (req, res) => {
   const providerId = req.query.providerId;
   const situationId = req.query.situationId;
-  osController.listOSBySituation(providerId, situationId, function(
-    err,
-    result
-  ) {
-    res.send(JSON.stringify(result));
+  osController.listOSBySituation(providerId, situationId, result => {
+    handleResult(result, res);
   });
 });
 
@@ -205,18 +202,16 @@ app.get("/api/os/canOpen", (req, res) => {
 
 app.post("/api/os/changeSituation", (req, res) => {
   const object = req.body;
-  //  osController.changeSituationOS(object, function(err, result) {
-  //    res.send(JSON.stringify(result));
-  //  });
-  res.send(JSON.stringify("PRECISA_SER_REVISADO!!"));
+  osController.changeSituationOS(object, result => {
+    handleResult(result, res);
+  });
 });
 
-app.post("/api/os/associateTechnical", (req, res) => {
+app.post("/api/os/associateUser", (req, res) => {
   const os = req.body;
-  //osController.associateTechnical(os, function(err, result) {
-  //res.send(JSON.stringify(result));
-  //});
-  res.send(JSON.stringify("PRECISA_SER_REVISADO!!"));
+  osController.associateUser(os, result => {
+    handleResult(result, res);
+  });
 });
 // End OS
 

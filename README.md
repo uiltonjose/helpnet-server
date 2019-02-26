@@ -106,6 +106,7 @@ About the BackOffice, temporally was implemented a simple html that consumes Fir
 - Use `[GET] /api/listOS`
 - Use `[GET] /api/listOSBySituation`
 - Use `[GET] /api/listOSByCustomer`
+- Use `[POST] /api/changeSituationOS`
 
 #### Utils
 
@@ -125,7 +126,6 @@ About the BackOffice, temporally was implemented a simple html that consumes Fir
       }
   ```
 
-#### Technician
+#### User
 
-- Use `[POST] /api/changeSituationOS`
-- Use `[POST] /api/associateTechnical`
+- Use `[POST] /api/associateUser`
