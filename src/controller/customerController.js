@@ -1,6 +1,7 @@
 const customerDAO = require("../dao/customerDAO"),
   providerDAO = require("../dao/providerDAO"),
-  dateUtil = require("../utils/DateUtil");
+  dateUtil = require("../utils/DateUtil"),
+  StringUtil = require("../utils/StringUtil");
 
 function buildResultProviderWithCustomers(provider, customers, callback) {
   let finalResult = {};
@@ -249,16 +250,24 @@ const methods = (module.exports = {
   },
 
   listByProviderId: function listByProviderId(providerId, callback) {
+    let resultResponse = {};
     if (StringUtil.isInvalidNumer(providerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
     } else {
       customerDAO.listByProviderId(providerId, (err, result) => {
-        let resultResponse = {};
-        resultResponse.code = 400;
+        if (!err) {
+          resultResponse.code = 200;
+          resultResponse.message = result;
+        } else {
+          resultResponse.code = 400;
+          resultResponse.message = "Something went wrong you query.";
+        }
+
+        resultResponse.code = 200;
         resultResponse.message = result;
-        callback(err, resultResponse);
+        callback(resultResponse);
       });
     }
   }
