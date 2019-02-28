@@ -35,7 +35,7 @@ module.exports = {
           osDAO.getOSData(os, (errMail, resultMail) => {
             if (errMail) {
               resultResponse.code = 400;
-              resultResponse.message = "Problem geting OS";
+              resultResponse.message = "Something went wrong you query.";
               console.log(errMail);
             } else {
               osDescription = resultMail;
@@ -118,8 +118,7 @@ module.exports = {
       osDAO.changeSituationOS(object, (err, result) => {
         if (err) {
           resultResponse.code = 400;
-          resultResponse.message =
-            "Occur a problem during the change situation.";
+          resultResponse.message = "Something went wrong you query.";
         } else {
           resultResponse.code = 200;
           resultResponse.message =
@@ -156,8 +155,7 @@ module.exports = {
       osDAO.associateUser(os, (err, result) => {
         if (err) {
           resultResponse.code = 400;
-          resultResponse.message =
-            "Occur a problem during the change situation.";
+          resultResponse.message = "Something went wrong you query.";
         } else {
           resultResponse.code = 200;
           resultResponse.message =
@@ -186,8 +184,7 @@ module.exports = {
       osDAO.listOSBySituation(providerId, situationId, (err, result) => {
         if (err) {
           resultResponse.code = 400;
-          resultResponse.message =
-            "Occur a problem during the change situation.";
+          resultResponse.message = "Something went wrong in your query.";
         } else {
           resultResponse.code = 200;
           resultResponse.message = result;
@@ -204,7 +201,7 @@ module.exports = {
       let resultResponse = {};
       if (err) {
         resultResponse.code = 400;
-        resultResponse.message = "Occur a problem during the create list.";
+        resultResponse.message = "Something went wrong in your query.";
       } else {
         resultResponse.code = 200;
         resultResponse.message = result;
@@ -224,8 +221,16 @@ module.exports = {
   },
 
   listSituations: function listSituations(callback) {
-    osDAO.listSituations(function(err, result) {
-      callback(err, result);
+    osDAO.listSituations((err, result) => {
+      let resultResponse = {};
+      if (err) {
+        resultResponse.code = 400;
+        resultResponse.message = "Occur a problem during the create list.";
+      } else {
+        resultResponse.code = 200;
+        resultResponse.message = result;
+      }
+      callback(resultResponse);
     });
   },
 
