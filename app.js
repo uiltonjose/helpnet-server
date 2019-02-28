@@ -74,8 +74,7 @@ app.get("/api/provider/listProviders", (req, res) => {
 //TODO the return is missing
 app.put("/api/provider/updateProvider", (req, res) => {
   const provider = req.body;
-
-  providerController.updateProvider(provider, function(result) {
+  providerController.updateProvider(provider, result => {
     handleResult(result, res);
   });
 });
