@@ -80,6 +80,7 @@ app.put("/api/provider/updateProvider", (req, res) => {
   });
 });
 
+//TODO The return is missing
 app.post("/api/provider/addProvider", (req, res) => {
   const provider = req.body;
   providerController.addProvider(provider, function(result) {
@@ -156,7 +157,7 @@ app.get("/api/user/info", (req, res) => {
 // End USER
 
 // Begin OS
-app.get("/api/os/listSituations", res => {
+app.get("/api/os/listSituations", (req, res) => {
   osController.listSituations(result => {
     handleResult(result, res);
   });
