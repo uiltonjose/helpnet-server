@@ -2,7 +2,7 @@ const dateTime = require("node-datetime");
 const emailUtil = require("../utils/EmailUtil");
 const contentDAO = require("../dao/contentDAO");
 const osDAO = require("../dao/osDAO");
-
+const StringUtil = require("../utils/StringUtil");
 function createOSNumber(providerId) {
   const dt = dateTime.create();
   const formatted = dt.format("Y-m-d");
@@ -15,48 +15,65 @@ function createOSNumber(providerId) {
 module.exports = {
   //TODO Criar validações e adaptar retorno para o padrão
   registerOS: function registerOS(os, callback) {
-    os.number = createOSNumber(os.providerId);
-    osDAO.registerOS(os, (err, result) => {
-      if (!err) {
-        osDAO.getOSData(os, resultMail => {
-          if (errMail) {
-            console.log(errMail);
-          } else {
-            osDescription = resultMail;
-            const osHtml = emailUtil.builderContentMailNewOS(osDescription);
-            emailUtil.sendMail(
-              "Abertura da OS: " + osDescription.numeroOS,
-              osHtml,
-              osDescription.emailEnvioOS
-            );
-          }
-        });
-      }
-      callback(err, result);
-    });
+    if (StringUtil.isInvalidNumer(os.providerId)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid Provider Id";
+      callback(resultResponse);
+    } else if (StringUtil.isInvalidNumer(os.customerId)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid Customer Id";
+      callback(resultResponse);
+    } else if (StringUtil.isInvalidNumer(os.problemId)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid Problem Id";
+      callback(resultResponse);
+    } else {
+      os.number = createOSNumber(os.providerId);
+      osDAO.registerOS(os, (errMail, resultMail) => {
+        if (!errMail) {
+          osDAO.getOSData(os, result => {
+            if (errMail) {
+              console.log(errMail);
+            } else {
+              osDescription = resultMail;
+              const osHtml = emailUtil.builderContentMailNewOS(osDescription);
+              emailUtil.sendMail(
+                "Abertura da OS: " + osDescription.numeroOS,
+                osHtml,
+                osDescription.emailEnvioOS
+              );
+            }
+          });
+        }
+        callback(errMail, resultMail);
+      });
+    }
   },
 
   canOpen: function canOpen(providerId, customerId, callback) {
     let resultResponse = {};
-    if (providerId === undefined || providerId === "") {
+    if (StringUtil.isInvalidNumer(providerId)) {
       resultResponse.code = 400;
-      resultResponse.message = "Invalid Provider";
+      resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
-    } else if (customerId === undefined || customerId === "") {
+    } else if (StringUtil.isInvalidNumer(customerId)) {
       resultResponse.code = 400;
-      resultResponse.message = "Invalid Customer";
+      resultResponse.message = "Invalid Customer Id";
       callback(resultResponse);
     } else {
-      osDAO.canOpen(providerId, customerId, (result, err) => {
+      osDAO.canOpen(providerId, customerId, (err, result) => {
         if (err) {
           resultResponse.code = 400;
-          resultResponse.message = "Occur a problem during consult query.";
+          resultResponse.message = "Something went wrong in your query.";
         } else {
           resultResponse.code = 200;
           if (result[0].total > 0) {
-            resultResponse.message = "true";
+            resultResponse.data = {
+              canOpen: "false",
+              countOs: result[0].total
+            };
           } else {
-            resultResponse.message = "false";
+            resultResponse.data = { canOpen: "true" };
           }
         }
         callback(resultResponse);
@@ -71,33 +88,24 @@ module.exports = {
     const userId = event.userId;
     let resultResponse = {};
     if (
-      situationId === undefined ||
-      isNaN(situationId) ||
+      StringUtil.isInvalidNumer(situationId) ||
       situationId < 1 ||
       situationId > 4
     ) {
       resultResponse.code = 400;
-      resultResponse.message = "Invalid Situation";
+      resultResponse.message = "Invalid Situation Id";
       callback(resultResponse);
-    } else if (osId === undefined || osId === "" || isNaN(osId)) {
+    } else if (StringUtil.isInvalidNumer(osId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid OS Id";
       callback(resultResponse);
-    } else if (
-      event.userId === undefined ||
-      event.userId === "" ||
-      isNaN(event.userId)
-    ) {
+    } else if (StringUtil.isInvalidNumer(userId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid user id from event";
       callback(resultResponse);
-    } else if (
-      event.eventTypeID === undefined ||
-      event.eventTypeID === "" ||
-      isNaN(event.eventTypeID)
-    ) {
+    } else if (StringUtil.isInvalidNumer(event.eventTypeID)) {
       resultResponse.code = 400;
-      resultResponse.message = "Invalid Event type";
+      resultResponse.message = "Invalid Event type Id";
       callback(resultResponse);
     } else {
       osDAO.changeSituationOS(object, (err, result) => {
@@ -121,29 +129,21 @@ module.exports = {
     const event = os.event;
 
     let resultResponse = {};
-    if (userId === undefined || userId < 1 || isNaN(userId)) {
+    if (StringUtil.isInvalidNumer(userId)) {
       resultResponse.code = 400;
-      resultResponse.message = "Invalid User";
+      resultResponse.message = "Invalid User Id";
       callback(resultResponse);
-    } else if (osId === undefined || osId === "" || isNaN(osId)) {
+    } else if (StringUtil.isInvalidNumer(osId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid OS Id";
       callback(resultResponse);
-    } else if (
-      event.userId === undefined ||
-      event.userId === "" ||
-      isNaN(event.userId)
-    ) {
+    } else if (StringUtil.isInvalidNumer(event.userId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid user id from event";
       callback(resultResponse);
-    } else if (
-      event.eventTypeID === undefined ||
-      event.eventTypeID === "" ||
-      isNaN(event.eventTypeID)
-    ) {
+    } else if (StringUtil.isInvalidNumer(event.eventTypeID)) {
       resultResponse.code = 400;
-      resultResponse.message = "Invalid Event type";
+      resultResponse.message = "Invalid Event type Id";
       callback(resultResponse);
     } else {
       osDAO.associateUser(os, (err, result) => {
@@ -167,20 +167,11 @@ module.exports = {
     callback
   ) {
     let resultResponse = {};
-    if (
-      situationId === undefined ||
-      isNaN(situationId) ||
-      situationId < 1 ||
-      situationId > 4
-    ) {
+    if (StringUtil.isInvalidNumer(situationId)) {
       resultResponse.code = 400;
-      resultResponse.message = "Invalid Situation";
+      resultResponse.message = "Invalid Situation Id";
       callback(resultResponse);
-    } else if (
-      providerId === undefined ||
-      providerId === "" ||
-      isNaN(providerId)
-    ) {
+    } else if (StringUtil.isInvalidNumer(providerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid provider Id";
       callback(resultResponse);
@@ -201,9 +192,17 @@ module.exports = {
 
   //TODO Criar validações e adaptar retorno para o padrão
 
-  listOSByProvider: function listOSByProvider(providerId, callback) {
-    osDAO.listOSByProvider(providerId, function(err, result) {
-      callback(err, result);
+  listByProviderId: function listByProviderId(providerId, callback) {
+    osDAO.listByProviderId(providerId, (err, result) => {
+      let resultResponse = {};
+      if (err) {
+        resultResponse.code = 400;
+        resultResponse.message = "Occur a problem during the create list.";
+      } else {
+        resultResponse.code = 200;
+        resultResponse.message = result;
+      }
+      callback(resultResponse);
     });
   },
 

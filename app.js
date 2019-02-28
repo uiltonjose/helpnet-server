@@ -52,8 +52,8 @@ app.get("/api/customer/getProviderByCustomerID", (req, res) => {
 
 app.get("/api/customer/listByProviderId", (req, res) => {
   const providerId = req.query.providerId;
-  customerController.listByProviderId(providerId, function(err, result) {
-    res.send(JSON.stringify(result));
+  customerController.listByProviderId(providerId, result => {
+    handleResult(result, res);
   });
 });
 
@@ -163,8 +163,8 @@ app.get("/api/os/listSituations", res => {
 
 app.get("/api/os/listByProviderId", (req, res) => {
   const providerId = req.query.providerId;
-  osController.listOSByProvider(providerId, function(err, result) {
-    res.send(JSON.stringify(result));
+  osController.listByProviderId(providerId, result => {
+    handleResult(result, res);
   });
 });
 

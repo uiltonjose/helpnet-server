@@ -248,10 +248,19 @@ const methods = (module.exports = {
     });
   },
 
-  listByProviderId: function listByProviderId(customerId, callback) {
-    customerDAO.listByProviderId(customerId, function(err, result) {
-      callback(err, result);
-    });
+  listByProviderId: function listByProviderId(providerId, callback) {
+    if (StringUtil.isInvalidNumer(providerId)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid Provider Id";
+      callback(resultResponse);
+    } else {
+      customerDAO.listByProviderId(providerId, (err, result) => {
+        let resultResponse = {};
+        resultResponse.code = 400;
+        resultResponse.message = result;
+        callback(err, resultResponse);
+      });
+    }
   }
 });
 
