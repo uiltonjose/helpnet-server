@@ -174,7 +174,9 @@ module.exports = {
               });
             }
 
-            console.log("O Evento foi registrado com o ID = " + result.id);
+            console.log(
+              "O Evento foi registrado com o ID = " + result.insertId
+            );
             dbConfig.getConnection.commit(function(err, result) {
               if (err) {
                 dbConfig.getConnection.rollback(function() {

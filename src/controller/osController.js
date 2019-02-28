@@ -15,6 +15,7 @@ function createOSNumber(providerId) {
 module.exports = {
   //TODO Criar validações e adaptar retorno para o padrão
   registerOS: function registerOS(os, callback) {
+    let resultResponse = {};
     if (StringUtil.isInvalidNumer(os.providerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Provider Id";
@@ -29,10 +30,12 @@ module.exports = {
       callback(resultResponse);
     } else {
       os.number = createOSNumber(os.providerId);
-      osDAO.registerOS(os, (errMail, resultMail) => {
-        if (!errMail) {
-          osDAO.getOSData(os, result => {
+      osDAO.registerOS(os, (err, result) => {
+        if (!err) {
+          osDAO.getOSData(os, (errMail, resultMail) => {
             if (errMail) {
+              resultResponse.code = 400;
+              resultResponse.message = "Problem geting OS";
               console.log(errMail);
             } else {
               osDescription = resultMail;
@@ -42,10 +45,14 @@ module.exports = {
                 osHtml,
                 osDescription.emailEnvioOS
               );
+              resultResponse.code = 200;
+              resultResponse.message = result;
             }
           });
         }
-        callback(errMail, resultMail);
+        //TODO Adpatar para o padrão, precisa ajustar no APP antes
+        //callback(resultResponse);
+        callback(err, result);
       });
     }
   },
