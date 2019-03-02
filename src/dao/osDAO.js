@@ -6,7 +6,7 @@ module.exports = {
     dbConfig.getConnection.beginTransaction(function(err) {
       console.log("iniciou transação");
       if (err) {
-        console.log("Erro. Não foi possível iniciar transação..");
+        console.log("Erro. Não foi possível iniciar transação", err);
         callback(err);
       }
       let sql = util.format(
@@ -14,9 +14,9 @@ module.exports = {
         object.situationId,
         object.osId
       );
-      dbConfig.query(sql, function(err, result) {
+      dbConfig.getConnection.query(sql, function(err, result) {
         if (err) {
-          console.log("Fazendo roolback - Problema na atualização da OS");
+          console.log("Fazendo roolback - Problema na atualização da OS", err);
           dbConfig.getConnection.rollback(function() {
             callback(err);
           });
@@ -25,32 +25,37 @@ module.exports = {
           event.osId = object.osId;
           console.log("A OS com o ID = " + event.osId + " foi atualizada");
           sql = util.format(
-            "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID, OBSERVACAO, TECNICO_ID) VALUES (NOW(), %s, '%s','%s', %s)",
+            "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID, OBSERVACAO, USUARIO_ID) VALUES (NOW(), %s, '%s','%s', %s)",
             event.osId,
-            event.tipoEventID,
+            event.eventTypeID,
             event.description,
-            event.technicalId
+            event.userId
           );
           dbConfig.getConnection.query(sql, function(err, result) {
             if (err) {
               console.log(
-                "Fazendo roolback - Problema na persistência do Evento"
+                "Fazendo roolback - Problema na persistência do Evento",
+                err
               );
               dbConfig.getConnection.rollback(function() {
                 callback(err);
               });
+            } else {
+              console.log(
+                "O Evento foi registrado com o ID = " + JSON.stringify(result)
+              );
+              dbConfig.getConnection.commit(function(err, result) {
+                if (err) {
+                  dbConfig.getConnection.rollback(function() {
+                    console.log("Ocorreu um erro no commit da transação", err);
+                    callback(err);
+                  });
+                } else {
+                  console.log("Transação completa.");
+                  callback(err, object.osId);
+                }
+              });
             }
-            console.log("O Evento foi registrado com o ID = " + object.osId);
-            dbConfig.getConnection.commit(function(err, result) {
-              if (err) {
-                dbConfig.getConnection.rollback(function() {
-                  console.log("Ocorreu um erro no commit da transação ");
-                  callback(err);
-                });
-              }
-              console.log("Transação completa.");
-              callback(err, event.osId);
-            });
           });
         }
       });
@@ -58,23 +63,23 @@ module.exports = {
   },
 
   //
-  // Associate Technical
+  // Associate User
   //
-  associateTechnical: function associateTechnical(os, callback) {
+  associateUserWithOs: function associateUserWithOs(os, callback) {
     dbConfig.getConnection.beginTransaction(function(err) {
       console.log("iniciou transação");
       if (err) {
-        console.log("Erro. Não foi possível iniciar transação..");
+        console.log("Erro. Não foi possível iniciar transação", err);
         callback(err);
       }
       let sql = util.format(
-        "UPDATE os SET TECNICO_ID = %s WHERE ID = %s",
-        os.technicalId,
+        "UPDATE os SET USUARIO_ID = %s WHERE ID = %s",
+        os.userId,
         os.osId
       );
       dbConfig.getConnection.query(sql, function(err, result) {
         if (err) {
-          console.log("Fazendo roolback - Problema na atualização da OS");
+          console.log("Fazendo roolback - Problema na atualização da OS", err);
           dbConfig.getConnection.rollback(function() {
             callback(err);
           });
@@ -83,32 +88,35 @@ module.exports = {
           event.osId = os.osId;
           console.log("A OS com o ID = " + event.osId + " foi atualizada");
           sql = util.format(
-            "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID, OBSERVACAO, TECNICO_ID) VALUES (NOW(), %s, '%s','%s', %s)",
+            "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID, OBSERVACAO, USUARIO_ID) VALUES (NOW(), %s, '%s','%s', %s)",
             event.osId,
-            event.tipoEventID,
+            event.eventTypeID,
             event.description,
-            event.technicalId
+            event.userId
           );
           dbConfig.getConnection.query(sql, function(err, result) {
             if (err) {
               console.log(
-                "Fazendo roolback - Problema na persistência do Evento"
+                "Fazendo roolback - Problema na persistência do Evento",
+                err
               );
               dbConfig.getConnection.rollback(function() {
                 callback(err);
               });
+            } else {
+              console.log("O Evento foi registrado com o ID = "); //+  result.insertId );
+              dbConfig.getConnection.commit(function(err, result) {
+                if (err) {
+                  dbConfig.getConnection.rollback(function() {
+                    console.log("Ocorreu um erro no commit da transação", err);
+                    callback(err);
+                  });
+                } else {
+                  console.log("Transação completa.");
+                  callback(err, os.osId);
+                }
+              });
             }
-            console.log("O Evento foi registrado com o ID = "); //+  result.insertId );
-            dbConfig.getConnection.commit(function(err, result) {
-              if (err) {
-                dbConfig.getConnection.rollback(function() {
-                  console.log("Ocorreu um erro no commit da transação ");
-                  callback(err);
-                });
-              }
-              console.log("Transação completa.");
-              callback(err, result);
-            });
           });
         }
       });
@@ -122,7 +130,7 @@ module.exports = {
     dbConfig.getConnection.beginTransaction(function(err) {
       console.log("iniciou transação");
       if (err) {
-        console.log("Erro. Não foi possível iniciar transação..");
+        console.log("Erro. Não foi possível iniciar transação", err);
         callback(err);
       }
       let increment =
@@ -133,14 +141,14 @@ module.exports = {
         "INSERT INTO os (NUMERO, DATA_ABERTURA, CLIENTE_ID, PROBLEMA_ID, DETALHES, SITUACAO_ID, PROVEDOR_ID) VALUES (" +
           increment +
           ", NOW(), %s, %s, '%s', 1, %s)",
-        os.clienteId,
+        os.customerId,
         os.problemId,
         os.details,
         os.providerId
       );
       dbConfig.getConnection.query(sql, function(err, result) {
         if (err) {
-          console.log("Fazendo roolback - Problema na persistência da OS");
+          console.log("Fazendo roolback - Problema na persistência da OS", err);
           dbConfig.getConnection.rollback(function() {
             callback(err);
           });
@@ -148,28 +156,31 @@ module.exports = {
           let event = {};
           os.id = result.insertId;
           event.osId = result.insertId;
-          event.tipoEventID = 1;
+          event.eventTypeID = 1;
           console.log("A OS foi registrada com o ID = " + event.osId);
           sql = util.format(
             "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID) VALUES (NOW(), %s, %s)",
             event.osId,
-            event.tipoEventID
+            event.eventTypeID
           );
           dbConfig.getConnection.query(sql, function(err, result) {
             if (err) {
               console.log(
-                "Fazendo roolback - Problema na persistência do Evento"
+                "Fazendo roolback - Problema na persistência do Evento",
+                err
               );
               dbConfig.getConnection.rollback(function() {
                 callback(err);
               });
             }
 
-            console.log("O Evento foi registrado com o ID = " + os.id);
+            console.log(
+              "O Evento foi registrado com o ID = " + result.insertId
+            );
             dbConfig.getConnection.commit(function(err, result) {
               if (err) {
                 dbConfig.getConnection.rollback(function() {
-                  console.log("Ocorreu um erro no commit da transação ");
+                  console.log("Ocorreu um erro no commit da transação", err);
                   callback(err);
                 });
               }
@@ -180,7 +191,7 @@ module.exports = {
               );
               dbConfig.getConnection.query(sql, function(err, result) {
                 if (err) {
-                  console.log("Falha ao tentar recuperar o ID da OS");
+                  console.log("Falha ao tentar recuperar o ID da OS", err);
                 }
                 callback(err, JSON.stringify(result[0].NUMERO));
               });
@@ -198,12 +209,7 @@ module.exports = {
       customerId,
       "1"
     );
-
-    try {
-      dbConfig.runQuery(sql, callback.bind(this));
-    } catch (error) {
-      throw ("Error during listOSBySituation", error);
-    }
+    dbConfig.runQuery(sql, callback(err, result));
   },
 
   getOSData: function getOSData(os, callback) {
@@ -219,12 +225,15 @@ module.exports = {
       os.problemId,
       os.providerId,
       os.id,
-      os.clienteId
+      os.customerId
     );
 
     dbConfig.getConnection.query(sql, function(err, result) {
       if (err) {
-        console.log("Ocorreu um erro ao tentar obter as informações da OS");
+        console.log(
+          "Ocorreu um erro ao tentar obter as informações da OS",
+          err
+        );
         callback(err, result);
       } else {
         const osResult = result[0];
@@ -255,7 +264,7 @@ module.exports = {
   //
   // Listar todas as OS de um determinado provedor
   //
-  listOSByProvider: function listOSByProvider(providerId, callback) {
+  listOssByProviderId: function listOssByProviderId(providerId, callback) {
     const sql = util.format(
       `SELECT service.numero AS Número, cli.nome AS Nome, pro.TITULO AS Problema, service.detalhes as Detalhe, service.data_abertura AS Data_Abertura 
       FROM os service JOIN 
@@ -271,7 +280,7 @@ module.exports = {
   //
   // Listar as OS de um determinado provedor, filtrnado pela situação
   //
-  listOSBySituation: function listOSBySituation(
+  listOssByProviderIdAndSituationId: function listOssByProviderIdAndSituationId(
     providerId,
     situationId,
     callback
@@ -285,7 +294,7 @@ module.exports = {
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  listOSByCustomer: function listOSByCustomer(
+  listOssByProviderIdAndCustomerId: function listOssByProviderIdAndCustomerId(
     providerId,
     customerId,
     callback
@@ -302,7 +311,7 @@ module.exports = {
   //
   // Listar todas as situações possiveis para uma OS
   //
-  listSituations: function listSituations(callback) {
+  listAllSituationOS: function listAllSituationOS(callback) {
     const sql = util.format("SELECT * FROM situacao_os");
 
     dbConfig.runQuery(sql, callback.bind(this));

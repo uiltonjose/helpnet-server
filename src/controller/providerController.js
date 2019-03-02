@@ -1,36 +1,43 @@
 const providerDAO = require("../dao/providerDAO");
 
 module.exports = {
-  listProviders: function listProviders(callback) {
-    providerDAO.listProviders(function(err, result) {
-      console.log("Lista de provedores", JSON.stringify(result));
-      callback(err, result);
-    });
-  },
-
-  updateProvider: function updateProvider(provider, callback) {
-    providerDAO.updateProvider(provider, function(err, result) {
+  listAllProviders: function listAllProviders(callback) {
+    providerDAO.listAllProviders((err, result) => {
       let resultResponse = {};
       if (!err) {
-        resultResponse.code = 204;
-        resultResponse.message = "Provider atualizado com sucesso.";
+        resultResponse.code = 200;
+        resultResponse.message = result;
       } else {
-        resultResponse.code = 400; // Bad request
-        resultResponse.message = "Error ao atualizar o Provedor.";
+        resultResponse.code = 400;
+        resultResponse.message = "Something went wrong you query.";
       }
       callback(resultResponse);
     });
   },
-
-  addProvider: function addProvider(provider, callback) {
-    providerDAO.addProvider(provider, function(err) {
+  //TODO Create Validation
+  updateProvider: function updateProvider(provider, callback) {
+    providerDAO.updateProvider(provider, err => {
       let resultResponse = {};
       if (!err) {
-        resultResponse.code = 204;
-        resultResponse.message = "Provedor adicionado com sucesso.";
+        resultResponse.code = 200;
+        resultResponse.message = "Provider updated with success";
+      } else {
+        resultResponse.code = 400; // Bad request
+        resultResponse.message = "Something went wrong you query.";
+      }
+      callback(resultResponse);
+    });
+  },
+  //TODO Create Validation
+  addProvider: function addProvider(provider, callback) {
+    providerDAO.addProvider(provider, err => {
+      let resultResponse = {};
+      if (!err) {
+        resultResponse.code = 200;
+        resultResponse.message = "Provider created with success.";
       } else {
         resultResponse.code = 400;
-        resultResponse.message = "Error ao adicionar o Provedor.";
+        resultResponse.message = "Something went wrong you query.";
       }
       callback(resultResponse);
     });

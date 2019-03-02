@@ -1,6 +1,7 @@
 const customerDAO = require("../dao/customerDAO"),
   providerDAO = require("../dao/providerDAO"),
-  dateUtil = require("../utils/DateUtil");
+  dateUtil = require("../utils/DateUtil"),
+  StringUtil = require("../utils/StringUtil");
 
 function buildResultProviderWithCustomers(provider, customers, callback) {
   let finalResult = {};
@@ -48,7 +49,7 @@ const methods = (module.exports = {
   //
   // Recupera as informações atualizadas do cliente e do Provedor que o cliente está cadastrado
   //
-  getProviderByCustomerID: function getProviderByCustomerID(
+  getProviderByCustomerCpfCnpjAndProviderCod: function getProviderByCustomerCpfCnpjAndProviderCod(
     cpfCnpjCustomer,
     providerCod,
     callback
@@ -248,10 +249,30 @@ const methods = (module.exports = {
     });
   },
 
-  listByProviderId: function listByProviderId(customerId, callback) {
-    customerDAO.listByProviderId(customerId, function(err, result) {
-      callback(err, result);
-    });
+  listCustomersByProviderId: function listCustomersByProviderId(
+    providerId,
+    callback
+  ) {
+    let resultResponse = {};
+    if (StringUtil.isInvalidNumer(providerId)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid Provider Id";
+      callback(resultResponse);
+    } else {
+      customerDAO.listCustomersByProviderId(providerId, (err, result) => {
+        if (!err) {
+          resultResponse.code = 200;
+          resultResponse.message = result;
+        } else {
+          resultResponse.code = 400;
+          resultResponse.message = "Something went wrong you query.";
+        }
+
+        resultResponse.code = 200;
+        resultResponse.message = result;
+        callback(resultResponse);
+      });
+    }
   }
 });
 
