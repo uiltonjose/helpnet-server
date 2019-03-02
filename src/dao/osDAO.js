@@ -209,14 +209,7 @@ module.exports = {
       customerId,
       "1"
     );
-
-    dbConfig.runQuery(sql, (err, result) => {
-      if (err) {
-        callback(err, "Error during listOSBySituation");
-      } else {
-        callback(err, result);
-      }
-    });
+    dbConfig.runQuery(sql, callback(err, result));
   },
 
   getOSData: function getOSData(os, callback) {
