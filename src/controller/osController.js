@@ -16,15 +16,15 @@ function createOSNumber(providerId) {
 module.exports = {
   registerOS: function registerOS(os, callback) {
     let resultResponse = {};
-    if (StringUtil.isInvalidNumer(os.providerId)) {
+    if (StringUtil.isNotValidNumber(os.providerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
-    } else if (StringUtil.isInvalidNumer(os.customerId)) {
+    } else if (StringUtil.isNotValidNumber(os.customerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Customer Id";
       callback(resultResponse);
-    } else if (StringUtil.isInvalidNumer(os.problemId)) {
+    } else if (StringUtil.isNotValidNumber(os.problemId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Problem Id";
       callback(resultResponse);
@@ -35,7 +35,7 @@ module.exports = {
           osDAO.getOSData(os, (errMail, resultMail) => {
             if (errMail) {
               resultResponse.code = 400;
-              resultResponse.message = "Something went wrong you query.";
+              resultResponse.message = "Something went wrong in your query.";
               console.log(errMail);
             } else {
               osDescription = resultMail;
@@ -61,16 +61,17 @@ module.exports = {
 
   canOpen: function canOpen(providerId, customerId, callback) {
     let resultResponse = {};
-    if (StringUtil.isInvalidNumer(providerId)) {
+    if (StringUtil.isNotValidNumber(providerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
-    } else if (StringUtil.isInvalidNumer(customerId)) {
+    } else if (StringUtil.isNotValidNumber(customerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Customer Id";
       callback(resultResponse);
     } else {
       osDAO.canOpen(providerId, customerId, (err, result) => {
+        console.log("aqui", err);
         if (err) {
           resultResponse.code = 400;
           resultResponse.message = "Something went wrong in your query.";
@@ -97,22 +98,22 @@ module.exports = {
     const userId = event.userId;
     let resultResponse = {};
     if (
-      StringUtil.isInvalidNumer(situationId) ||
+      StringUtil.isNotValidNumber(situationId) ||
       situationId < 1 ||
       situationId > 4
     ) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Situation Id";
       callback(resultResponse);
-    } else if (StringUtil.isInvalidNumer(osId)) {
+    } else if (StringUtil.isNotValidNumber(osId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid OS Id";
       callback(resultResponse);
-    } else if (StringUtil.isInvalidNumer(userId)) {
+    } else if (StringUtil.isNotValidNumber(userId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid user id from event";
       callback(resultResponse);
-    } else if (StringUtil.isInvalidNumer(event.eventTypeID)) {
+    } else if (StringUtil.isNotValidNumber(event.eventTypeID)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Event type Id";
       callback(resultResponse);
@@ -120,7 +121,7 @@ module.exports = {
       osDAO.changeSituationOS(object, (err, result) => {
         if (err) {
           resultResponse.code = 400;
-          resultResponse.message = "Something went wrong you query.";
+          resultResponse.message = "Something went wrong in your query.";
         } else {
           resultResponse.code = 200;
           resultResponse.message =
@@ -137,19 +138,19 @@ module.exports = {
     const event = os.event;
 
     let resultResponse = {};
-    if (StringUtil.isInvalidNumer(userId)) {
+    if (StringUtil.isNotValidNumber(userId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid User Id";
       callback(resultResponse);
-    } else if (StringUtil.isInvalidNumer(osId)) {
+    } else if (StringUtil.isNotValidNumber(osId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid OS Id";
       callback(resultResponse);
-    } else if (StringUtil.isInvalidNumer(event.userId)) {
+    } else if (StringUtil.isNotValidNumber(event.userId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid user id from event";
       callback(resultResponse);
-    } else if (StringUtil.isInvalidNumer(event.eventTypeID)) {
+    } else if (StringUtil.isNotValidNumber(event.eventTypeID)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Event type Id";
       callback(resultResponse);
@@ -157,7 +158,7 @@ module.exports = {
       osDAO.associateUserWithOs(os, (err, result) => {
         if (err) {
           resultResponse.code = 400;
-          resultResponse.message = "Something went wrong you query.";
+          resultResponse.message = "Something went wrong in your query.";
         } else {
           resultResponse.code = 200;
           resultResponse.message =
@@ -174,11 +175,11 @@ module.exports = {
     callback
   ) {
     let resultResponse = {};
-    if (StringUtil.isInvalidNumer(situationId)) {
+    if (StringUtil.isNotValidNumber(situationId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Situation Id";
       callback(resultResponse);
-    } else if (StringUtil.isInvalidNumer(providerId)) {
+    } else if (StringUtil.isNotValidNumber(providerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid provider Id";
       callback(resultResponse);
@@ -202,7 +203,7 @@ module.exports = {
 
   listOssByProviderId: function listOssByProviderId(providerId, callback) {
     let resultResponse = {};
-    if (StringUtil.isInvalidNumer(providerId)) {
+    if (StringUtil.isNotValidNumber(providerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
@@ -227,11 +228,11 @@ module.exports = {
     callback
   ) {
     let resultResponse = {};
-    if (StringUtil.isInvalidNumer(providerId)) {
+    if (StringUtil.isNotValidNumber(providerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
-    } else if (StringUtil.isInvalidNumer(customerId)) {
+    } else if (StringUtil.isNotValidNumber(customerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Customer Id";
       callback(resultResponse);

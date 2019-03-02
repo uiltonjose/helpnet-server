@@ -28,15 +28,15 @@ const activateUserWithProvider = (user, callback) => {
   const confirmationCode = user.confirmationCode;
   const providerId = user.providerId;
   let resultResponse = {};
-  if (StringUtil.isInvalidNumer(user.userId)) {
+  if (StringUtil.isNotValidNumber(user.userId)) {
     resultResponse.code = 400;
     resultResponse.message = "Invalid User Id";
     callback(resultResponse);
-  } else if (StringUtil.isInvalidNumer(user.confirmationCode)) {
+  } else if (StringUtil.isNotValidNumber(user.confirmationCode)) {
     resultResponse.code = 400;
     resultResponse.message = "Invalid Confirmation Code";
     callback(resultResponse);
-  } else if (StringUtil.isInvalidNumer(user.providerId)) {
+  } else if (StringUtil.isNotValidNumber(user.providerId)) {
     resultResponse.code = 400;
     resultResponse.message = "Invalid Provider Id";
     callback(resultResponse);
@@ -47,7 +47,7 @@ const activateUserWithProvider = (user, callback) => {
       (err, result) => {
         if (err) {
           resultResponse.code = 400;
-          resultResponse.message = "Something went wrong you query.";
+          resultResponse.message = "Something went wrong in your query.";
           console.log(resultResponse.message, err);
         } else {
           if (StringUtil.isNullOrEmpty(result)) {
@@ -61,7 +61,7 @@ const activateUserWithProvider = (user, callback) => {
                 resultResponse.message = "User successfully updated.";
               } else {
                 resultResponse.code = 400;
-                resultResponse.message = "Something went wrong you query.";
+                resultResponse.message = "Something went wrong in your query.";
                 console.log(resultResponse.message, err);
               }
               callback(resultResponse);
@@ -81,13 +81,14 @@ const getUserInfo = (userLogin, callback) => {
     callback(resultResponse);
   } else {
     userDAO.getUserInfo(userLogin, (err, result) => {
+      console.log(err);
       let resultResponse = {};
       if (!err) {
         resultResponse.code = 200;
         resultResponse.message = result;
       } else {
         resultResponse.code = 400;
-        resultResponse.message = "Something went wrong you query.";
+        resultResponse.message = "Something went wrong in your query.";
       }
       callback(resultResponse);
     });
@@ -104,7 +105,7 @@ const listAllUsers = callback => {
       callback(resultResponse);
     } else {
       resultResponse.code = 400;
-      resultResponse.message = "Something went wrong you query.";
+      resultResponse.message = "Something went wrong in your query.";
       callback(resultResponse);
     }
   });

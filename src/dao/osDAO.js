@@ -209,7 +209,7 @@ module.exports = {
       customerId,
       "1"
     );
-    dbConfig.runQuery(sql, callback(err, result));
+    dbConfig.runQuery(sql, callback);
   },
 
   getOSData: function getOSData(os, callback) {

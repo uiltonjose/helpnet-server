@@ -39,7 +39,7 @@ module.exports = {
       let resultResponse = {};
       if (err) {
         resultResponse.code = 400;
-        resultResponse.message = "Something went wrong you query.";
+        resultResponse.message = "Something went wrong in your query.";
       } else {
         resultResponse.code = 200;
         resultResponse.message = result;

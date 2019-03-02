@@ -35,6 +35,7 @@ const getUserInfo = (userLogin, callback) => {
   );
   dbConfig.runQuery(sql, callback.bind(this));
 };
+
 const listAllUsers = callback => {
   const sql = util.format("SELECT * FROM usuario");
   dbConfig.runQuery(sql, callback.bind(this));

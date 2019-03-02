@@ -19,7 +19,7 @@ module.exports = {
     );
     dbConfig.runQuery(sql, (err, result) => {
       if (err) {
-        console.log("Something went wrong you query.", err);
+        console.log("Something went wrong in your query.", err);
       }
       callback(err, result);
     });
@@ -70,7 +70,7 @@ module.exports = {
 
     dbConfig.getConnection.query(sql, (err, result) => {
       if (err) {
-        console.log("Something went wrong you query.", err);
+        console.log("Something went wrong in your query.", err);
       }
       callback(err, result);
     });
@@ -121,7 +121,7 @@ module.exports = {
 
     dbConfig.getConnection.query(sql, (err, result) => {
       if (err) {
-        console.log("Something went wrong you query.", err);
+        console.log("Something went wrong in your query.", err);
       }
       callback(err, result);
     });

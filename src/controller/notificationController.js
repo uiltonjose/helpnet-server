@@ -76,7 +76,7 @@ const updateNotificationAsRead = (notificationId, customerId, callback) => {
         resultResponse.data = result;
       } else {
         resultResponse.code = 406;
-        resultResponse.data = "Something went wrong you query.";
+        resultResponse.data = "Something went wrong in your query.";
       }
       callback(resultResponse);
     }
@@ -90,7 +90,7 @@ const listNotificationsByCustomerId = (customerId, callback) => {
     resultResponse.data = result;
     if (err) {
       resultResponse.code = 406;
-      resultResponse.data = "Something went wrong you query.";
+      resultResponse.data = "Something went wrong in your query.";
     }
     callback(resultResponse);
   });
@@ -103,7 +103,7 @@ const listNotificationsByProviderId = (providerId, callback) => {
     resultResponse.data = result;
     if (err) {
       resultResponse.code = 406;
-      resultResponse.data = "Something went wrong you query.";
+      resultResponse.data = "Something went wrong in your query.";
     }
     callback(resultResponse);
   });
