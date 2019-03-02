@@ -32,5 +32,11 @@ module.exports = {
 
   deployVersion: function deployVersion(callback) {
     callback(getServerDeployVersion());
+  },
+
+  listAllProblemsOs: function listAllProblemsOs(callback) {
+    contentDAO.listAllProblemsOs(function(err, result) {
+      callback(err, result);
+    });
   }
 };

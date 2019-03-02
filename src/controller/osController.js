@@ -3,6 +3,7 @@ const emailUtil = require("../utils/EmailUtil");
 const contentDAO = require("../dao/contentDAO");
 const osDAO = require("../dao/osDAO");
 const StringUtil = require("../utils/StringUtil");
+
 function createOSNumber(providerId) {
   const dt = dateTime.create();
   const formatted = dt.format("Y-m-d");
@@ -13,7 +14,6 @@ function createOSNumber(providerId) {
 }
 
 module.exports = {
-  //TODO Criar validações e adaptar retorno para o padrão
   registerOS: function registerOS(os, callback) {
     let resultResponse = {};
     if (StringUtil.isInvalidNumer(os.providerId)) {
@@ -50,9 +50,7 @@ module.exports = {
             }
           });
         }
-        //TODO Adpatar para o padrão, precisa ajustar no APP antes
-        //callback(resultResponse);
-        callback(err, result);
+        callback(resultResponse);
       });
     }
   },
@@ -129,7 +127,7 @@ module.exports = {
     }
   },
 
-  associateUser: function associateUser(os, callback) {
+  associateUserWithOs: function associateUserWithOs(os, callback) {
     const userId = os.userId;
     const osId = os.osId;
     const event = os.event;
@@ -166,7 +164,7 @@ module.exports = {
     }
   },
 
-  listOSBySituation: function listOSBySituation(
+  listOssByProviderIdAndSituation: function listOssByProviderIdAndSituation(
     providerId,
     situationId,
     callback
@@ -181,23 +179,27 @@ module.exports = {
       resultResponse.message = "Invalid provider Id";
       callback(resultResponse);
     } else {
-      osDAO.listOSBySituation(providerId, situationId, (err, result) => {
-        if (err) {
-          resultResponse.code = 400;
-          resultResponse.message = "Something went wrong in your query.";
-        } else {
-          resultResponse.code = 200;
-          resultResponse.message = result;
+      osDAO.listOssByProviderIdAndSituation(
+        providerId,
+        situationId,
+        (err, result) => {
+          if (err) {
+            resultResponse.code = 400;
+            resultResponse.message = "Something went wrong in your query.";
+          } else {
+            resultResponse.code = 200;
+            resultResponse.message = result;
+          }
+          callback(resultResponse);
         }
-        callback(resultResponse);
-      });
+      );
     }
   },
 
   //TODO Criar validações e adaptar retorno para o padrão
 
-  listByProviderId: function listByProviderId(providerId, callback) {
-    osDAO.listByProviderId(providerId, (err, result) => {
+  listOssByProviderId: function listOssByProviderId(providerId, callback) {
+    osDAO.listOssByProviderId(providerId, (err, result) => {
       let resultResponse = {};
       if (err) {
         resultResponse.code = 400;
@@ -210,18 +212,21 @@ module.exports = {
     });
   },
 
-  listOSByCustomer: function listOSByCustomer(
+  listOssByProviderIdAndCustomerId: function listOssByProviderIdAndCustomerId(
     providerId,
     customerId,
     callback
   ) {
-    osDAO.listOSByCustomer(providerId, customerId, function(err, result) {
+    osDAO.listOssByProviderIdAndCustomerId(providerId, customerId, function(
+      err,
+      result
+    ) {
       callback(err, result);
     });
   },
 
-  listSituations: function listSituations(callback) {
-    osDAO.listSituations((err, result) => {
+  listAllSituationOS: function listAllSituationOS(callback) {
+    osDAO.listAllSituationOS((err, result) => {
       let resultResponse = {};
       if (err) {
         resultResponse.code = 400;
@@ -231,13 +236,6 @@ module.exports = {
         resultResponse.message = result;
       }
       callback(resultResponse);
-    });
-  },
-
-  // TODO will be deleted!
-  listProblems: function listProblems(callback) {
-    contentDAO.listProblems(function(err, result) {
-      callback(err, result);
     });
   }
 };

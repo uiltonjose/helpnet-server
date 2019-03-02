@@ -37,9 +37,7 @@ module.exports = {
             callback(err, null);
           });
         } else {
-          console.log("A Notificação foi registrada com sucesso");
           let customerId;
-
           let count = 0;
           let sqlInsert =
             "INSERT INTO notificacao_cliente (notificacaoId, clienteId, status, dataInclusao, dataUltimaAlteracao) VALUES ";
@@ -102,13 +100,13 @@ module.exports = {
     });
   },
 
-  updateNotification: function updateNotification(
+  updateNotificationAsRead: function updateNotificationAsRead(
     notificationId,
     customerId,
     callback
   ) {
     let sql = util.format(
-      "UPDATE notificacao_cliente set status = 'R', dataUltimaAlteracao = NOW() WHERE notificacaoId = %s AND clienteID = %s",
+      "UPDATE notificacao_cliente set status = 'Read', dataUltimaAlteracao = NOW() WHERE notificacaoId = %s AND clienteID = %s",
       notificationId,
       customerId
     );

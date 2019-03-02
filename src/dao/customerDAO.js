@@ -7,7 +7,10 @@ module.exports = {
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  listByProviderId: function listByProviderId(providerId, callback) {
+  listCustomersByProviderId: function listCustomersByProviderId(
+    providerId,
+    callback
+  ) {
     const sql = util.format(
       "SELECT id as Ident, nome as Nome, cpf_cnpj as 'CPF/CNPJ', celular as Celular, login as Login, endereco as Endereço, complemento as Complemento, bairro as Bairro, plano as Plano " +
         "FROM cliente WHERE PROVIDER_ID = %s AND bloqueado = 'nao' AND cli_ativado = 's'",

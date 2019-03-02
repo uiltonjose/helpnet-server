@@ -2,19 +2,21 @@ const dbConfig = require("../db_config"),
   util = require("util");
 
 module.exports = {
-  listProviders: function listProviders(callback) {
+  listAllProviders: function listAllProviders(callback) {
     const sql = util.format("SELECT * FROM provedor");
-
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  getByUserCode: function getByUserCode(providerCode, providerId, callback) {
+  getProviderByProvedorIdAndConfirmationCode: function getProviderByProvedorIdAndConfirmationCode(
+    providerCode,
+    providerId,
+    callback
+  ) {
     const sql = util.format(
       "SELECT * FROM provedor WHERE CODIGO = %d and id = %d",
       providerCode,
       providerId
     );
-
     dbConfig.runQuery(sql, callback.bind(this));
   },
 

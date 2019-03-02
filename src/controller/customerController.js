@@ -49,7 +49,7 @@ const methods = (module.exports = {
   //
   // Recupera as informações atualizadas do cliente e do Provedor que o cliente está cadastrado
   //
-  getProviderByCustomerID: function getProviderByCustomerID(
+  getProviderByCustomerIdAndProviderId: function getProviderByCustomerIdAndProviderId(
     cpfCnpjCustomer,
     providerCod,
     callback
@@ -249,14 +249,17 @@ const methods = (module.exports = {
     });
   },
 
-  listByProviderId: function listByProviderId(providerId, callback) {
+  listCustomersByProviderId: function listCustomersByProviderId(
+    providerId,
+    callback
+  ) {
     let resultResponse = {};
     if (StringUtil.isInvalidNumer(providerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
     } else {
-      customerDAO.listByProviderId(providerId, (err, result) => {
+      customerDAO.listCustomersByProviderId(providerId, (err, result) => {
         if (!err) {
           resultResponse.code = 200;
           resultResponse.message = result;

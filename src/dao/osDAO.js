@@ -65,7 +65,7 @@ module.exports = {
   //
   // Associate User
   //
-  associateUser: function associateUser(os, callback) {
+  associateUserWithOs: function associateUserWithOs(os, callback) {
     dbConfig.getConnection.beginTransaction(function(err) {
       console.log("iniciou transação");
       if (err) {
@@ -271,7 +271,7 @@ module.exports = {
   //
   // Listar todas as OS de um determinado provedor
   //
-  listByProviderId: function listByProviderId(providerId, callback) {
+  listOssByProviderId: function listOssByProviderId(providerId, callback) {
     const sql = util.format(
       `SELECT service.numero AS Número, cli.nome AS Nome, pro.TITULO AS Problema, service.detalhes as Detalhe, service.data_abertura AS Data_Abertura 
       FROM os service JOIN 
@@ -287,7 +287,7 @@ module.exports = {
   //
   // Listar as OS de um determinado provedor, filtrnado pela situação
   //
-  listOSBySituation: function listOSBySituation(
+  listOssByProviderIdAndSituation: function listOssByProviderIdAndSituation(
     providerId,
     situationId,
     callback
@@ -301,7 +301,7 @@ module.exports = {
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  listOSByCustomer: function listOSByCustomer(
+  listOssByProviderIdAndCustomerId: function listOssByProviderIdAndCustomerId(
     providerId,
     customerId,
     callback
@@ -318,7 +318,7 @@ module.exports = {
   //
   // Listar todas as situações possiveis para uma OS
   //
-  listSituations: function listSituations(callback) {
+  listAllSituationOS: function listAllSituationOS(callback) {
     const sql = util.format("SELECT * FROM situacao_os");
 
     dbConfig.runQuery(sql, callback.bind(this));
