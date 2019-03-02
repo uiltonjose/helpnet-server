@@ -9,7 +9,7 @@ module.exports = {
         resultResponse.message = result;
       } else {
         resultResponse.code = 400;
-        resultResponse.message = "Something went wrong you query.";
+        resultResponse.message = "Something went wrong in your query.";
       }
       callback(resultResponse);
     });
@@ -23,7 +23,7 @@ module.exports = {
         resultResponse.message = "Provider updated with success";
       } else {
         resultResponse.code = 400; // Bad request
-        resultResponse.message = "Something went wrong you query.";
+        resultResponse.message = "Something went wrong in your query.";
       }
       callback(resultResponse);
     });
@@ -37,7 +37,7 @@ module.exports = {
         resultResponse.message = "Provider created with success.";
       } else {
         resultResponse.code = 400;
-        resultResponse.message = "Something went wrong you query.";
+        resultResponse.message = "Something went wrong in your query.";
       }
       callback(resultResponse);
     });

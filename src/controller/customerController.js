@@ -254,7 +254,7 @@ const methods = (module.exports = {
     callback
   ) {
     let resultResponse = {};
-    if (StringUtil.isInvalidNumer(providerId)) {
+    if (StringUtil.isNotValidNumber(providerId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
@@ -265,7 +265,7 @@ const methods = (module.exports = {
           resultResponse.message = result;
         } else {
           resultResponse.code = 400;
-          resultResponse.message = "Something went wrong you query.";
+          resultResponse.message = "Something went wrong in your query.";
         }
 
         resultResponse.code = 200;

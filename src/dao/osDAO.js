@@ -16,7 +16,7 @@ module.exports = {
       );
       dbConfig.getConnection.query(sql, function(err, result) {
         if (err) {
-          console.log("Fazendo roolback - Problema na atualização da OS", err);
+          console.log("Rollback Transaction: Problem during OS update.", err);
           dbConfig.getConnection.rollback(function() {
             callback(err);
           });
@@ -34,7 +34,7 @@ module.exports = {
           dbConfig.getConnection.query(sql, function(err, result) {
             if (err) {
               console.log(
-                "Fazendo roolback - Problema na persistência do Evento",
+                "Rollback Transaction: Problem during Event persistence.",
                 err
               );
               dbConfig.getConnection.rollback(function() {
@@ -79,7 +79,7 @@ module.exports = {
       );
       dbConfig.getConnection.query(sql, function(err, result) {
         if (err) {
-          console.log("Fazendo roolback - Problema na atualização da OS", err);
+          console.log("Rollback Transaction: Problem during OS update.", err);
           dbConfig.getConnection.rollback(function() {
             callback(err);
           });
@@ -97,7 +97,7 @@ module.exports = {
           dbConfig.getConnection.query(sql, function(err, result) {
             if (err) {
               console.log(
-                "Fazendo roolback - Problema na persistência do Evento",
+                "Rollback Transaction: Problem during Event persistence.",
                 err
               );
               dbConfig.getConnection.rollback(function() {
@@ -148,7 +148,10 @@ module.exports = {
       );
       dbConfig.getConnection.query(sql, function(err, result) {
         if (err) {
-          console.log("Fazendo roolback - Problema na persistência da OS", err);
+          console.log(
+            "Rollback Transaction: Problem during OS persistence.",
+            err
+          );
           dbConfig.getConnection.rollback(function() {
             callback(err);
           });
@@ -166,7 +169,7 @@ module.exports = {
           dbConfig.getConnection.query(sql, function(err, result) {
             if (err) {
               console.log(
-                "Fazendo roolback - Problema na persistência do Evento",
+                "Rollback Transaction: Problem during Event persistence.",
                 err
               );
               dbConfig.getConnection.rollback(function() {
@@ -209,7 +212,7 @@ module.exports = {
       customerId,
       "1"
     );
-    dbConfig.runQuery(sql, callback(err, result));
+    dbConfig.runQuery(sql, callback);
   },
 
   getOSData: function getOSData(os, callback) {
