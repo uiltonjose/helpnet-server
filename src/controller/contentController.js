@@ -15,7 +15,7 @@ const getServerDeployVersion = () => {
 module.exports = {
   boot: function boot(callback) {
     const boot = {};
-    contentDAO.listProblems(function(err, result) {
+    contentDAO.listAllProblemsOs(function(err, result) {
       if (!err) {
         boot.code = 200;
         boot.listProblems = result;
@@ -36,7 +36,15 @@ module.exports = {
 
   listAllProblemsOs: function listAllProblemsOs(callback) {
     contentDAO.listAllProblemsOs(function(err, result) {
-      callback(err, result);
+      let resultResponse = {};
+      if (err) {
+        resultResponse.code = 400;
+        resultResponse.message = "Something went wrong you query.";
+      } else {
+        resultResponse.code = 200;
+        resultResponse.message = result;
+      }
+      callback(resultResponse);
     });
   }
 };

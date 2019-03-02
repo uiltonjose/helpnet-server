@@ -3,54 +3,74 @@ const providerDAO = require("../dao/providerDAO");
 const StringUtil = require("../utils/StringUtil");
 require("dotenv").load();
 
-//TODO Validate inputs
 const addUser = (user, callback) => {
-  userDAO.addUser(user, (err, result) => {
-    let resultResponse = {};
-    if (!err) {
-      resultResponse.code = 200;
-      resultResponse.userId = result.insertId;
-      resultResponse.message = "User successfully created.";
-    } else {
-      resultResponse.code = 400;
-      resultResponse.message = "Error adding user.";
-    }
+  let resultResponse = {};
+  if (StringUtil.isNullOrEmpty(user.login)) {
+    resultResponse.code = 400;
+    resultResponse.message = "Invalid User Id";
     callback(resultResponse);
-  });
-};
-//TODO Validate inputs
-const updateUserStatus = (user, callback) => {
-  const confirmationCode = user.confirmationCode;
-  const provedorId = user.provedorId;
-
-  providerDAO.getProviderByProvedorIdAndConfirmationCode(
-    confirmationCode,
-    provedorId,
-    (err, result) => {
-      if (err) {
-        code = 400;
-        message = "Something went wrong you query.";
+  } else {
+    userDAO.addUser(user, (err, result) => {
+      if (!err) {
+        resultResponse.code = 200;
+        resultResponse.userId = result.insertId;
+        resultResponse.message = "User successfully created.";
       } else {
-        let resultResponse = {};
-        if (StringUtil.isNullOrEmpty(result)) {
-          resultResponse.code = 403;
-          resultResponse.message = "Invalid confirmation cod.";
-          callback(resultResponse);
+        resultResponse.code = 400;
+        resultResponse.message = "Error adding user.";
+      }
+      callback(resultResponse);
+    });
+  }
+};
+
+const activateUserWithProvider = (user, callback) => {
+  const confirmationCode = user.confirmationCode;
+  const providerId = user.providerId;
+  let resultResponse = {};
+  if (StringUtil.isInvalidNumer(user.userId)) {
+    resultResponse.code = 400;
+    resultResponse.message = "Invalid User Id";
+    callback(resultResponse);
+  } else if (StringUtil.isInvalidNumer(user.confirmationCode)) {
+    resultResponse.code = 400;
+    resultResponse.message = "Invalid Confirmation Code";
+    callback(resultResponse);
+  } else if (StringUtil.isInvalidNumer(user.providerId)) {
+    resultResponse.code = 400;
+    resultResponse.message = "Invalid Provider Id";
+    callback(resultResponse);
+  } else {
+    providerDAO.getProviderByProvedorIdAndConfirmationCode(
+      confirmationCode,
+      providerId,
+      (err, result) => {
+        if (err) {
+          resultResponse.code = 400;
+          resultResponse.message = "Something went wrong you query.";
+          console.log(resultResponse.message, err);
         } else {
-          userDAO.updateUserStatus(user, err => {
-            if (!err) {
-              resultResponse.code = 200;
-              resultResponse.message = "User successfully updated.";
-            } else {
-              resultResponse.code = 400;
-              resultResponse.message = "Something went wrong you query.";
-            }
+          if (StringUtil.isNullOrEmpty(result)) {
+            resultResponse.code = 403;
+            resultResponse.message = "Invalid confirmation cod.";
             callback(resultResponse);
-          });
+          } else {
+            userDAO.activateUserWithProvider(user, err => {
+              if (!err) {
+                resultResponse.code = 200;
+                resultResponse.message = "User successfully updated.";
+              } else {
+                resultResponse.code = 400;
+                resultResponse.message = "Something went wrong you query.";
+                console.log(resultResponse.message, err);
+              }
+              callback(resultResponse);
+            });
+          }
         }
       }
-    }
-  );
+    );
+  }
 };
 
 const getUserInfo = (userLogin, callback) => {
@@ -74,23 +94,25 @@ const getUserInfo = (userLogin, callback) => {
   }
 };
 
+//@Uil Não teve jeito para isso funcionar da forma acima
 const listAllUsers = callback => {
-  userDAO.listAllUsers(err, result => {
+  userDAO.listAllUsers((err, result) => {
     let resultResponse = {};
     if (!err) {
       resultResponse.code = 200;
       resultResponse.message = result;
+      callback(resultResponse);
     } else {
       resultResponse.code = 400;
       resultResponse.message = "Something went wrong you query.";
+      callback(resultResponse);
     }
-    callback(resultResponse);
   });
 };
 
 module.exports = {
   addUser: addUser,
-  updateUserStatus: updateUserStatus,
+  activateUserWithProvider: activateUserWithProvider,
   getUserInfo: getUserInfo,
   listAllUsers: listAllUsers
 };

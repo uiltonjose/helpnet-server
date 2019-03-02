@@ -47,10 +47,14 @@ module.exports = {
               );
               resultResponse.code = 200;
               resultResponse.message = result;
+              callback(resultResponse);
             }
           });
+        } else {
+          resultResponse.code = 400;
+          resultResponse.message = "Something went wrong in register OS.";
+          callback(resultResponse);
         }
-        callback(resultResponse);
       });
     }
   },
@@ -150,7 +154,7 @@ module.exports = {
       resultResponse.message = "Invalid Event type Id";
       callback(resultResponse);
     } else {
-      osDAO.associateUser(os, (err, result) => {
+      osDAO.associateUserWithOs(os, (err, result) => {
         if (err) {
           resultResponse.code = 400;
           resultResponse.message = "Something went wrong you query.";
@@ -164,7 +168,7 @@ module.exports = {
     }
   },
 
-  listOssByProviderIdAndSituation: function listOssByProviderIdAndSituation(
+  listOssByProviderIdAndSituationId: function listOssByProviderIdAndSituationId(
     providerId,
     situationId,
     callback
@@ -179,7 +183,7 @@ module.exports = {
       resultResponse.message = "Invalid provider Id";
       callback(resultResponse);
     } else {
-      osDAO.listOssByProviderIdAndSituation(
+      osDAO.listOssByProviderIdAndSituationId(
         providerId,
         situationId,
         (err, result) => {
@@ -196,20 +200,25 @@ module.exports = {
     }
   },
 
-  //TODO Criar validações e adaptar retorno para o padrão
-
   listOssByProviderId: function listOssByProviderId(providerId, callback) {
-    osDAO.listOssByProviderId(providerId, (err, result) => {
-      let resultResponse = {};
-      if (err) {
-        resultResponse.code = 400;
-        resultResponse.message = "Something went wrong in your query.";
-      } else {
-        resultResponse.code = 200;
-        resultResponse.message = result;
-      }
+    let resultResponse = {};
+    if (StringUtil.isInvalidNumer(providerId)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
-    });
+    } else {
+      osDAO.listOssByProviderId(providerId, (err, result) => {
+        let resultResponse = {};
+        if (err) {
+          resultResponse.code = 400;
+          resultResponse.message = "Something went wrong in your query.";
+        } else {
+          resultResponse.code = 200;
+          resultResponse.message = result;
+        }
+        callback(resultResponse);
+      });
+    }
   },
 
   listOssByProviderIdAndCustomerId: function listOssByProviderIdAndCustomerId(
@@ -217,12 +226,31 @@ module.exports = {
     customerId,
     callback
   ) {
-    osDAO.listOssByProviderIdAndCustomerId(providerId, customerId, function(
-      err,
-      result
-    ) {
-      callback(err, result);
-    });
+    let resultResponse = {};
+    if (StringUtil.isInvalidNumer(providerId)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid Provider Id";
+      callback(resultResponse);
+    } else if (StringUtil.isInvalidNumer(customerId)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid Customer Id";
+      callback(resultResponse);
+    } else {
+      osDAO.listOssByProviderIdAndCustomerId(providerId, customerId, function(
+        err,
+        result
+      ) {
+        let resultResponse = {};
+        if (err) {
+          resultResponse.code = 400;
+          resultResponse.message = "Occur a problem during the create list.";
+        } else {
+          resultResponse.code = 200;
+          resultResponse.message = result;
+        }
+        callback(resultResponse);
+      });
+    }
   },
 
   listAllSituationOS: function listAllSituationOS(callback) {

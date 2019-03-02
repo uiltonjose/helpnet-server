@@ -16,7 +16,7 @@ app.get("/api/content/boot", (req, res) => {
   });
 });
 
-/* TODO @Uil Não podemos remover estes deprecated?
+/* TODO @Uil Can not remove this method since it is deprecated?
 /**
  * @deprecated Since version 1.1.0. Will be deleted in version 1.2.0. Use boot instead.
  
@@ -26,34 +26,37 @@ app.get("/api/content/version", (req, res) => {
   });
 });
 
+TODO @Uil I do not think it should be deprecated, since we can consume this api in another situation
 /**
  * @deprecated Since version 1.1.0. Will be deleted in version 1.2.0. Use boot instead.
- 
+ */
 app.get("/api/content/listProblems", (req, res) => {
-  contentController.listAllProblemsOs(function(err, result) {
-    res.send(JSON.stringify(result));
+  contentController.listAllProblemsOs(result => {
+    handleResult(result, res);
   });
 });
 
-*/
 // End Content
 
 // Begin Customer
-app.get("/api/customer/getProviderByCustomerID", (req, res) => {
-  const cpfCustomer = req.query.cpfCustomer;
-  const providerCod = req.query.providerCod;
-  customerController.getProviderByCustomerIdAndProviderId(
-    cpfCustomer,
-    providerCod,
-    result => {
-      let respCode = result.code;
-      if (respCode === undefined) {
-        result.code = 200;
+app.get(
+  "/api/customer/getProviderByCustomerCpfCnpjAndProviderCod",
+  (req, res) => {
+    const cpfCustomer = req.query.cpfCustomer;
+    const providerCod = req.query.providerCod;
+    customerController.getProviderByCustomerCpfCnpjAndProviderCod(
+      cpfCustomer,
+      providerCod,
+      result => {
+        let respCode = result.code;
+        if (respCode === undefined) {
+          result.code = 200;
+        }
+        handleResult(result, res);
       }
-      handleResult(result, res);
-    }
-  );
-});
+    );
+  }
+);
 
 app.get("/api/customer/listByProviderId", (req, res) => {
   const providerId = req.query.providerId;
@@ -62,6 +65,7 @@ app.get("/api/customer/listByProviderId", (req, res) => {
   });
 });
 
+//TODO - This API can not be automatically tested
 app.get("/api/synchronizeCustomersWithProviders", (req, res) => {
   customerController.synchronizeCustomersWithProviders(result => {
     handleResult(result, res);
@@ -136,9 +140,9 @@ app.post("/api/user/add", (req, res) => {
   });
 });
 
-app.put("/api/user/updateStatus", (req, res) => {
+app.put("/api/user/activateUserWithProvider", (req, res) => {
   const userObj = req.body;
-  userController.updateUserStatus(userObj, result => {
+  userController.activateUserWithProvider(userObj, result => {
     handleResult(result, res);
   });
 });
@@ -169,9 +173,13 @@ app.get("/api/os/listByProviderId", (req, res) => {
 app.get("/api/os/listBySituation", (req, res) => {
   const providerId = req.query.providerId;
   const situationId = req.query.situationId;
-  osController.listOSBySituation(providerId, situationId, result => {
-    handleResult(result, res);
-  });
+  osController.listOssByProviderIdAndSituationId(
+    providerId,
+    situationId,
+    result => {
+      handleResult(result, res);
+    }
+  );
 });
 
 app.get("/api/os/listByCustomer", (req, res) => {
@@ -210,7 +218,7 @@ app.post("/api/os/changeSituation", (req, res) => {
 
 app.post("/api/os/associateUser", (req, res) => {
   const os = req.body;
-  osController.associateUser(os, result => {
+  osController.associateUserWithOs(os, result => {
     handleResult(result, res);
   });
 });

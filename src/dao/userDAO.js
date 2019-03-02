@@ -15,11 +15,11 @@ const addUser = (user, callback) => {
   });
 };
 
-const updateUserStatus = (user, callback) => {
+const activateUserWithProvider = (user, callback) => {
   const sql = util.format(
     "UPDATE usuario SET status = '%s', provedor_id = '%s' WHERE id = '%s'",
     "Ativo",
-    user.provedorId,
+    user.providerId,
     user.userId
   );
 
@@ -33,18 +33,16 @@ const getUserInfo = (userLogin, callback) => {
     "SELECT * FROM usuario WHERE login = '%s'",
     userLogin
   );
-
   dbConfig.runQuery(sql, callback.bind(this));
 };
-
-const listUsers = callback => {
+const listAllUsers = callback => {
   const sql = util.format("SELECT * FROM usuario");
   dbConfig.runQuery(sql, callback.bind(this));
 };
 
 module.exports = {
   addUser: addUser,
-  updateUserStatus: updateUserStatus,
+  activateUserWithProvider: activateUserWithProvider,
   getUserInfo: getUserInfo,
-  listUsers: listUsers
+  listAllUsers: listAllUsers
 };

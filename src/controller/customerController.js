@@ -49,7 +49,7 @@ const methods = (module.exports = {
   //
   // Recupera as informações atualizadas do cliente e do Provedor que o cliente está cadastrado
   //
-  getProviderByCustomerIdAndProviderId: function getProviderByCustomerIdAndProviderId(
+  getProviderByCustomerCpfCnpjAndProviderCod: function getProviderByCustomerCpfCnpjAndProviderCod(
     cpfCnpjCustomer,
     providerCod,
     callback

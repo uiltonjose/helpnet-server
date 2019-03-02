@@ -134,7 +134,7 @@ module.exports = {
       providerID
     );
 
-    dbConfig.getConnection.query(sql, function(err, result) {
+    dbConfig.getConnection.query(sql, (err, result) => {
       if (err) {
         console.log("Ocorreu um erro na consulta ao cliente", err);
       }

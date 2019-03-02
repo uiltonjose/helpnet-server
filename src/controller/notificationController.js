@@ -15,8 +15,8 @@ const sendNotification = (data, callback) => {
   };
 
   const https = require("https");
-  const req = https.request(options, function(res) {
-    res.on("data", data => {
+  const req = https.request(options, result => {
+    result.on("data", data => {
       let resultResponse = {};
       resultResponse.code = 200;
 
@@ -53,17 +53,15 @@ const createNotification = (notificationObj, callback) => {
 
   notificationDAO.saveNotification(notificationObj, (err, notificationId) => {
     const data = {};
-    let resultResponse = {};
     if (!err) {
-      resultResponse.code = 200;
-      resultResponse.message = notificationId;
+      data.notificationId = notificationId;
       bodyData.data = data;
       sendNotification(bodyData, callback);
     } else {
-      resultResponse.code = 400;
-      resultResponse.message = "Error try to send notification";
+      data.code = 400;
+      data.message = "Error try to send notification";
+      callback(data);
     }
-    callback(resultResponse);
   });
 };
 

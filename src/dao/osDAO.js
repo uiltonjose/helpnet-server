@@ -210,7 +210,7 @@ module.exports = {
       "1"
     );
 
-    dbConfig.runQuery(sql, (err, resul) => {
+    dbConfig.runQuery(sql, (err, result) => {
       if (err) {
         callback(err, "Error during listOSBySituation");
       } else {
@@ -287,7 +287,7 @@ module.exports = {
   //
   // Listar as OS de um determinado provedor, filtrnado pela situação
   //
-  listOssByProviderIdAndSituation: function listOssByProviderIdAndSituation(
+  listOssByProviderIdAndSituationId: function listOssByProviderIdAndSituationId(
     providerId,
     situationId,
     callback

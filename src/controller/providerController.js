@@ -2,7 +2,7 @@ const providerDAO = require("../dao/providerDAO");
 
 module.exports = {
   listAllProviders: function listAllProviders(callback) {
-    providerDAO.listAllProviders(err, result => {
+    providerDAO.listAllProviders((err, result) => {
       let resultResponse = {};
       if (!err) {
         resultResponse.code = 200;

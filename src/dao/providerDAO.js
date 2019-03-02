@@ -17,7 +17,12 @@ module.exports = {
       providerCode,
       providerId
     );
-    dbConfig.runQuery(sql, callback.bind(this));
+    dbConfig.runQuery(sql, (err, result) => {
+      if (err) {
+        console.log("Something went wrong you query.", err);
+      }
+      callback(err, result);
+    });
   },
 
   updateProvider: function updateProvider(provider, callback) {
@@ -63,7 +68,10 @@ module.exports = {
       provider.providerId
     );
 
-    dbConfig.getConnection.query(sql, function(err, result) {
+    dbConfig.getConnection.query(sql, (err, result) => {
+      if (err) {
+        console.log("Something went wrong you query.", err);
+      }
       callback(err, result);
     });
   },
@@ -112,7 +120,10 @@ module.exports = {
     );
 
     dbConfig.getConnection.query(sql, (err, result) => {
-      callback(err);
+      if (err) {
+        console.log("Something went wrong you query.", err);
+      }
+      callback(err, result);
     });
   }
 };
