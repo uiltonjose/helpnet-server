@@ -15,8 +15,8 @@ const sendNotification = (data, callback) => {
   };
 
   const https = require("https");
-  const req = https.request(options, function(res) {
-    res.on("data", data => {
+  const req = https.request(options, result => {
+    result.on("data", data => {
       let resultResponse = {};
       resultResponse.code = 200;
 
@@ -51,67 +51,59 @@ const createNotification = (notificationObj, callback) => {
     userId: notificationObj.userId
   };
 
-  notificationDAO.saveNotification(notificationObj, (error, notificationId) => {
+  notificationDAO.saveNotification(notificationObj, (err, notificationId) => {
     const data = {};
-
-    if (error) {
-      data.code = 400;
-      data.message = `Não foi possível criar a notificação. Erro: ${error}`;
-      callback(data);
-    } else {
+    if (!err) {
       data.notificationId = notificationId;
       bodyData.data = data;
       sendNotification(bodyData, callback);
+    } else {
+      data.code = 400;
+      data.message = "Error try to send notification";
+      callback(data);
     }
   });
 };
 
-const updateNotification = (notificationId, customerId, callback) => {
-  notificationDAO.updateNotification(notificationId, customerId, function(
-    err,
-    result
-  ) {
+const updateNotificationAsRead = (notificationId, customerId, callback) => {
+  notificationDAO.updateNotificationAsRead(
+    notificationId,
+    customerId,
+    (err, result) => {
+      let resultResponse = {};
+      if (!err) {
+        resultResponse.code = 200;
+        resultResponse.data = result;
+      } else {
+        resultResponse.code = 406;
+        resultResponse.data = "Something went wrong in your query.";
+      }
+      callback(resultResponse);
+    }
+  );
+};
+
+const listNotificationsByCustomerId = (customerId, callback) => {
+  notificationDAO.listNotificationsByCustomerId(customerId, (err, result) => {
     let resultResponse = {};
     resultResponse.code = 200;
     resultResponse.data = result;
     if (err) {
       resultResponse.code = 406;
-      resultResponse.data =
-        "Não foi possível realizar operação, tente novamente ou entre em contato com o suporte";
+      resultResponse.data = "Something went wrong in your query.";
     }
     callback(resultResponse);
   });
 };
 
-const listByCustomerId = (customerId, callback) => {
-  notificationDAO.listNotificationsByCustomerId(customerId, function(
-    err,
-    result
-  ) {
+const listNotificationsByProviderId = (providerId, callback) => {
+  notificationDAO.listNotificationsByProviderId(providerId, (err, result) => {
     let resultResponse = {};
     resultResponse.code = 200;
     resultResponse.data = result;
     if (err) {
       resultResponse.code = 406;
-      resultResponse.data =
-        "Não foi possível realizar operação, tente novamente ou entre em contato com o suporte";
-    }
-    callback(resultResponse);
-  });
-};
-
-const listByProviderId = (providerId, callback) => {
-  notificationDAO.listNotificationsByProviderId(providerId, function(
-    err,
-    result
-  ) {
-    let resultResponse = {};
-    resultResponse.code = 200;
-    resultResponse.data = result;
-    if (err) {
-      resultResponse.code = 406;
-      resultResponse.data =
-        "Não foi possível realizar operação, tente novamente ou entre em contato com o suporte";
+      resultResponse.data = "Something went wrong in your query.";
     }
     callback(resultResponse);
   });
@@ -119,7 +111,7 @@ const listByProviderId = (providerId, callback) => {
 
 module.exports = {
   createNotification: createNotification,
-  updateNotification: updateNotification,
-  listByCustomerId: listByCustomerId,
-  listByProviderId: listByProviderId
+  updateNotificationAsRead: updateNotificationAsRead,
+  listNotificationsByCustomerId: listNotificationsByCustomerId,
+  listNotificationsByProviderId: listNotificationsByProviderId
 };
