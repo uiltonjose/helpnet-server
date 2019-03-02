@@ -1,0 +1,43 @@
+const notificationController = require("../../controller/notificationController");
+const express = require("express");
+const router = express.Router();
+
+const handleResult = (result, res) => {
+  res.status(result.code).send(JSON.stringify(result));
+};
+
+router.post("/sendNotification", (req, res) => {
+  const notificationObj = req.body;
+  notificationController.createNotification(notificationObj, result => {
+    handleResult(result, res);
+  });
+});
+
+router.put("/updateNotificationAsRead", (req, res) => {
+  const notificationId = req.body.notificationId;
+  const customerId = req.body.customerId;
+  notificationController.updateNotificationAsRead(
+    notificationId,
+    customerId,
+    result => {
+      handleResult(result, res);
+    }
+  );
+});
+
+router.get("/listByCustomerId", (req, res) => {
+  const customerId = req.query.customerId;
+
+  notificationController.listNotificationsByCustomerId(customerId, result => {
+    handleResult(result, res);
+  });
+});
+
+router.get("/listByProviderId", (req, res) => {
+  const providerId = req.query.providerId;
+  notificationController.listNotificationsByProviderId(providerId, result => {
+    handleResult(result, res);
+  });
+});
+
+module.exports = router;
