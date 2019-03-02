@@ -81,14 +81,14 @@ const getUserInfo = (userLogin, callback) => {
     callback(resultResponse);
   } else {
     userDAO.getUserInfo(userLogin, (err, result) => {
-      console.log(err);
       let resultResponse = {};
-      if (!err) {
-        resultResponse.code = 200;
-        resultResponse.message = result;
-      } else {
+      if (err) {
         resultResponse.code = 400;
         resultResponse.message = "Something went wrong in your query.";
+      } else {
+        const userObj = result[0];
+        resultResponse.code = 200;
+        resultResponse.userInfo = userObj;
       }
       callback(resultResponse);
     });
