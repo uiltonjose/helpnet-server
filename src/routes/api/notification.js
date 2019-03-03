@@ -1,10 +1,7 @@
 const notificationController = require("../../controller/notificationController");
 const express = require("express");
 const router = express.Router();
-
-const handleResult = (result, res) => {
-  res.status(result.code).send(JSON.stringify(result));
-};
+const { handleResult } = require("../../utils/APIUtil");
 
 router.post("/sendNotification", (req, res) => {
   const notificationObj = req.body;
@@ -36,6 +33,12 @@ router.get("/listByCustomerId", (req, res) => {
 router.get("/listByProviderId", (req, res) => {
   const providerId = req.query.providerId;
   notificationController.listNotificationsByProviderId(providerId, result => {
+    handleResult(result, res);
+  });
+});
+
+router.get("/listSugestionsNotifications", (req, res) => {
+  notificationController.listSugestionsNotifications(result => {
     handleResult(result, res);
   });
 });

@@ -159,5 +159,14 @@ module.exports = {
     );
 
     dbConfig.runQuery(sql, callback.bind(this));
+  },
+
+  //
+  // Listar todas as sugestões de notificações
+  //
+  listSugestionsNotifications: function listSugestionsNotifications(callback) {
+    const sql = util.format("SELECT * FROM sugestao_notificacao");
+
+    dbConfig.runQuery(sql, callback.bind(this));
   }
 };

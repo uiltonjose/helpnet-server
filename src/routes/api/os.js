@@ -1,6 +1,7 @@
 const osController = require("../../controller/osController");
 const express = require("express");
 const router = express.Router();
+const { handleResult } = require("../../utils/APIUtil");
 
 router.get("/listSituations", (req, res) => {
   osController.listAllSituationOS(result => {
@@ -67,9 +68,5 @@ router.post("/associateUser", (req, res) => {
     handleResult(result, res);
   });
 });
-
-const handleResult = (result, res) => {
-  res.status(result.code).send(JSON.stringify(result));
-};
 
 module.exports = router;

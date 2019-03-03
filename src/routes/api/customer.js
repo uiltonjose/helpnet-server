@@ -1,10 +1,7 @@
 const customerController = require("../../controller/customerController");
 const express = require("express");
 const router = express.Router();
-
-const handleResult = (result, res) => {
-  res.status(result.code).send(JSON.stringify(result));
-};
+const { handleResult } = require("../../utils/APIUtil");
 
 router.get("/getProviderByCustomerIdAndProviderCode", (req, res) => {
   const cpfCustomer = req.query.cpfCustomer;

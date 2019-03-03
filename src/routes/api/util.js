@@ -2,6 +2,7 @@ const userController = require("../../controller/userController");
 const customerController = require("../../controller/customerController");
 const express = require("express");
 const router = express.Router();
+const { handleResult } = require("../../utils/APIUtil");
 
 router.get("/users", (req, res) => {
   userController.listAllUsers(result => {
@@ -21,9 +22,5 @@ router.get("/synchronizeCustomersWithProviders", (req, res) => {
     handleResult(result, res);
   });
 });
-
-const handleResult = (result, res) => {
-  res.status(result.code).send(JSON.stringify(result));
-};
 
 module.exports = router;
