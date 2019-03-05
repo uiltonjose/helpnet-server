@@ -109,12 +109,15 @@ const listNotificationsByProviderId = (providerId, callback) => {
   });
 };
 
-const listSugestionsNotifications = callback => {
-  notificationDAO.listSugestionsNotifications((err, result) => {
+/*
+// List all default message for notification
+*/
+const listDefaultMessageForNotification = callback => {
+  notificationDAO.listDefaultMessageForNotification((err, result) => {
     let resultResponse = {};
     if (err) {
       resultResponse.code = 400;
-      resultResponse.message = "Occur a problem during the create list.";
+      resultResponse.message = "Occurred a problem during the list creation.";
     } else {
       resultResponse.code = 200;
       resultResponse.data = result;
@@ -128,5 +131,5 @@ module.exports = {
   updateNotificationAsRead: updateNotificationAsRead,
   listNotificationsByCustomerId: listNotificationsByCustomerId,
   listNotificationsByProviderId: listNotificationsByProviderId,
-  listSugestionsNotifications: listSugestionsNotifications
+  listDefaultMessageForNotification: listDefaultMessageForNotification
 };

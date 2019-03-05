@@ -37,8 +37,8 @@ router.get("/listByProviderId", (req, res) => {
   });
 });
 
-router.get("/listSugestionsNotifications", (req, res) => {
-  notificationController.listSugestionsNotifications(result => {
+router.get("/listDefaultMessageForNotification", (req, res) => {
+  notificationController.listDefaultMessageForNotification(result => {
     handleResult(result, res);
   });
 });

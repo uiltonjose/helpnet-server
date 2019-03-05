@@ -162,9 +162,11 @@ module.exports = {
   },
 
   //
-  // Listar todas as sugestões de notificações
+  // List all default message for notification
   //
-  listSugestionsNotifications: function listSugestionsNotifications(callback) {
+  listDefaultMessageForNotification: function listDefaultMessageForNotification(
+    callback
+  ) {
     const sql = util.format("SELECT * FROM sugestao_notificacao");
 
     dbConfig.runQuery(sql, callback.bind(this));
