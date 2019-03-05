@@ -109,9 +109,27 @@ const listNotificationsByProviderId = (providerId, callback) => {
   });
 };
 
+/*
+// List all default message for notification
+*/
+const listDefaultMessageForNotification = callback => {
+  notificationDAO.listDefaultMessageForNotification((err, result) => {
+    let resultResponse = {};
+    if (err) {
+      resultResponse.code = 400;
+      resultResponse.message = "Occurred a problem during the list creation.";
+    } else {
+      resultResponse.code = 200;
+      resultResponse.data = result;
+    }
+    callback(resultResponse);
+  });
+};
+
 module.exports = {
   createNotification: createNotification,
   updateNotificationAsRead: updateNotificationAsRead,
   listNotificationsByCustomerId: listNotificationsByCustomerId,
-  listNotificationsByProviderId: listNotificationsByProviderId
+  listNotificationsByProviderId: listNotificationsByProviderId,
+  listDefaultMessageForNotification: listDefaultMessageForNotification
 };
