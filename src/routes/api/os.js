@@ -11,7 +11,7 @@ router.get("/listSituations", (req, res) => {
 
 router.get("/listByProviderId", (req, res) => {
   const providerId = req.query.providerId;
-  osController.listOssByProviderId(providerId, result => {
+  osController.listOsByProviderId(providerId, result => {
     handleResult(result, res);
   });
 });
@@ -19,7 +19,7 @@ router.get("/listByProviderId", (req, res) => {
 router.get("/listBySituation", (req, res) => {
   const providerId = req.query.providerId;
   const situationId = req.query.situationId;
-  osController.listOssByProviderIdAndSituationId(
+  osController.listOsByProviderIdAndSituationId(
     providerId,
     situationId,
     result => {
@@ -28,10 +28,31 @@ router.get("/listBySituation", (req, res) => {
   );
 });
 
+router.get("/listOsByProviderIdAndSituationOpened", (req, res) => {
+  const providerId = req.query.providerId;
+  osController.listOsByProviderIdAndSituationOpened(providerId, result => {
+    handleResult(result, res);
+  });
+});
+
+router.get("/listOsByProviderIdAndSituationClosed", (req, res) => {
+  const providerId = req.query.providerId;
+  osController.listOsByProviderIdAndSituationClosed(providerId, result => {
+    handleResult(result, res);
+  });
+});
+
+router.get("/listOsByProviderIdAndInProgress", (req, res) => {
+  const providerId = req.query.providerId;
+  osController.listOsByProviderIdAndInProgress(providerId, result => {
+    handleResult(result, res);
+  });
+});
+
 router.get("/listByCustomer", (req, res) => {
   const providerId = req.query.providerId;
   const customerId = req.query.customerId;
-  osController.listOssByProviderIdAndCustomerId(
+  osController.listOsByProviderIdAndCustomerId(
     providerId,
     customerId,
     result => {

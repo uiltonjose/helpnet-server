@@ -95,7 +95,6 @@ const getUserInfo = (userLogin, callback) => {
   }
 };
 
-//@Uil Não teve jeito para isso funcionar da forma acima
 const listAllUsers = callback => {
   userDAO.listAllUsers((err, result) => {
     let resultResponse = {};
@@ -111,9 +110,32 @@ const listAllUsers = callback => {
   });
 };
 
+const listUserByProviderId = (providerId, callback) => {
+  let resultResponse = {};
+  if (StringUtil.isNotValidNumber(providerId)) {
+    let resultResponse = {};
+    resultResponse.code = 400;
+    resultResponse.message = "Invalid Provider Id";
+    callback(resultResponse);
+  } else {
+    userDAO.listUserByProviderId(providerId, (err, result) => {
+      if (!err) {
+        resultResponse.code = 200;
+        resultResponse.message = result;
+        callback(resultResponse);
+      } else {
+        resultResponse.code = 400;
+        resultResponse.message = "Something went wrong in your query.";
+        callback(resultResponse);
+      }
+    });
+  }
+};
+
 module.exports = {
   addUser: addUser,
   activateUserWithProvider: activateUserWithProvider,
   getUserInfo: getUserInfo,
-  listAllUsers: listAllUsers
+  listAllUsers: listAllUsers,
+  listUserByProviderId: listUserByProviderId
 };
