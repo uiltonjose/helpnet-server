@@ -217,14 +217,14 @@ module.exports = {
 
   getOSData: function getOSData(os, callback) {
     const sql = util.format(
-      "SELECT cli.nome, cli.cpf_cnpj, cli.nome_res, cli.fone, cli.celular, cli.endereco, cli.numero, " +
-        "cli.bairro, cli.cidade, cli.estado, cli.cep, cli.cadastro, cli.email, cli.login, cli.plano, prob.titulo, os.numero as numeroOS, " +
-        "os.detalhes, prov.EMAIL_ENVIO_OS as emailEnvioOS " +
-        "FROM cliente as cli " +
-        "join problema_os as prob on prob.id = %s " +
-        "join provedor as prov on prov.id = %s " +
-        "join os as os on os.id = %s " +
-        "where cli.id = %s",
+      `SELECT cli.nome, cli.cpf_cnpj, cli.nome_res, cli.fone, cli.celular, cli.endereco, cli.numero,
+       cli.bairro, cli.cidade, cli.estado, cli.cep, cli.cadastro, cli.email, cli.login, cli.plano, prob.titulo, os.numero as numeroOS,
+       os.detalhes, prov.EMAIL_ENVIO_OS as emailEnvioOS
+       FROM cliente as cli
+       join problema_os as prob on prob.id = %s
+       join provedor as prov on prov.id = %s
+       join os as os on os.id = %s
+       where cli.id = %s`,
       os.problemId,
       os.providerId,
       os.id,
@@ -267,7 +267,7 @@ module.exports = {
   //
   // Listar todas as OS de um determinado provedor
   //
-  listOssByProviderId: function listOssByProviderId(providerId, callback) {
+  listOsByProviderId: function listOsByProviderId(providerId, callback) {
     const sql = util.format(
       "SELECT service.numero AS Número, cli.nome AS Nome, pro.TITULO AS Problema, service.detalhes as Detalhe, service.data_abertura AS Data_Abertura FROM os service JOIN       cliente cli ON cli.id = service.cliente_id JOIN       problema_os pro ON pro.id = service.problema_id AND PROVEDOR_ID = %d       ORDER BY Data_Abertura DESC",
       providerId
@@ -279,7 +279,7 @@ module.exports = {
   //
   // Listar as OS de um determinado provedor, filtrnado pela situação
   //
-  listOssByProviderIdAndSituationId: function listOssByProviderIdAndSituationId(
+  listOsByProviderIdAndSituationId: function listOsByProviderIdAndSituationId(
     providerId,
     situationId,
     callback
@@ -296,23 +296,23 @@ module.exports = {
   /*
   // List all OS by provider Id and Situation equal the Opened
   */
-  listOssByProviderIdAndSituationOpened: function listOssByProviderIdAndSituationOpened(
+  listOsByProviderIdAndSituationOpened: function listOsByProviderIdAndSituationOpened(
     providerId,
     callback
   ) {
     const sql = util.format(
-      "SELECT " +
-        "service.numero AS Número, " +
-        "cli.nome AS Nome, " +
-        "pro.TITULO AS Problema, " +
-        "service.DETALHES as Detalhe, " +
-        "service.DATA_ABERTURA AS 'Data Abertura' " +
-        "FROM os service " +
-        "JOIN cliente cli ON cli.id = service.cliente_id " +
-        "JOIN problema_os pro ON pro.id = service.problema_id " +
-        "WHERE PROVEDOR_ID = %d " +
-        "AND SITUACAO_ID = 1 " +
-        "ORDER BY Data_Abertura DESC ",
+      `SELECT
+       service.numero AS Número,
+       cli.nome AS Nome,
+       pro.TITULO AS Problema,
+       service.DETALHES as Detalhe,
+       service.DATA_ABERTURA AS 'Data Abertura'
+       FROM os service
+       LEFT JOIN cliente cli ON cli.id = service.cliente_id
+       LEFT JOIN problema_os pro ON pro.id = service.problema_id
+       WHERE service.PROVEDOR_ID = %d
+       AND service.SITUACAO_ID = 1
+       ORDER BY service.DATA_ABERTURA DESC`,
       providerId
     );
 
@@ -322,20 +322,25 @@ module.exports = {
   /*
   // List all OS by provider Id and Situation equal the In Progress
   */
-  listOssByProviderIdAndInProgress: function listOssByProviderIdAndInProgress(
+  listOsByProviderIdAndInProgress: function listOsByProviderIdAndInProgress(
     providerId,
     callback
   ) {
     const sql = util.format(
-      "SELECT service.numero AS Número, cli.nome AS Nome, " +
-        "pro.TITULO AS Problema, service.DETALHES AS Detalhe, " +
-        "service.DATA_ABERTURA AS 'Data Abertura', " +
-        "usu.login " +
-        "FROM os service JOIN cliente cli ON cli.id = service.cliente_id " +
-        "LEFT JOIN problema_os pro ON pro.id = service.problema_id " +
-        "LEFT JOIN usuario usu ON usu.id = service.USUARIO_ID " +
-        "WHERE service.PROVEDOR_ID = %s AND service.SITUACAO_ID = 2 " +
-        "ORDER BY service.DATA_ABERTURA DESC",
+      `SELECT
+       service.numero AS Número,
+       cli.nome AS Nome,
+       pro.TITULO AS Problema,
+       service.DETALHES as Detalhe,
+       service.DATA_ABERTURA AS 'Data Abertura',
+       usu.login AS Responsável
+       FROM os service
+       LEFT JOIN cliente cli ON cli.id = service.cliente_id
+       LEFT JOIN problema_os pro ON pro.id = service.problema_id
+       LEFT JOIN usuario usu ON usu.id = service.USUARIO_ID
+       WHERE service.PROVEDOR_ID = %d
+       AND service.SITUACAO_ID = 2
+       ORDER BY service.DATA_ABERTURA DESC`,
       providerId
     );
 
@@ -345,31 +350,33 @@ module.exports = {
   /*
   // List all OS by provider Id and Situation equal the Closed
   */
-  listOssByProviderIdAndSituationClosed: function listOssByProviderIdAndSituationClosed(
+  listOsByProviderIdAndSituationClosed: function listOsByProviderIdAndSituationClosed(
     providerId,
     callback
   ) {
     const sql = util.format(
-      "SELECT " +
-        "service.numero AS Número, " +
-        "cli.nome AS Nome, " +
-        "pro.TITULO AS Problema, " +
-        "service.DETALHES as Detalhe, " +
-        "service.DATA_ABERTURA AS 'Data Abertura', " +
-        "service.DATA_FECHAMENTO AS 'Data fechamento' " +
-        "FROM os service " +
-        "JOIN cliente cli ON cli.id = service.cliente_id " +
-        "JOIN problema_os pro ON pro.id = service.problema_id " +
-        "WHERE PROVEDOR_ID = %d " +
-        "AND SITUACAO_ID = 3 " +
-        "ORDER BY Data_Abertura DESC ",
+      `SELECT
+       service.numero AS Número,
+       cli.nome AS Nome,
+       pro.TITULO AS Problema,
+       service.DETALHES as Detalhe,
+       service.DATA_ABERTURA AS 'Data Abertura',
+       service.DATA_FECHAMENTO AS 'Data fechamento',
+       usu.login AS Responsável
+       FROM os service
+       LEFT JOIN cliente cli ON cli.id = service.cliente_id
+       LEFT JOIN problema_os pro ON pro.id = service.problema_id
+       LEFT JOIN usuario usu ON usu.id = service.USUARIO_ID
+       WHERE service.PROVEDOR_ID = %d
+       AND service.SITUACAO_ID = 3
+       ORDER BY Data_Abertura DESC`,
       providerId
     );
 
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  listOssByProviderIdAndCustomerId: function listOssByProviderIdAndCustomerId(
+  listOsByProviderIdAndCustomerId: function listOsByProviderIdAndCustomerId(
     providerId,
     customerId,
     callback

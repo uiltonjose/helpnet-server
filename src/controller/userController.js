@@ -110,7 +110,7 @@ const listAllUsers = callback => {
   });
 };
 
-const listByProviderId = (providerId, callback) => {
+const listUserByProviderId = (providerId, callback) => {
   let resultResponse = {};
   if (StringUtil.isNotValidNumber(providerId)) {
     let resultResponse = {};
@@ -118,7 +118,7 @@ const listByProviderId = (providerId, callback) => {
     resultResponse.message = "Invalid Provider Id";
     callback(resultResponse);
   } else {
-    userDAO.listByProviderId(providerId, (err, result) => {
+    userDAO.listUserByProviderId(providerId, (err, result) => {
       if (!err) {
         resultResponse.code = 200;
         resultResponse.message = result;
@@ -137,5 +137,5 @@ module.exports = {
   activateUserWithProvider: activateUserWithProvider,
   getUserInfo: getUserInfo,
   listAllUsers: listAllUsers,
-  listByProviderId: listByProviderId
+  listUserByProviderId: listUserByProviderId
 };

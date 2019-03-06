@@ -41,7 +41,7 @@ const listAllUsers = callback => {
   dbConfig.runQuery(sql, callback.bind(this));
 };
 
-const listByProviderId = (providerId, callback) => {
+const listUserByProviderId = (providerId, callback) => {
   const sql = util.format(
     "SELECT * FROM usuario WHERE provedor_id = %s",
     providerId
@@ -54,5 +54,5 @@ module.exports = {
   activateUserWithProvider: activateUserWithProvider,
   getUserInfo: getUserInfo,
   listAllUsers: listAllUsers,
-  listByProviderId: listByProviderId
+  listUserByProviderId: listUserByProviderId
 };
