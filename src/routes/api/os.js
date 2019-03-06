@@ -28,6 +28,27 @@ router.get("/listBySituation", (req, res) => {
   );
 });
 
+router.get("/listOssByProviderIdAndSituationOpened", (req, res) => {
+  const providerId = req.query.providerId;
+  osController.listOssByProviderIdAndSituationOpened(providerId, result => {
+    handleResult(result, res);
+  });
+});
+
+router.get("/listOssByProviderIdAndSituationClosed", (req, res) => {
+  const providerId = req.query.providerId;
+  osController.listOssByProviderIdAndSituationClosed(providerId, result => {
+    handleResult(result, res);
+  });
+});
+
+router.get("/listOssByProviderIdAndInProgress", (req, res) => {
+  const providerId = req.query.providerId;
+  osController.listOssByProviderIdAndInProgress(providerId, result => {
+    handleResult(result, res);
+  });
+});
+
 router.get("/listByCustomer", (req, res) => {
   const providerId = req.query.providerId;
   const customerId = req.query.customerId;

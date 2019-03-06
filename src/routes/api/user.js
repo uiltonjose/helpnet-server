@@ -17,6 +17,16 @@ router.put("/activateUserWithProvider", (req, res) => {
   });
 });
 
+/*
+// This method lists all users that can be associated with an OS
+*/
+router.get("/listByProviderId", (req, res) => {
+  const providerId = req.query.providerId;
+  userController.listByProviderId(providerId, result => {
+    handleResult(result, res);
+  });
+});
+
 router.get("/info", (req, res) => {
   const userLogin = req.query.userLogin;
   userController.getUserInfo(userLogin, result => {

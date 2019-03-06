@@ -269,11 +269,7 @@ module.exports = {
   //
   listOssByProviderId: function listOssByProviderId(providerId, callback) {
     const sql = util.format(
-      `SELECT service.numero AS Número, cli.nome AS Nome, pro.TITULO AS Problema, service.detalhes as Detalhe, service.data_abertura AS Data_Abertura 
-      FROM os service JOIN 
-      cliente cli ON cli.id = service.cliente_id JOIN 
-      problema_os pro ON pro.id = service.problema_id AND PROVEDOR_ID = %d 
-      ORDER BY Data_Abertura DESC`,
+      "SELECT service.numero AS Número, cli.nome AS Nome, pro.TITULO AS Problema, service.detalhes as Detalhe, service.data_abertura AS Data_Abertura FROM os service JOIN       cliente cli ON cli.id = service.cliente_id JOIN       problema_os pro ON pro.id = service.problema_id AND PROVEDOR_ID = %d       ORDER BY Data_Abertura DESC",
       providerId
     );
 
@@ -292,6 +288,82 @@ module.exports = {
       "SELECT * FROM os WHERE PROVEDOR_ID = %d AND SITUACAO_ID = %d",
       providerId,
       situationId
+    );
+
+    dbConfig.runQuery(sql, callback.bind(this));
+  },
+
+  /*
+  // List all OS by provider Id and Situation equal the Opened
+  */
+  listOssByProviderIdAndSituationOpened: function listOssByProviderIdAndSituationOpened(
+    providerId,
+    callback
+  ) {
+    const sql = util.format(
+      "SELECT " +
+        "service.numero AS Número, " +
+        "cli.nome AS Nome, " +
+        "pro.TITULO AS Problema, " +
+        "service.DETALHES as Detalhe, " +
+        "service.DATA_ABERTURA AS 'Data Abertura' " +
+        "FROM os service " +
+        "JOIN cliente cli ON cli.id = service.cliente_id " +
+        "JOIN problema_os pro ON pro.id = service.problema_id " +
+        "WHERE PROVEDOR_ID = %d " +
+        "AND SITUACAO_ID = 1 " +
+        "ORDER BY Data_Abertura DESC ",
+      providerId
+    );
+
+    dbConfig.runQuery(sql, callback.bind(this));
+  },
+
+  /*
+  // List all OS by provider Id and Situation equal the In Progress
+  */
+  listOssByProviderIdAndInProgress: function listOssByProviderIdAndInProgress(
+    providerId,
+    callback
+  ) {
+    const sql = util.format(
+      "SELECT service.numero AS Número, cli.nome AS Nome, " +
+        "pro.TITULO AS Problema, service.DETALHES AS Detalhe, " +
+        "service.DATA_ABERTURA AS 'Data Abertura', " +
+        "usu.login " +
+        "FROM os service JOIN cliente cli ON cli.id = service.cliente_id " +
+        "LEFT JOIN problema_os pro ON pro.id = service.problema_id " +
+        "LEFT JOIN usuario usu ON usu.id = service.USUARIO_ID " +
+        "WHERE service.PROVEDOR_ID = %s AND service.SITUACAO_ID = 2 " +
+        "ORDER BY service.DATA_ABERTURA DESC",
+      providerId
+    );
+
+    dbConfig.runQuery(sql, callback.bind(this));
+  },
+
+  /*
+  // List all OS by provider Id and Situation equal the Closed
+  */
+  listOssByProviderIdAndSituationClosed: function listOssByProviderIdAndSituationClosed(
+    providerId,
+    callback
+  ) {
+    const sql = util.format(
+      "SELECT " +
+        "service.numero AS Número, " +
+        "cli.nome AS Nome, " +
+        "pro.TITULO AS Problema, " +
+        "service.DETALHES as Detalhe, " +
+        "service.DATA_ABERTURA AS 'Data Abertura', " +
+        "service.DATA_FECHAMENTO AS 'Data fechamento' " +
+        "FROM os service " +
+        "JOIN cliente cli ON cli.id = service.cliente_id " +
+        "JOIN problema_os pro ON pro.id = service.problema_id " +
+        "WHERE PROVEDOR_ID = %d " +
+        "AND SITUACAO_ID = 3 " +
+        "ORDER BY Data_Abertura DESC ",
+      providerId
     );
 
     dbConfig.runQuery(sql, callback.bind(this));

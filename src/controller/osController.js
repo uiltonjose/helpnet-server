@@ -201,6 +201,75 @@ module.exports = {
     }
   },
 
+  listOssByProviderIdAndSituationOpened: function listOssByProviderIdAndSituationOpened(
+    providerId,
+    callback
+  ) {
+    let resultResponse = {};
+    if (StringUtil.isNotValidNumber(providerId)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid provider Id";
+      callback(resultResponse);
+    } else {
+      osDAO.listOssByProviderIdAndSituationOpened(providerId, (err, result) => {
+        if (err) {
+          resultResponse.code = 400;
+          resultResponse.message = "Something went wrong in your query.";
+        } else {
+          resultResponse.code = 200;
+          resultResponse.message = result;
+        }
+        callback(resultResponse);
+      });
+    }
+  },
+
+  listOssByProviderIdAndSituationClosed: function listOssByProviderIdAndSituationClosed(
+    providerId,
+    callback
+  ) {
+    let resultResponse = {};
+    if (StringUtil.isNotValidNumber(providerId)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid provider Id";
+      callback(resultResponse);
+    } else {
+      osDAO.listOssByProviderIdAndSituationClosed(providerId, (err, result) => {
+        if (err) {
+          resultResponse.code = 400;
+          resultResponse.message = "Something went wrong in your query.";
+        } else {
+          resultResponse.code = 200;
+          resultResponse.message = result;
+        }
+        callback(resultResponse);
+      });
+    }
+  },
+
+  listOssByProviderIdAndInProgress: function listOssByProviderIdAndInProgress(
+    providerId,
+    callback
+  ) {
+    let resultResponse = {};
+    if (StringUtil.isNotValidNumber(providerId)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid provider Id";
+      callback(resultResponse);
+    } else {
+      osDAO.listOssByProviderIdAndInProgress(providerId, (err, result) => {
+        if (err) {
+          resultResponse.code = 400;
+          resultResponse.message = "Something went wrong in your query.";
+        } else {
+          resultResponse.code = 200;
+          resultResponse.message = result;
+        }
+        callback(resultResponse);
+      });
+    }
+  },
+
   listOssByProviderId: function listOssByProviderId(providerId, callback) {
     let resultResponse = {};
     if (StringUtil.isNotValidNumber(providerId)) {
