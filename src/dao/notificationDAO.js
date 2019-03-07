@@ -54,7 +54,7 @@ module.exports = {
                 result.insertId +
                 ", " +
                 customerId +
-                ", 'S', NOW(), NOW())";
+                ", 'Sent', NOW(), NOW())";
               count++;
 
               customerDAO.updateCustomerOpenOS(

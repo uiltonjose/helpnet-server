@@ -89,7 +89,7 @@ CREATE TABLE `notificacao_cliente` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `notificacaoId` bigint(20) DEFAULT NULL,
   `clienteId` bigint(20) DEFAULT NULL,
-  `status` char(1) DEFAULT NULL,
+  `status` varchar(10) DEFAULT NULL,
   `dataInclusao` datetime DEFAULT NULL,
   `dataUltimaAlteracao` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -180,7 +180,18 @@ CREATE TABLE `situacao_os` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `SITUACAO` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;														
+
+/*Table structure for table `sugestao_notificacao` */
+DROP TABLE IF EXISTS `sugestao_notificacao`;
+
+CREATE TABLE `sugestao_notificacao` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `TITULO` varchar(100) NOT NULL,
+  `DESCRICAO` varchar(255) NOT NULL,
+  PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 
 /*Table structure for table `tecnico` */
 
