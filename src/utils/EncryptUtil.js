@@ -3,7 +3,7 @@ const CryptoJS = require("crypto-js");
 const encryptString = cipherInput => {
   const cipher = CryptoJS.AES.encrypt(
     cipherInput,
-    "speedupServersolution$olusp33d"
+    process.env.ENCRYPT_SECRECT_KEY || "dev"
   );
   return cipher.toString();
 };
@@ -11,7 +11,7 @@ const encryptString = cipherInput => {
 const decryptString = cipherInput => {
   var bytes = CryptoJS.AES.decrypt(
     cipherInput,
-    "speedupServersolution$olusp33d"
+    process.env.ENCRYPT_SECRECT_KEY || "dev"
   );
   return bytes.toString(CryptoJS.enc.Utf8);
 };

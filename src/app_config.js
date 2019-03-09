@@ -29,7 +29,6 @@ app.use(
 
 app.use(logger("dev"));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
 
 const server = app.listen(process.env.PORT || 4000, function() {
   console.log("Server is Up -  Let's go!");
