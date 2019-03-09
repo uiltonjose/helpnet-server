@@ -1,7 +1,7 @@
 const app = require("./src/app_config.js");
 
 app.get("/", (req, res) => {
-  res.send(JSON.stringify("HelpNet - Webservice alive! Ready to work."));
+  res.json("HelpNet - Webservice alive! Ready to work.");
 });
 
 app.use("/api/content", require("./src/routes/api/content"));

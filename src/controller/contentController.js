@@ -1,5 +1,4 @@
 const contentDAO = require("../dao/contentDAO");
-require("dotenv").load();
 
 const getMinAppVersion = () => {
   return process.env.MIN_APP_VERSION;

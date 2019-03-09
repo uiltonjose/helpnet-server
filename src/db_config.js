@@ -1,6 +1,6 @@
-const util = require("util"),
-  mysql = require("mysql");
-require("dotenv").load();
+
+const mysql = require("mysql");
+const EncryptUtil = require("./utils/EncryptUtil");
 
 const connection = mysql.createConnection({
   host: process.env.BD_HOST,
@@ -9,9 +9,10 @@ const connection = mysql.createConnection({
   database: process.env.BD_DATABASE
 });
 
-//
-//  Execute a Query when there is no transaction.
-//
+/**@description Execute a Query when there is no transaction.
+ * @param  {Sql that will be executed} sql
+ * @param  {Callback expected to return the result} callback
+ */
 const runQuery = (sql, callback) => {
   connection.query(sql, (err, result) => {
     if (err) {
@@ -21,16 +22,18 @@ const runQuery = (sql, callback) => {
   });
 };
 
+const getConnectionProvider = provider => {
+  let connectionProvider = mysql.createConnection({
+    host: provider.BD_URL,
+    user: provider.BD_USUARIO,
+    password: EncryptUtil.decryptString(provider.BD_SENHA),
+    database: provider.BD_NOME
+  });
+  return connectionProvider;
+};
+
 module.exports = {
-  getConnectionProvider: function getConnectionProvider(provider) {
-    let connectionProvider = mysql.createConnection({
-      host: provider.BD_URL,
-      user: provider.BD_USUARIO,
-      password: provider.BD_SENHA,
-      database: provider.BD_NOME
-    });
-    return connectionProvider;
-  },
+  getConnectionProvider: getConnectionProvider,
   getConnection: connection,
   runQuery: runQuery
 };
