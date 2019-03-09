@@ -49,11 +49,7 @@ const activateUserWithProvider = (user, callback) => {
           resultResponse.message = "Something went wrong in your query.";
           console.log(resultResponse.message, err);
         } else {
-          if (StringUtil.isNullOrEmpty(result)) {
-            resultResponse.code = 403;
-            resultResponse.message = "Invalid confirmation cod.";
-            callback(resultResponse);
-          } else {
+          if (result && result.length > 0) {
             userDAO.activateUserWithProvider(user, err => {
               if (!err) {
                 resultResponse.code = 200;
@@ -61,10 +57,13 @@ const activateUserWithProvider = (user, callback) => {
               } else {
                 resultResponse.code = 400;
                 resultResponse.message = "Something went wrong in your query.";
-                console.log(resultResponse.message, err);
               }
               callback(resultResponse);
             });
+          } else {
+            resultResponse.code = 403;
+            resultResponse.message = "Invalid confirmation code.";
+            callback(resultResponse);
           }
         }
       }
