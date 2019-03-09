@@ -1,5 +1,5 @@
-const util = require("util"),
-  mysql = require("mysql");
+const mysql = require("mysql");
+const EncryptUtil = require("./utils/EncryptUtil");
 
 const connection = mysql.createConnection({
   host: process.env.BD_HOST,
@@ -21,16 +21,18 @@ const runQuery = (sql, callback) => {
   });
 };
 
+const getConnectionProvider = provider => {
+  let connectionProvider = mysql.createConnection({
+    host: provider.BD_URL,
+    user: provider.BD_USUARIO,
+    password: EncryptUtil.decryptString(provider.BD_SENHA),
+    database: provider.BD_NOME
+  });
+  return connectionProvider;
+};
+
 module.exports = {
-  getConnectionProvider: function getConnectionProvider(provider) {
-    let connectionProvider = mysql.createConnection({
-      host: provider.BD_URL,
-      user: provider.BD_USUARIO,
-      password: provider.BD_SENHA,
-      database: provider.BD_NOME
-    });
-    return connectionProvider;
-  },
+  getConnectionProvider: getConnectionProvider,
   getConnection: connection,
   runQuery: runQuery
 };
