@@ -1,12 +1,14 @@
-const dbConfig = require("../db_config"),
-  util = require("util");
+const dbConfig = require("../db_config");
+const util = require("util");
+const Enum = require("../model/Enum");
 
 module.exports = {
   changeSituationOS: function changeSituationOS(object, callback) {
     dbConfig.getConnection.beginTransaction(function(err) {
-      console.log("iniciou transação");
+      console.log("Transaction beginning");
+
       if (err) {
-        console.log("Erro. Não foi possível iniciar transação", err);
+        console.log("Error: It was not possible to start transaction.", err);
         callback(err);
       }
       let sql = util.format(
@@ -23,7 +25,7 @@ module.exports = {
         } else {
           let event = object.event;
           event.osId = object.osId;
-          console.log("A OS com o ID = " + event.osId + " foi atualizada");
+          console.log(`A OS com o ID ${event.osId} foi atualizada`);
           sql = util.format(
             "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID, OBSERVACAO, USUARIO_ID) VALUES (NOW(), %s, '%s','%s', %s)",
             event.osId,
@@ -62,12 +64,12 @@ module.exports = {
     });
   },
 
-  //
-  // Associate User
-  //
+  /**
+   * @description Associate User
+   */
   associateUserWithOs: function associateUserWithOs(os, callback) {
     dbConfig.getConnection.beginTransaction(function(err) {
-      console.log("iniciou transação");
+      console.log("Transaction beginning");
       if (err) {
         console.log("Erro. Não foi possível iniciar transação", err);
         callback(err);
@@ -104,7 +106,6 @@ module.exports = {
                 callback(err);
               });
             } else {
-              console.log("O Evento foi registrado com o ID = "); //+  result.insertId );
               dbConfig.getConnection.commit(function(err, result) {
                 if (err) {
                   dbConfig.getConnection.rollback(function() {
@@ -112,7 +113,7 @@ module.exports = {
                     callback(err);
                   });
                 } else {
-                  console.log("Transação completa.");
+                  console.log("Transaction completed.");
                   callback(err, os.osId);
                 }
               });
@@ -123,9 +124,9 @@ module.exports = {
     });
   },
 
-  //
-  // Registra uma nova OS
-  //
+  /**
+   * @description Register new OS
+   */
   registerOS: function registerOS(os, callback) {
     dbConfig.getConnection.beginTransaction(function(err) {
       console.log("iniciou transação");
@@ -138,9 +139,10 @@ module.exports = {
         os.number +
         "',(SELECT Auto_increment FROM information_schema.tables WHERE table_name='os'))";
       let sql = util.format(
-        "INSERT INTO os (NUMERO, DATA_ABERTURA, CLIENTE_ID, PROBLEMA_ID, DETALHES, SITUACAO_ID, PROVEDOR_ID) VALUES (" +
-          increment +
-          ", NOW(), %s, %s, '%s', 1, %s)",
+        `INSERT INTO os (NUMERO, DATA_ABERTURA, CLIENTE_ID, PROBLEMA_ID, DETALHES, SITUACAO_ID, PROVEDOR_ID) 
+          VALUES (${increment}, NOW(), %s, %s, '%s', ${
+          Enum.Situations.OPEN
+        }, %s)`,
         os.customerId,
         os.problemId,
         os.details,
@@ -196,7 +198,7 @@ module.exports = {
                 if (err) {
                   console.log("Falha ao tentar recuperar o ID da OS", err);
                 }
-                callback(err, JSON.stringify(result[0].NUMERO));
+                callback(err, result[0].NUMERO);
               });
             });
           });
@@ -210,7 +212,7 @@ module.exports = {
       "SELECT count(id) as total FROM os WHERE PROVEDOR_ID = %d AND CLIENTE_ID = %s AND SITUACAO_ID = %d",
       providerId,
       customerId,
-      "1"
+      Enum.Situations.OPEN
     );
     dbConfig.runQuery(sql, callback);
   },
@@ -264,21 +266,23 @@ module.exports = {
     });
   },
 
-  //
-  // Listar todas as OS de um determinado provedor
-  //
+  /**
+   * @description Listar todas as OS de um determinado provedor
+   */
   listOsByProviderId: function listOsByProviderId(providerId, callback) {
     const sql = util.format(
-      "SELECT service.numero AS Número, cli.nome AS Nome, pro.TITULO AS Problema, service.detalhes as Detalhe, service.data_abertura AS Data_Abertura FROM os service JOIN       cliente cli ON cli.id = service.cliente_id JOIN       problema_os pro ON pro.id = service.problema_id AND PROVEDOR_ID = %d       ORDER BY Data_Abertura DESC",
+      `SELECT service.numero AS Número, cli.nome AS Nome, pro.TITULO AS Problema, service.detalhes as Detalhe, service.data_abertura AS Data_Abertura 
+      FROM os service JOIN cliente cli ON cli.id = service.cliente_id JOIN problema_os pro ON pro.id = service.problema_id 
+      AND PROVEDOR_ID = %d ORDER BY Data_Abertura DESC`,
       providerId
     );
 
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  //
-  // Listar as OS de um determinado provedor, filtrnado pela situação
-  //
+  /**
+   * @description Listar as OS de um determinado provedor, filtrando pela situação
+   */
   listOsByProviderIdAndSituationId: function listOsByProviderIdAndSituationId(
     providerId,
     situationId,
@@ -293,9 +297,9 @@ module.exports = {
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  /*
-  // List all OS by provider Id and Situation equal the Opened
-  */
+  /**
+   * @description List all OS by provider Id and Situation equal the Opened
+   */
   listOsByProviderIdAndSituationOpened: function listOsByProviderIdAndSituationOpened(
     providerId,
     callback
@@ -311,7 +315,7 @@ module.exports = {
        LEFT JOIN cliente cli ON cli.id = service.cliente_id
        LEFT JOIN problema_os pro ON pro.id = service.problema_id
        WHERE service.PROVEDOR_ID = %d
-       AND service.SITUACAO_ID = 1
+       AND service.SITUACAO_ID = ${Enum.Situations.OPEN}
        ORDER BY service.DATA_ABERTURA DESC`,
       providerId
     );
@@ -319,9 +323,9 @@ module.exports = {
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  /*
-  // List all OS by provider Id and Situation equal the In Progress
-  */
+  /**
+   * @description List all OS by ProviderId and Situation as Work in Progress.
+   */
   listOsByProviderIdAndInProgress: function listOsByProviderIdAndInProgress(
     providerId,
     callback
@@ -339,7 +343,7 @@ module.exports = {
        LEFT JOIN problema_os pro ON pro.id = service.problema_id
        LEFT JOIN usuario usu ON usu.id = service.USUARIO_ID
        WHERE service.PROVEDOR_ID = %d
-       AND service.SITUACAO_ID = 2
+       AND service.SITUACAO_ID = ${Enum.Situations.WORK_IN_PROGRESS}
        ORDER BY service.DATA_ABERTURA DESC`,
       providerId
     );
@@ -347,9 +351,9 @@ module.exports = {
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  /*
-  // List all OS by provider Id and Situation equal the Closed
-  */
+  /**
+   * @description List all OS by ProviderId and Situation as Closed
+   */
   listOsByProviderIdAndSituationClosed: function listOsByProviderIdAndSituationClosed(
     providerId,
     callback
@@ -368,7 +372,7 @@ module.exports = {
        LEFT JOIN problema_os pro ON pro.id = service.problema_id
        LEFT JOIN usuario usu ON usu.id = service.USUARIO_ID
        WHERE service.PROVEDOR_ID = %d
-       AND service.SITUACAO_ID = 3
+       AND service.SITUACAO_ID = ${Enum.Situations.CLOSED}
        ORDER BY Data_Abertura DESC`,
       providerId
     );
@@ -390,9 +394,9 @@ module.exports = {
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  //
-  // Listar todas as situações possiveis para uma OS
-  //
+  /**
+   * @description Listar todas as situações possiveis para uma OS
+   */
   listAllSituationOS: function listAllSituationOS(callback) {
     const sql = util.format("SELECT * FROM situacao_os");
 

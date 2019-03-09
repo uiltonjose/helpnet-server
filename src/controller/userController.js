@@ -1,7 +1,6 @@
 const userDAO = require("../dao/userDAO");
 const providerDAO = require("../dao/providerDAO");
 const StringUtil = require("../utils/StringUtil");
-require("dotenv").load();
 
 const addUser = (user, callback) => {
   let resultResponse = {};

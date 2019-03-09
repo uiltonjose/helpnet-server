@@ -1,5 +1,6 @@
 const dbConfig = require("../db_config"),
-  util = require("util");
+  util = require("util"),
+  Enum = require("../model/Enum");
 
 module.exports = {
   listClients: function listClients(callback) {
@@ -20,7 +21,9 @@ module.exports = {
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  //Consulta dos clientes na base do Provedor
+  /**
+   * Consulta dos clientes na base do Provedor
+   */
   getCustomersFromProviderId: function getCustomersFromProviderId(
     interaction,
     totalInteraction,
@@ -65,7 +68,9 @@ module.exports = {
     });
   },
 
-  //Consulta de um cliente na base do Provedor
+  /**
+   * Consulta de um cliente na base do Provedor
+   */
   getCustomerFromProvider: function getCustomerFromProvider(
     provider,
     cpf_cnpj,
@@ -102,7 +107,9 @@ module.exports = {
 
   getProviderData: function getProviderData(providerId, callback) {
     const sql = util.format(
-      "SELECT * FROM provedor WHERE ID = %d AND SITUACAO = 'Ativo'",
+      `SELECT * FROM provedor WHERE ID = %d AND SITUACAO = '${
+        Enum.State.ACTIVE
+      }'`,
       providerId
     );
 
@@ -113,7 +120,9 @@ module.exports = {
 
   getProviderDataByCod: function getProviderDataByCod(providerCod, callback) {
     const sql = util.format(
-      "SELECT * FROM provedor WHERE CODIGO_CLIENTE = %d AND SITUACAO = 'Ativo'",
+      `SELECT * FROM provedor WHERE CODIGO_CLIENTE = %d AND SITUACAO = ${
+        Enum.State.ACTIVE
+      }`,
       providerCod
     );
 
@@ -122,9 +131,9 @@ module.exports = {
     });
   },
 
-  //
-  // Localiza o cliente na base do Helpnet
-  //
+  /**
+   * Localiza o cliente na base do Helpnet
+   */
   getLocalCustomerFromProvider: function getLocalCustomerFromProvider(
     providerID,
     callback
@@ -142,9 +151,9 @@ module.exports = {
     });
   },
 
-  //
-  // Localiza o cliente na base do Helpnet
-  //
+  /**
+   * Localiza o cliente na base do Helpnet
+   */
   getLocalCustomer: function getLocalCustomer(cpfCustomer, callback) {
     const sql = util.format(
       "SELECT * FROM cliente WHERE cpf_cnpj = '%s'",
@@ -153,8 +162,7 @@ module.exports = {
 
     dbConfig.getConnection.query(sql, function(err, result) {
       if (err) {
-        console.log("Ocorreu um erro na consulta ao cliente");
-        console.log(err);
+        console.log("Ocorreu um erro na consulta ao cliente", err);
         callback(err, result);
       }
       callback(err, result);
@@ -163,9 +171,9 @@ module.exports = {
 
   saveCustomer: function saveCustomer(customer, idProvider, callback) {
     const sql = util.format(
-      "INSERT INTO cliente (" +
-        "nome, cpf_cnpj, nome_res, fone, celular, login, email, endereco, numero, complemento, bairro, cidade, estado, cep, bloqueado, cli_ativado, plano, " +
-        "PROVIDER_ID, cadastro, data_inclusao) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', %s, '%s', NOW())",
+      `INSERT INTO cliente (nome, cpf_cnpj, nome_res, fone, celular, login, email, endereco, 
+        numero, complemento, bairro, cidade, estado, cep, bloqueado, cli_ativado, plano, PROVIDER_ID, cadastro, data_inclusao) 
+        VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', %s, '%s', NOW())`,
       customer.nome,
       customer.cpf_cnpj,
       customer.nome_res,
@@ -189,8 +197,7 @@ module.exports = {
 
     dbConfig.getConnection.query(sql, function(err, result) {
       if (err) {
-        console.log("Problema na atualização dos dados do cliente");
-        console.log(err);
+        console.log("Problema na atualização dos dados do cliente", err);
       } else {
         callback(err, result);
       }
@@ -199,27 +206,27 @@ module.exports = {
 
   updateCustomer: function updateCustomer(customer) {
     const sql = util.format(
-      "UPDATE cliente SET " +
-        "nome ='%s', " +
-        "cpf_cnpj ='%s', " +
-        "nome_res ='%s', " +
-        "fone = '%s', " +
-        "celular ='%s', " +
-        "login ='%s', " +
-        "email = '%s', " +
-        "endereco ='%s', " +
-        "numero ='%s', " +
-        "complemento ='%s', " +
-        "bairro ='%s', " +
-        "cidade ='%s', " +
-        "estado ='%s', " +
-        "cep ='%s', " +
-        "bloqueado ='%s', " +
-        "cli_ativado ='%s', " +
-        "plano ='%s', " +
-        "data_atualizacao =  NOW(), " +
-        "cadastro = '%s' " +
-        "WHERE ID = %d",
+      `UPDATE cliente SET 
+        "nome ='%s', 
+        "cpf_cnpj ='%s', 
+        "nome_res ='%s', 
+        "fone = '%s', 
+        "celular ='%s', 
+        "login ='%s', 
+        "email = '%s', 
+        "endereco ='%s', 
+        "numero ='%s', 
+        "complemento ='%s', 
+        "bairro ='%s', 
+        "cidade ='%s', 
+        "estado ='%s', 
+        "cep ='%s', 
+        "bloqueado ='%s', 
+        "cli_ativado ='%s', 
+        "plano ='%s', 
+        "data_atualizacao =  NOW(), 
+        "cadastro = '%s' 
+        "WHERE ID = %d`,
       customer.nome,
       customer.cpf_cnpj,
       customer.nome_res,
@@ -244,9 +251,9 @@ module.exports = {
     dbConfig.getConnection.query(sql, function(err, result) {
       if (err) {
         console.log(
-          "Problema na atualização dos dados do cliente" + customer.cpf_cnpj
+          `Problema na atualização dos dados do cliente ${customer.cpf_cnpj}`,
+          err
         );
-        console.log(err);
       }
     });
   },

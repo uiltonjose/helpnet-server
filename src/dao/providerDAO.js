@@ -1,5 +1,6 @@
-const dbConfig = require("../db_config"),
-  util = require("util");
+const dbConfig = require("../db_config");
+const util = require("util");
+const Enum = require("../model/Enum");
 
 module.exports = {
   listAllProviders: function listAllProviders(callback) {
@@ -101,7 +102,7 @@ module.exports = {
        VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')`,
       provider.name,
       provider.description,
-      "Ativo",
+      Enum.State.ACTIVE,
       provider.dbName,
       provider.dbUrl,
       provider.dbPort,

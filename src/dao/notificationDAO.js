@@ -1,17 +1,17 @@
 const customerDAO = require("../dao/customerDAO");
-
-const dbConfig = require("../db_config"),
-  util = require("util");
+const status = require("../model/Enum");
+const dbConfig = require("../db_config");
+const util = require("util");
 
 module.exports = {
-  //
-  // Registra uma nova Notificação
-  //
-
-  // TODO: Refactor this. Too complexity too understand. Make this more simple.
+  /**
+   * @description Register a new Notification. From CMS/BO to Customer (Currently Mobile)
+   */
   saveNotification: function saveNotification(notificationObj, callback) {
+    // TODO: Refactor this method. Too complexity too understand. Make this more simple.
     dbConfig.getConnection.beginTransaction(function(err) {
-      console.log("Transaction beginner");
+      console.log("Transaction beginning");
+
       if (err) {
         console.log("It was not possible begin transaction.", err);
         callback(err, null);
@@ -31,7 +31,7 @@ module.exports = {
       dbConfig.getConnection.query(sql, function(err, result) {
         if (err) {
           console.log(
-            "Rollback transaction: Problem to persist the notification"
+            "Rollback transaction: Problem to persist the notification."
           );
           dbConfig.getConnection.rollback(function() {
             callback(err, null);
@@ -48,13 +48,10 @@ module.exports = {
               if (count > 0) {
                 sqlInsert = sqlInsert + ", ";
               }
-              sqlInsert =
-                sqlInsert +
-                "(" +
-                result.insertId +
-                ", " +
-                customerId +
-                ", 'S', NOW(), NOW())";
+
+              sqlInsert = `${sqlInsert}(${result.insertId}, ${customerId}, '${
+                status.NotificationStatus.SENT
+              }', NOW(), NOW())`;
               count++;
 
               customerDAO.updateCustomerOpenOS(
@@ -100,13 +97,21 @@ module.exports = {
     });
   },
 
+  /**
+   * @description Update in the server side the notification status as read.
+   * @param {*} notificationId
+   * @param {*} customerId
+   * @param {*} callback
+   */
   updateNotificationAsRead: function updateNotificationAsRead(
     notificationId,
     customerId,
     callback
   ) {
     let sql = util.format(
-      "UPDATE notificacao_cliente set status = 'Read', dataUltimaAlteracao = NOW() WHERE notificacaoId = %s AND clienteID = %s",
+      `UPDATE notificacao_cliente SET status = '${
+        status.NotificationStatus.READ
+      }', dataUltimaAlteracao = NOW() WHERE notificacaoId = %s AND clienteID = %s`,
       notificationId,
       customerId
     );
@@ -118,52 +123,53 @@ module.exports = {
       } else {
         callback(
           err,
-          "A Notificação " +
-            notificationId +
-            " do cliente " +
-            customerId +
-            " foi atualizada com sucesso"
+          `A Notificação ${notificationId} do cliente ${customerId} foi atualizada com sucesso.`
         );
       }
     });
   },
-  //
-  // Listar Notificações do cliente
-  //
+
+  /**
+   * @description List all customer's notifications
+   * @param {*} customerId
+   * @param {*} callback
+   */
   listNotificationsByCustomerId: function listNotificationsByCustomerId(
     customerId,
     callback
   ) {
     const sql = util.format(
-      "select * from notificacao n inner join notificacao_cliente nc on n.id = nc.notificacaoId where nc.clienteId = %s",
+      `SELECT * FROM notificacao notif 
+        INNER JOIN notificacao_cliente notif_client 
+          ON notif.id = notif_client.notificacaoId where notif_client.clienteId = %s`,
       customerId
     );
 
     dbConfig.runQuery(sql, callback.bind(this));
   },
-  //
-  // Listar Notificações do Provedor
-  //
+
+  /**
+   * @description List all Provider's notifications
+   * @param  {} providerId
+   * @param  {} callback
+   */
   listNotificationsByProviderId: function listNotificationsByProviderId(
     providerId,
     callback
   ) {
-    //TODO - Formatar a data aqui...
-    var mask = "DATE_FORMAT(data_envio, %s) + '%d/%m/%Y %H:%i:%S'";
     const sql = util.format(
-      "select titulo as Titulo, mensagem as Mensagem, " +
-        " data_envio as 'Data_de_Envio' from " +
-        "notificacao where provider_id = %s ORDER BY data_envio DESC ",
-
+      `SELECT titulo as Titulo, mensagem as Mensagem, data_envio as 'Data_de_Envio' 
+        FROM notificacao WHERE provider_id = %s ORDER BY data_envio DESC`,
       providerId
     );
 
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  //
-  // List all default message for notification
-  //
+  /**
+   * @description List all default message for notification
+   * @param {*} callback
+   */
   listDefaultMessageForNotification: function listDefaultMessageForNotification(
     callback
   ) {
