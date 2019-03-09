@@ -1,6 +1,3 @@
-const nodemailer = require("nodemailer");
-require("dotenv").config();
-
 module.exports = {
   getDateString: function getDateString() {
     let date = new Date();
