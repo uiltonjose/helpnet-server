@@ -122,15 +122,15 @@ module.exports = {
       callback(resultResponse);
     } else {
       osDAO.changeSituationOS(object, (err, result) => {
-        const osId = result;
         if (err) {
           resultResponse.code = 400;
           resultResponse.message = "Something went wrong in your query.";
         } else {
+          const osId = result;
           resultResponse.code = 200;
-          resultResponse.message = "Successfully updated status to OS " + osId;
+          resultResponse.message = `Successfully updated status to OS ${osId}`;
 
-          sendNotificationDefault(osId, eventTypeId, err);
+          sendNotificationDefault(osId, eventTypeId);
         }
         callback(resultResponse);
       });
@@ -348,7 +348,7 @@ function getOsById(osId, callback) {
     let resultResponse = {};
     if (err) {
       resultResponse.code = 400;
-      resultResponse.message = "Occur a problem during the get OS.";
+      resultResponse.message = "Occurred a problem during Get OS.";
     } else {
       resultResponse.code = 200;
       resultResponse.data = result;
@@ -359,9 +359,7 @@ function getOsById(osId, callback) {
 
 function sendNotificationDefault(osId, eventTypeId) {
   getOsById(osId, result => {
-    if (result.code !== 200) {
-      console.log(err);
-    } else {
+    if (result.code === 200) {
       let message = "";
       let title = "";
       if (
@@ -370,7 +368,7 @@ function sendNotificationDefault(osId, eventTypeId) {
       ) {
         if (eventTypeId === Enum.EventType.OPEN_OS) {
           title = `Sua OS foi aberta com o número ${result.data[0].NUMERO}`;
-          message = `Estamos trabalhando para resolvermos seu problema, entraremos em contato assim que o problema for solucionado.`;
+          message = `Estamos trabalhando para resolver o seu problema, entraremos em contato assim que o problema for solucionado.`;
         } else if (eventTypeId === Enum.EventType.CLOSED_OS) {
           title = `Sua OS  ${result.data[0].NUMERO} foi finalizada`;
           message = `Seu problema foi resolvido e sua internet está disponível novamente.`;
@@ -380,7 +378,7 @@ function sendNotificationDefault(osId, eventTypeId) {
         let notificationObj = {};
         notificationObj.title = title;
         notificationObj.message = message;
-        notificationObj.userId = `${customerId}`;
+        notificationObj.userId = customerId;
         notificationObj.blockNotification = "false";
         notificationObj.tags = [{}];
         notificationObj.tags[0].relation = "=";
@@ -394,6 +392,8 @@ function sendNotificationDefault(osId, eventTypeId) {
           }
         });
       }
+    } else {
+      console.log(err);
     }
   });
 }

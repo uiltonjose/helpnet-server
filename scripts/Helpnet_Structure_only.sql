@@ -182,10 +182,10 @@ CREATE TABLE `situacao_os` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;														
 
-/*Table structure for table `sugestao_notificacao` */
-DROP TABLE IF EXISTS `sugestao_notificacao`;
+/*Table structure for table `mensagem_padrao_notificacao` */
+DROP TABLE IF EXISTS `mensagem_padrao_notificacao`;
 
-CREATE TABLE `sugestao_notificacao` (
+CREATE TABLE `mensagem_padrao_notificacao` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `TITULO` varchar(100) NOT NULL,
   `DESCRICAO` varchar(255) NOT NULL,

@@ -43,10 +43,6 @@ module.exports = {
                 callback(err);
               });
             } else {
-              console.log(
-                "O Evento foi registrado com o ID = " +
-                  JSON.stringify(result.insertId)
-              );
               dbConfig.getConnection.commit(function(err, result) {
                 if (err) {
                   dbConfig.getConnection.rollback(function() {
@@ -54,7 +50,6 @@ module.exports = {
                     callback(err);
                   });
                 } else {
-                  console.log("Transação completa.");
                   callback(err, object.osId);
                 }
               });
