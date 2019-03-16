@@ -1,4 +1,5 @@
 const notificationDAO = require("../dao/notificationDAO");
+const Enum = require("../model/Enum");
 
 const sendNotification = (data, callback) => {
   const headers = {
@@ -126,10 +127,52 @@ const listDefaultMessageForNotification = callback => {
   });
 };
 
+/**
+ * @description This method sends standard notifications according to the event applied to OS
+ * @param {*} osObject
+ * @param {*} eventTypeId
+ */
+const sendNotificationDefaultToOsEvent = (osObject, eventTypeId, callback) => {
+  let message = "";
+  let title = "";
+  if (eventTypeId === Enum.EventType.OPEN_OS) {
+    title = `Sua OS foi aberta com o número ${osObject[0].NUMERO}`;
+    message = `Estamos trabalhando para resolver o seu problema, entraremos em contato assim que o problema for solucionado.`;
+    builderNotification(osObject, title, message, callback);
+  } else if (eventTypeId === Enum.EventType.CLOSED_OS) {
+    title = `Sua OS  ${osObject[0].NUMERO} foi finalizada`;
+    message = `Seu problema foi resolvido e sua internet está disponível novamente.`;
+    builderNotification(osObject, title, message, callback);
+  }
+};
+
 module.exports = {
   createNotification: createNotification,
   updateNotificationAsRead: updateNotificationAsRead,
   listNotificationsByCustomerId: listNotificationsByCustomerId,
   listNotificationsByProviderId: listNotificationsByProviderId,
-  listDefaultMessageForNotification: listDefaultMessageForNotification
+  listDefaultMessageForNotification: listDefaultMessageForNotification,
+  sendNotificationDefaultToOsEvent: sendNotificationDefaultToOsEvent
 };
+
+function builderNotification(osObject, title, message, callback) {
+  const providerId = osObject[0].PROVEDOR_ID;
+  const customerId = osObject[0].CLIENTE_ID;
+  let notificationObj = {};
+  notificationObj.title = title;
+  notificationObj.message = message;
+  notificationObj.userId = customerId;
+  notificationObj.blockNotification = "false";
+  notificationObj.tags = [{}];
+  notificationObj.tags[0].key = `${providerId}_${customerId}`;
+  notificationObj.tags[0].relation = "=";
+  notificationObj.tags[0].value = "1";
+  createNotification(notificationObj, result => {
+    //This is a parallel action, does not interfere with the flow, but we need to record if the notification was sent or not
+    if (result.code == 200) {
+      console.log("Notification sender");
+    } else {
+      console.log("Error try to send notification");
+    }
+  });
+}
