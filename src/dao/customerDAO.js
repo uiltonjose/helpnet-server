@@ -120,9 +120,9 @@ module.exports = {
 
   getProviderDataByCod: function getProviderDataByCod(providerCod, callback) {
     const sql = util.format(
-      `SELECT * FROM provedor WHERE CODIGO_CLIENTE = %d AND SITUACAO = ${
+      `SELECT * FROM provedor WHERE CODIGO_CLIENTE = %d AND SITUACAO = '${
         Enum.State.ACTIVE
-      }`,
+      }'`,
       providerCod
     );
 

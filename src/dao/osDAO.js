@@ -43,9 +43,6 @@ module.exports = {
                 callback(err);
               });
             } else {
-              console.log(
-                "O Evento foi registrado com o ID = " + JSON.stringify(result)
-              );
               dbConfig.getConnection.commit(function(err, result) {
                 if (err) {
                   dbConfig.getConnection.rollback(function() {
@@ -53,7 +50,6 @@ module.exports = {
                     callback(err);
                   });
                 } else {
-                  console.log("Transação completa.");
                   callback(err, object.osId);
                 }
               });
@@ -399,6 +395,15 @@ module.exports = {
    */
   listAllSituationOS: function listAllSituationOS(callback) {
     const sql = util.format("SELECT * FROM situacao_os");
+
+    dbConfig.runQuery(sql, callback.bind(this));
+  },
+
+  /**
+   * @description Get the OS by id
+   */
+  getOsById: function getOsById(osId, callback) {
+    const sql = util.format("SELECT * FROM os WHERE id = %s", osId);
 
     dbConfig.runQuery(sql, callback.bind(this));
   }

@@ -173,7 +173,7 @@ module.exports = {
   listDefaultMessageForNotification: function listDefaultMessageForNotification(
     callback
   ) {
-    const sql = util.format("SELECT * FROM sugestao_notificacao");
+    const sql = util.format("SELECT * FROM mensagem_padrao_notificacao");
 
     dbConfig.runQuery(sql, callback.bind(this));
   }
