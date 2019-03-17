@@ -132,7 +132,7 @@ const listDefaultMessageForNotification = callback => {
  * @param {*} osObject
  * @param {*} eventTypeId
  */
-const sendNotificationDefaultToOsEvent = (osObject, eventTypeId, callback) => {
+const sendNotificationForOSEvent = (osObject, eventTypeId, callback) => {
   let message = "";
   let title = "";
   if (eventTypeId === Enum.EventType.OPEN_OS) {
@@ -152,7 +152,7 @@ module.exports = {
   listNotificationsByCustomerId: listNotificationsByCustomerId,
   listNotificationsByProviderId: listNotificationsByProviderId,
   listDefaultMessageForNotification: listDefaultMessageForNotification,
-  sendNotificationDefaultToOsEvent: sendNotificationDefaultToOsEvent
+  sendNotificationForOSEvent: sendNotificationForOSEvent
 };
 
 function builderNotification(osObject, title, message, callback) {

@@ -48,7 +48,7 @@ module.exports = {
               );
               resultResponse.code = 200;
               resultResponse.message = result.id;
-              notificationController.sendNotificationDefaultToOsEvent(
+              notificationController.sendNotificationForOSEvent(
                 result,
                 Enum.EventType.OPEN_OS
               );
@@ -134,7 +134,7 @@ module.exports = {
           resultResponse.message = `Successfully updated status to OS ${
             objectOS.id
           }`;
-          notificationController.sendNotificationDefaultToOsEvent(
+          notificationController.sendNotificationForOSEvent(
             objectOS,
             eventTypeId
           );
