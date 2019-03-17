@@ -47,7 +47,7 @@ module.exports = {
                 osDescription.emailEnvioOS
               );
               resultResponse.code = 200;
-              resultResponse.message = result.id;
+              resultResponse.message = result[0].NUMERO;
               notificationController.sendNotificationForOSEvent(
                 result,
                 Enum.EventType.OPEN_OS
