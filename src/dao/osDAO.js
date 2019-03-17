@@ -2,20 +2,29 @@ const dbConfig = require("../db_config");
 const util = require("util");
 const Enum = require("../model/Enum");
 
-module.exports = {
-  changeSituationOS: function changeSituationOS(object, callback) {
-    dbConfig.getConnection.beginTransaction(function(err) {
-      console.log("Transaction beginning");
+const changeSituationOS = function changeSituationOS(object, callback) {
+  dbConfig.getConnection.beginTransaction(function(err) {
+    console.log("Transaction beginning");
 
-      if (err) {
-        console.log("Error: It was not possible to start transaction.", err);
-        callback(err);
+    if (err) {
+      console.log("Error: It was not possible to start transaction.", err);
+      callback(err);
+    } else {
+      let sql = "";
+      if (object.situationId == 2) {
+        sql = util.format(
+          "UPDATE os SET SITUACAO_ID = %s, USUARIO_ID = %s WHERE id = %s",
+          object.situationId,
+          object.userId,
+          object.osId
+        );
+      } else {
+        sql = util.format(
+          "UPDATE os SET SITUACAO_ID = %s WHERE id = %s",
+          object.situationId,
+          object.osId
+        );
       }
-      let sql = util.format(
-        "UPDATE os SET SITUACAO_ID = %s WHERE id = %s",
-        object.situationId,
-        object.osId
-      );
       dbConfig.getConnection.query(sql, function(err, result) {
         if (err) {
           console.log("Rollback Transaction: Problem during OS update.", err);
@@ -50,16 +59,28 @@ module.exports = {
                     callback(err);
                   });
                 } else {
-                  callback(err, object.osId);
+                  getOsById(object.osId, (err, result) => {
+                    callback(err, result);
+                  });
                 }
               });
             }
           });
         }
       });
-    });
-  },
+    }
+  });
+};
 
+/**
+ * @description Get the OS by id
+ */
+const getOsById = (osId, callback) => {
+  const sql = util.format("SELECT * FROM os WHERE ID = %s", osId);
+  dbConfig.runQuery(sql, callback.bind(this));
+};
+
+module.exports = {
   /**
    * @description Associate User
    */
@@ -186,16 +207,17 @@ module.exports = {
                 });
               }
               console.log("Transação completa.");
-              let sql = util.format(
-                "SELECT NUMERO FROM os WHERE ID = %d",
-                os.id
-              );
+              getOsById(os.id, (err, result) => {
+                callback(err, result);
+              });
+              /*
+              let sql = util.format("SELECT * FROM os WHERE ID = %d", os.id);
               dbConfig.getConnection.query(sql, function(err, result) {
                 if (err) {
-                  console.log("Falha ao tentar recuperar o ID da OS", err);
+                  console.log("Falha ao tentar recuperar a OS", err);
                 }
                 callback(err, result[0].NUMERO);
-              });
+              });*/
             });
           });
         }
@@ -399,12 +421,6 @@ module.exports = {
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
-  /**
-   * @description Get the OS by id
-   */
-  getOsById: function getOsById(osId, callback) {
-    const sql = util.format("SELECT * FROM os WHERE id = %s", osId);
-
-    dbConfig.runQuery(sql, callback.bind(this));
-  }
+  getOsById: getOsById,
+  changeSituationOS: changeSituationOS
 };

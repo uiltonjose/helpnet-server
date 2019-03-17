@@ -47,8 +47,11 @@ module.exports = {
                 osDescription.emailEnvioOS
               );
               resultResponse.code = 200;
-              resultResponse.message = result;
-              sendNotificationDefault(os.id, Enum.EventType.OPEN_OS);
+              resultResponse.message = result.id;
+              notificationController.sendNotificationForOSEvent(
+                result,
+                Enum.EventType.OPEN_OS
+              );
               callback(resultResponse);
             }
           });
@@ -126,11 +129,15 @@ module.exports = {
           resultResponse.code = 400;
           resultResponse.message = "Something went wrong in your query.";
         } else {
-          const osId = result;
+          const objectOS = result;
           resultResponse.code = 200;
-          resultResponse.message = `Successfully updated status to OS ${osId}`;
-
-          sendNotificationDefault(osId, eventTypeId);
+          resultResponse.message = `Successfully updated status to OS ${
+            objectOS.id
+          }`;
+          notificationController.sendNotificationForOSEvent(
+            objectOS,
+            eventTypeId
+          );
         }
         callback(resultResponse);
       });
@@ -342,58 +349,3 @@ module.exports = {
     });
   }
 };
-
-function getOsById(osId, callback) {
-  osDAO.getOsById(osId, (err, result) => {
-    let resultResponse = {};
-    if (err) {
-      resultResponse.code = 400;
-      resultResponse.message = "Occurred a problem during Get OS.";
-    } else {
-      resultResponse.code = 200;
-      resultResponse.data = result;
-    }
-    callback(resultResponse);
-  });
-}
-
-function sendNotificationDefault(osId, eventTypeId) {
-  getOsById(osId, result => {
-    if (result.code === 200) {
-      let message = "";
-      let title = "";
-      if (
-        eventTypeId === Enum.EventType.OPEN_OS ||
-        eventTypeId === Enum.EventType.CLOSED_OS
-      ) {
-        if (eventTypeId === Enum.EventType.OPEN_OS) {
-          title = `Sua OS foi aberta com o número ${result.data[0].NUMERO}`;
-          message = `Estamos trabalhando para resolver o seu problema, entraremos em contato assim que o problema for solucionado.`;
-        } else if (eventTypeId === Enum.EventType.CLOSED_OS) {
-          title = `Sua OS  ${result.data[0].NUMERO} foi finalizada`;
-          message = `Seu problema foi resolvido e sua internet está disponível novamente.`;
-        }
-        const providerId = result.data[0].PROVEDOR_ID;
-        const customerId = result.data[0].CLIENTE_ID;
-        let notificationObj = {};
-        notificationObj.title = title;
-        notificationObj.message = message;
-        notificationObj.userId = customerId;
-        notificationObj.blockNotification = "false";
-        notificationObj.tags = [{}];
-        notificationObj.tags[0].relation = "=";
-        notificationObj.tags[0].key = `${providerId}_${customerId}`;
-        notificationObj.tags[0].value = "1";
-        notificationController.createNotification(notificationObj, result => {
-          if (result.code !== 200) {
-            console.log("Error try to send notification");
-          } else {
-            console.log("Notification sender");
-          }
-        });
-      }
-    } else {
-      console.log(err);
-    }
-  });
-}
