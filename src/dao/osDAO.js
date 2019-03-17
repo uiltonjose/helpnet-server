@@ -210,14 +210,6 @@ module.exports = {
               getOsById(os.id, (err, result) => {
                 callback(err, result);
               });
-              /*
-              let sql = util.format("SELECT * FROM os WHERE ID = %d", os.id);
-              dbConfig.getConnection.query(sql, function(err, result) {
-                if (err) {
-                  console.log("Falha ao tentar recuperar a OS", err);
-                }
-                callback(err, result[0].NUMERO);
-              });*/
             });
           });
         }
