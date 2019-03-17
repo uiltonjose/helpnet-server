@@ -18,6 +18,12 @@ const changeSituationOS = function changeSituationOS(object, callback) {
           object.userId,
           object.osId
         );
+      } else if (object.situationId == 3) {
+        sql = util.format(
+          "UPDATE os SET SITUACAO_ID = %s, DATA_FECHAMENTO = NOW() WHERE id = %s",
+          object.situationId,
+          object.osId
+        );
       } else {
         sql = util.format(
           "UPDATE os SET SITUACAO_ID = %s WHERE id = %s",
