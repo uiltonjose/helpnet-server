@@ -76,7 +76,6 @@ module.exports = {
       callback(resultResponse);
     } else {
       osDAO.canOpen(providerId, customerId, (err, result) => {
-        console.log("aqui", err);
         if (err) {
           resultResponse.code = 400;
           resultResponse.message = "Something went wrong in your query.";
