@@ -58,6 +58,7 @@ module.exports = {
         } else {
           resultResponse.code = 400;
           resultResponse.message = "Something went wrong in register OS.";
+          resultResponse.error = err;
           callback(resultResponse);
         }
       });
