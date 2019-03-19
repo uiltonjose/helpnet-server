@@ -98,7 +98,7 @@ module.exports = {
 
   changeSituationOS: function changeSituationOS(object, callback) {
     const situationId = object.situationId;
-    const osId = object.osId;
+    const osNumber = object.osNumber;
     const event = object.event;
     const userId = event.userId;
     const eventTypeId = event.eventTypeID;
@@ -111,9 +111,9 @@ module.exports = {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Situation Id";
       callback(resultResponse);
-    } else if (StringUtil.isNotValidNumber(osId)) {
+    } else if (StringUtil.isNotValidNumber(osNumber)) {
       resultResponse.code = 400;
-      resultResponse.message = "Invalid OS Id";
+      resultResponse.message = "Invalid OS Number";
       callback(resultResponse);
     } else if (StringUtil.isNotValidNumber(userId)) {
       resultResponse.code = 400;
@@ -132,7 +132,7 @@ module.exports = {
           const objectOS = result;
           resultResponse.code = 200;
           resultResponse.message = `Successfully updated status to OS ${
-            objectOS.id
+            objectOS.number
           }`;
           notificationController.sendNotificationForOSEvent(
             objectOS,

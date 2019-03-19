@@ -10,63 +10,77 @@ const changeSituationOS = function changeSituationOS(object, callback) {
       console.log("Error: It was not possible to start transaction.", err);
       callback(err);
     } else {
-      let sql = "";
-      if (object.situationId == 2) {
-        sql = util.format(
-          "UPDATE os SET SITUACAO_ID = %s, USUARIO_ID = %s WHERE id = %s",
-          object.situationId,
-          object.userId,
-          object.osId
-        );
-      } else if (object.situationId == 3) {
-        sql = util.format(
-          "UPDATE os SET SITUACAO_ID = %s, DATA_FECHAMENTO = NOW() WHERE id = %s",
-          object.situationId,
-          object.osId
-        );
-      } else {
-        sql = util.format(
-          "UPDATE os SET SITUACAO_ID = %s WHERE id = %s",
-          object.situationId,
-          object.osId
-        );
-      }
-      dbConfig.getConnection.query(sql, function(err, result) {
+      getOsByNumber(object.osNumber, (err, osResult) => {
         if (err) {
-          console.log("Rollback Transaction: Problem during OS update.", err);
-          dbConfig.getConnection.rollback(function() {
-            callback(err);
-          });
+          console.log("OS not found.", err);
+          callback(err);
         } else {
-          let event = object.event;
-          event.osId = object.osId;
-          console.log(`A OS com o ID ${event.osId} foi atualizada`);
-          sql = util.format(
-            "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID, OBSERVACAO, USUARIO_ID) VALUES (NOW(), %s, '%s','%s', %s)",
-            event.osId,
-            event.eventTypeID,
-            event.description,
-            event.userId
-          );
+          let sql = "";
+          let os = osResult[0];
+          if (object.situationId == 2) {
+            sql = util.format(
+              "UPDATE os SET SITUACAO_ID = %s, USUARIO_ID = %s WHERE id = %s",
+              object.situationId,
+              object.userId,
+              os.ID
+            );
+          } else if (object.situationId == 3) {
+            sql = util.format(
+              "UPDATE os SET SITUACAO_ID = %s, DATA_FECHAMENTO = NOW() WHERE id = %s",
+              object.situationId,
+              os.ID
+            );
+          } else {
+            sql = util.format(
+              "UPDATE os SET SITUACAO_ID = %s WHERE id = %s",
+              object.situationId,
+              os.ID
+            );
+          }
           dbConfig.getConnection.query(sql, function(err, result) {
             if (err) {
               console.log(
-                "Rollback Transaction: Problem during Event persistence.",
+                "Rollback Transaction: Problem during OS update.",
                 err
               );
               dbConfig.getConnection.rollback(function() {
                 callback(err);
               });
             } else {
-              dbConfig.getConnection.commit(function(err, result) {
+              let event = object.event;
+              event.osId = os.ID;
+              console.log(`A OS com o ID ${event.osId} foi atualizada`);
+              sql = util.format(
+                "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID, OBSERVACAO, USUARIO_ID) VALUES (NOW(), %s, '%s','%s', %s)",
+                event.osId,
+                event.eventTypeID,
+                event.description,
+                event.userId
+              );
+              dbConfig.getConnection.query(sql, function(err, result) {
                 if (err) {
+                  console.log(
+                    "Rollback Transaction: Problem during Event persistence.",
+                    err
+                  );
                   dbConfig.getConnection.rollback(function() {
-                    console.log("Ocorreu um erro no commit da transação", err);
                     callback(err);
                   });
                 } else {
-                  getOsById(object.osId, (err, result) => {
-                    callback(err, result);
+                  dbConfig.getConnection.commit(function(err, result) {
+                    if (err) {
+                      dbConfig.getConnection.rollback(function() {
+                        console.log(
+                          "Ocorreu um erro no commit da transação",
+                          err
+                        );
+                        callback(err);
+                      });
+                    } else {
+                      getOsById(os.ID, (err, result) => {
+                        callback(err, result);
+                      });
+                    }
                   });
                 }
               });
@@ -83,6 +97,14 @@ const changeSituationOS = function changeSituationOS(object, callback) {
  */
 const getOsById = (osId, callback) => {
   const sql = util.format("SELECT * FROM os WHERE ID = %s", osId);
+  dbConfig.runQuery(sql, callback.bind(this));
+};
+
+/**
+ * @description Get the OS by Number
+ */
+const getOsByNumber = (osNumber, callback) => {
+  const sql = util.format("SELECT * FROM os WHERE NUMERO = %s", osNumber);
   dbConfig.runQuery(sql, callback.bind(this));
 };
 
@@ -420,5 +442,6 @@ module.exports = {
   },
 
   getOsById: getOsById,
+  getOsByNumber: getOsByNumber,
   changeSituationOS: changeSituationOS
 };
