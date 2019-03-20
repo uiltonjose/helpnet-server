@@ -47,7 +47,7 @@ module.exports = {
                 osDescription.emailEnvioOS
               );
               resultResponse.code = 200;
-              resultResponse.message = result[0].NUMERO;
+              resultResponse.data = result[0].NUMERO;
               notificationController.sendNotificationForOSEvent(
                 result,
                 Enum.EventType.OPEN_OS
@@ -347,5 +347,42 @@ module.exports = {
       }
       callback(resultResponse);
     });
+  },
+
+  getOsByNumber: function getOsByNumber(numberOS, callback) {
+    if (StringUtil.isNotValidNumber(numberOS)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid Number OS";
+      callback(resultResponse);
+    } else {
+      osDAO.getOsByNumber(numberOS, (err, result) => {
+        let resultResponse = {};
+        if (err) {
+          resultResponse.code = 400;
+          resultResponse.message = "Occur a problem during the get OS.";
+          callback(resultResponse);
+        } else {
+          let os = {};
+          os.problemId = result[0].PROBLEMA_ID;
+          os.providerId = result[0].PROVEDOR_ID;
+          os.id = result[0].ID;
+          os.customerId = result[0].CLIENTE_ID;
+
+          osDAO.getOSData(os, (errOsData, result) => {
+            if (errOsData) {
+              resultResponse.code = 400;
+              resultResponse.message = "Something went wrong in your query.";
+              console.log(errOsData);
+            } else {
+              osDescription = result;
+              const osHtml = emailUtil.builderContentMailNewOS(osDescription);
+              resultResponse.code = 200;
+              resultResponse.data = osHtml;
+            }
+            callback(resultResponse);
+          });
+        }
+      });
+    }
   }
 };

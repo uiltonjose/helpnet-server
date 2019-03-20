@@ -17,26 +17,7 @@ const changeSituationOS = function changeSituationOS(object, callback) {
         } else {
           let sql = "";
           let os = osResult[0];
-          if (object.situationId == 2) {
-            sql = util.format(
-              "UPDATE os SET SITUACAO_ID = %s, USUARIO_ID = %s WHERE id = %s",
-              object.situationId,
-              object.userId,
-              os.ID
-            );
-          } else if (object.situationId == 3) {
-            sql = util.format(
-              "UPDATE os SET SITUACAO_ID = %s, DATA_FECHAMENTO = NOW() WHERE id = %s",
-              object.situationId,
-              os.ID
-            );
-          } else {
-            sql = util.format(
-              "UPDATE os SET SITUACAO_ID = %s WHERE id = %s",
-              object.situationId,
-              os.ID
-            );
-          }
+          sql = selectSqlFromEventType(object, sql, os);
           dbConfig.getConnection.query(sql, function(err, result) {
             if (err) {
               console.log(
@@ -261,9 +242,9 @@ module.exports = {
        cli.bairro, cli.cidade, cli.estado, cli.cep, cli.cadastro, cli.email, cli.login, cli.plano, prob.titulo, os.numero as numeroOS,
        os.detalhes, prov.EMAIL_ENVIO_OS as emailEnvioOS
        FROM cliente as cli
-       join problema_os as prob on prob.id = %s
-       join provedor as prov on prov.id = %s
-       join os as os on os.id = %s
+       LEFT JOIN problema_os as prob on prob.id = %s
+       LEFT JOIN provedor as prov on prov.id = %s
+       LEFT JOIN os as os on os.id = %s
        where cli.id = %s`,
       os.problemId,
       os.providerId,
@@ -445,3 +426,30 @@ module.exports = {
   getOsByNumber: getOsByNumber,
   changeSituationOS: changeSituationOS
 };
+
+function selectSqlFromEventType(object, sql, os) {
+  switch (object.situationId) {
+    case 2:
+      sql = util.format(
+        "UPDATE os SET SITUACAO_ID = %s, USUARIO_ID = %s WHERE id = %s",
+        object.situationId,
+        object.userId,
+        os.ID
+      );
+      break;
+    case 3:
+      sql = util.format(
+        "UPDATE os SET SITUACAO_ID = %s, DATA_FECHAMENTO = NOW() WHERE id = %s",
+        object.situationId,
+        os.ID
+      );
+      break;
+    default:
+      sql = util.format(
+        "UPDATE os SET SITUACAO_ID = %s WHERE id = %s",
+        object.situationId,
+        os.ID
+      );
+  }
+  return sql;
+}

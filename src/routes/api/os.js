@@ -90,4 +90,11 @@ router.post("/associateUser", (req, res) => {
   });
 });
 
+router.get("/getOsByNumber", (req, res) => {
+  const numberOS = req.query.numberOS;
+  osController.getOsByNumber(numberOS, result => {
+    handleResult(result, res);
+  });
+});
+
 module.exports = router;
