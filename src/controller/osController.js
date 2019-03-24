@@ -98,6 +98,7 @@ module.exports = {
   changeSituationOS: function changeSituationOS(object, callback) {
     const situationId = object.situationId;
     const osNumber = object.osNumber;
+    const associateTechinical = object.userId;
     const event = object.event;
     const userId = event.userId;
     const eventTypeId = event.eventTypeID;
@@ -121,6 +122,13 @@ module.exports = {
     } else if (StringUtil.isNotValidNumber(eventTypeId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Event type Id";
+      callback(resultResponse);
+    } else if (
+      situationId === 2 &&
+      StringUtil.isNotValidNumber(associateTechinical)
+    ) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid user id to associate with OS";
       callback(resultResponse);
     } else {
       osDAO.changeSituationOS(object, (err, result) => {
@@ -373,10 +381,8 @@ module.exports = {
               resultResponse.message = "Something went wrong in your query.";
               console.log(errOsData);
             } else {
-              osDescription = result;
-              const osHtml = emailUtil.builderContentMailNewOS(osDescription);
               resultResponse.code = 200;
-              resultResponse.data = osHtml;
+              resultResponse.data = result;
             }
             callback(resultResponse);
           });
