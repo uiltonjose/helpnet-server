@@ -47,7 +47,7 @@ module.exports = {
                 osDescription.emailEnvioOS
               );
               resultResponse.code = 200;
-              resultResponse.message = result[0].NUMERO;
+              resultResponse.data = result[0].NUMERO;
               notificationController.sendNotificationForOSEvent(
                 result,
                 Enum.EventType.OPEN_OS
@@ -97,7 +97,8 @@ module.exports = {
 
   changeSituationOS: function changeSituationOS(object, callback) {
     const situationId = object.situationId;
-    const osId = object.osId;
+    const osNumber = object.osNumber;
+    const associateTechinical = object.userId;
     const event = object.event;
     const userId = event.userId;
     const eventTypeId = event.eventTypeID;
@@ -110,9 +111,9 @@ module.exports = {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Situation Id";
       callback(resultResponse);
-    } else if (StringUtil.isNotValidNumber(osId)) {
+    } else if (StringUtil.isNotValidNumber(osNumber)) {
       resultResponse.code = 400;
-      resultResponse.message = "Invalid OS Id";
+      resultResponse.message = "Invalid OS Number";
       callback(resultResponse);
     } else if (StringUtil.isNotValidNumber(userId)) {
       resultResponse.code = 400;
@@ -121,6 +122,13 @@ module.exports = {
     } else if (StringUtil.isNotValidNumber(eventTypeId)) {
       resultResponse.code = 400;
       resultResponse.message = "Invalid Event type Id";
+      callback(resultResponse);
+    } else if (
+      situationId === 2 &&
+      StringUtil.isNotValidNumber(associateTechinical)
+    ) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid user id to associate with OS";
       callback(resultResponse);
     } else {
       osDAO.changeSituationOS(object, (err, result) => {
@@ -131,7 +139,7 @@ module.exports = {
           const objectOS = result;
           resultResponse.code = 200;
           resultResponse.message = `Successfully updated status to OS ${
-            objectOS.id
+            objectOS.number
           }`;
           notificationController.sendNotificationForOSEvent(
             objectOS,
@@ -346,5 +354,40 @@ module.exports = {
       }
       callback(resultResponse);
     });
+  },
+
+  getOsByNumber: function getOsByNumber(numberOS, callback) {
+    if (StringUtil.isNotValidNumber(numberOS)) {
+      resultResponse.code = 400;
+      resultResponse.message = "Invalid Number OS";
+      callback(resultResponse);
+    } else {
+      osDAO.getOsByNumber(numberOS, (err, result) => {
+        let resultResponse = {};
+        if (err) {
+          resultResponse.code = 400;
+          resultResponse.message = "Occur a problem during the get OS.";
+          callback(resultResponse);
+        } else {
+          let os = {};
+          os.problemId = result[0].PROBLEMA_ID;
+          os.providerId = result[0].PROVEDOR_ID;
+          os.id = result[0].ID;
+          os.customerId = result[0].CLIENTE_ID;
+
+          osDAO.getOSData(os, (errOsData, result) => {
+            if (errOsData) {
+              resultResponse.code = 400;
+              resultResponse.message = "Something went wrong in your query.";
+              console.log(errOsData);
+            } else {
+              resultResponse.code = 200;
+              resultResponse.data = result;
+            }
+            callback(resultResponse);
+          });
+        }
+      });
+    }
   }
 };
