@@ -25,19 +25,18 @@ const addUser = (user, callback) => {
 };
 
 const activateUserWithProvider = (user, callback) => {
-  const confirmationCode = user.confirmationCode;
-  const providerId = user.providerId;
+  const { confirmationCode, providerId, userId } = user;
+
   let resultResponse = {};
-  if (StringUtil.isNotValidNumber(user.userId)) {
-    resultResponse.code = StatusCode.status.Bad_Request;
+  resultResponse.code = StatusCode.status.Bad_Request;
+
+  if (StringUtil.isNotValidNumber(userId)) {
     resultResponse.message = "Invalid User Id";
     callback(resultResponse);
-  } else if (StringUtil.isNotValidNumber(user.confirmationCode)) {
-    resultResponse.code = StatusCode.status.Bad_Request;
+  } else if (StringUtil.isNotValidNumber(confirmationCode)) {
     resultResponse.message = "Invalid Confirmation Code";
     callback(resultResponse);
-  } else if (StringUtil.isNotValidNumber(user.providerId)) {
-    resultResponse.code = StatusCode.status.Bad_Request;
+  } else if (StringUtil.isNotValidNumber(providerId)) {
     resultResponse.message = "Invalid Provider Id";
     callback(resultResponse);
   } else {
@@ -46,7 +45,6 @@ const activateUserWithProvider = (user, callback) => {
       providerId,
       (err, result) => {
         if (err) {
-          resultResponse.code = StatusCode.status.Bad_Request;
           resultResponse.message = "Something went wrong in your query.";
           console.log(resultResponse.message, err);
         } else {
@@ -56,7 +54,6 @@ const activateUserWithProvider = (user, callback) => {
                 resultResponse.code = StatusCode.status.Ok;
                 resultResponse.message = "User successfully updated.";
               } else {
-                resultResponse.code = StatusCode.status.Bad_Request;
                 resultResponse.message = "Something went wrong in your query.";
               }
               callback(resultResponse);
