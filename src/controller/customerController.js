@@ -1,7 +1,8 @@
 const customerDAO = require("../dao/customerDAO"),
   providerDAO = require("../dao/providerDAO"),
   dateUtil = require("../utils/DateUtil"),
-  StringUtil = require("../utils/StringUtil");
+  StringUtil = require("../utils/StringUtil"),
+  StatusCode = require("../utils/StatusCode");
 
 function buildResultProviderWithCustomers(provider, customers, callback) {
   let finalResult = {};
@@ -32,7 +33,7 @@ function builderProviderResult(provider, callback) {
 
 function handleFailRequest(callback) {
   const responseObj = {};
-  responseObj.code = 400;
+  responseObj.code = StatusCode.status.Bad_Request;
   responseObj.message =
     "Problema na consulta dos dados do provedor, entre em contato com o administrador do sistema";
   callback(responseObj);
@@ -40,7 +41,7 @@ function handleFailRequest(callback) {
 
 function userNotFound(cpfCnpjCustomer, callback) {
   const response = {};
-  response.code = 404;
+  response.code = StatusCode.status.Not_Found;
   response.message = "Customer not found. CPF/CNPJ: " + cpfCnpjCustomer;
   callback(response);
 }
@@ -255,20 +256,20 @@ const methods = (module.exports = {
   ) {
     let resultResponse = {};
     if (StringUtil.isNotValidNumber(providerId)) {
-      resultResponse.code = 400;
+      resultResponse.code = StatusCode.status.Bad_Request;
       resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
     } else {
       customerDAO.listCustomersByProviderId(providerId, (err, result) => {
         if (!err) {
-          resultResponse.code = 200;
+          resultResponse.code = StatusCode.status.Ok;
           resultResponse.message = result;
         } else {
-          resultResponse.code = 400;
+          resultResponse.code = StatusCode.status.Bad_Request;
           resultResponse.message = "Something went wrong in your query.";
         }
 
-        resultResponse.code = 200;
+        resultResponse.code = StatusCode.status.Ok;
         resultResponse.message = result;
         callback(resultResponse);
       });

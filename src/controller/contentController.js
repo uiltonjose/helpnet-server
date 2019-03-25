@@ -1,4 +1,5 @@
 const contentDAO = require("../dao/contentDAO");
+const StatusCode = require("../utils/StatusCode");
 
 const getMinAppVersion = () => {
   return process.env.MIN_APP_VERSION;
@@ -16,13 +17,13 @@ module.exports = {
     const boot = {};
     contentDAO.listAllProblemsOs(function(err, result) {
       if (!err) {
-        boot.code = 200;
+        boot.code = StatusCode.status.Ok;
         boot.listProblems = result;
         boot.minAppVersion = getMinAppVersion();
         boot.serverVersion = getServerDeployVersion();
         callback(boot);
       } else {
-        boot.code = 400;
+        boot.code = StatusCode.status.Bad_Request;
         boot.message = "Error getting Problem List.";
         callback(boot);
       }
@@ -37,10 +38,10 @@ module.exports = {
     contentDAO.listAllProblemsOs(function(err, result) {
       let resultResponse = {};
       if (err) {
-        resultResponse.code = 400;
+        resultResponse.code = StatusCode.status.Bad_Request;
         resultResponse.message = "Something went wrong in your query.";
       } else {
-        resultResponse.code = 200;
+        resultResponse.code = StatusCode.status.Ok;
         resultResponse.message = result;
       }
       callback(resultResponse);

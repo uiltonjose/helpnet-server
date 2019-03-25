@@ -1,5 +1,6 @@
 const notificationDAO = require("../dao/notificationDAO");
 const Enum = require("../model/Enum");
+const StatusCode = require("../utils/StatusCode");
 
 const sendNotification = (data, callback) => {
   const headers = {
@@ -19,11 +20,11 @@ const sendNotification = (data, callback) => {
   const req = https.request(options, result => {
     result.on("data", data => {
       let resultResponse = {};
-      resultResponse.code = 200;
+      resultResponse.code = StatusCode.status.Ok;
 
       const responseData = JSON.parse(data);
       if (responseData.errors) {
-        resultResponse.code = 406;
+        resultResponse.code = StatusCode.status.Not_Acceptable;
       }
       resultResponse.data = responseData;
       callback(resultResponse);
@@ -32,7 +33,7 @@ const sendNotification = (data, callback) => {
 
   req.on("error", e => {
     let resultResponse = {};
-    resultResponse.code = 400;
+    resultResponse.code = StatusCode.status.Bad_Request;
     resultResponse.data = e;
     callback(resultResponse);
   });
@@ -59,7 +60,7 @@ const createNotification = (notificationObj, callback) => {
       bodyData.data = data;
       sendNotification(bodyData, callback);
     } else {
-      data.code = 400;
+      data.code = StatusCode.status.Bad_Request;
       data.message = "Error try to send notification";
       callback(data);
     }
@@ -73,10 +74,10 @@ const updateNotificationAsRead = (notificationId, customerId, callback) => {
     (err, result) => {
       let resultResponse = {};
       if (!err) {
-        resultResponse.code = 200;
+        resultResponse.code = StatusCode.status.Ok;
         resultResponse.data = result;
       } else {
-        resultResponse.code = 406;
+        resultResponse.code = StatusCode.status.Not_Acceptable;
         resultResponse.data = "Something went wrong in your query.";
       }
       callback(resultResponse);
@@ -87,10 +88,10 @@ const updateNotificationAsRead = (notificationId, customerId, callback) => {
 const listNotificationsByCustomerId = (customerId, callback) => {
   notificationDAO.listNotificationsByCustomerId(customerId, (err, result) => {
     let resultResponse = {};
-    resultResponse.code = 200;
+    resultResponse.code = StatusCode.status.Ok;
     resultResponse.data = result;
     if (err) {
-      resultResponse.code = 406;
+      resultResponse.code = StatusCode.status.Not_Acceptable;
       resultResponse.data = "Something went wrong in your query.";
     }
     callback(resultResponse);
@@ -100,10 +101,10 @@ const listNotificationsByCustomerId = (customerId, callback) => {
 const listNotificationsByProviderId = (providerId, callback) => {
   notificationDAO.listNotificationsByProviderId(providerId, (err, result) => {
     let resultResponse = {};
-    resultResponse.code = 200;
+    resultResponse.code = StatusCode.status.Ok;
     resultResponse.data = result;
     if (err) {
-      resultResponse.code = 406;
+      resultResponse.code = StatusCode.status.Not_Acceptable;
       resultResponse.data = "Something went wrong in your query.";
     }
     callback(resultResponse);
@@ -117,10 +118,10 @@ const listDefaultMessageForNotification = callback => {
   notificationDAO.listDefaultMessageForNotification((err, result) => {
     let resultResponse = {};
     if (err) {
-      resultResponse.code = 400;
+      resultResponse.code = StatusCode.status.Bad_Request;
       resultResponse.message = "Occurred a problem during the list creation.";
     } else {
-      resultResponse.code = 200;
+      resultResponse.code = StatusCode.status.Ok;
       resultResponse.data = result;
     }
     callback(resultResponse);
@@ -169,7 +170,7 @@ function builderNotification(osObject, title, message, callback) {
   notificationObj.tags[0].value = "1";
   createNotification(notificationObj, result => {
     //This is a parallel action, does not interfere with the flow, but we need to record if the notification was sent or not
-    if (result.code == 200) {
+    if (result.code == StatusCode.status.Ok) {
       console.log("Notification sender");
     } else {
       console.log("Error try to send notification");

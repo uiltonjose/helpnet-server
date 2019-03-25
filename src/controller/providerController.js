@@ -1,14 +1,15 @@
 const providerDAO = require("../dao/providerDAO");
+const StatusCode = require("../utils/StatusCode");
 
 module.exports = {
   listAllProviders: function listAllProviders(callback) {
     providerDAO.listAllProviders((err, result) => {
       let resultResponse = {};
       if (!err) {
-        resultResponse.code = 200;
+        resultResponse.code = StatusCode.status.Ok;
         resultResponse.message = result;
       } else {
-        resultResponse.code = 400;
+        resultResponse.code = StatusCode.status.Bad_Request;
         resultResponse.message = "Something went wrong in your query.";
       }
       callback(resultResponse);
@@ -19,10 +20,10 @@ module.exports = {
     providerDAO.updateProvider(provider, err => {
       let resultResponse = {};
       if (!err) {
-        resultResponse.code = 200;
+        resultResponse.code = StatusCode.status.Ok;
         resultResponse.message = "Provider updated with success";
       } else {
-        resultResponse.code = 400; // Bad request
+        resultResponse.code = StatusCode.status.Bad_Request;
         resultResponse.message = "Something went wrong in your query.";
       }
       callback(resultResponse);
@@ -33,10 +34,10 @@ module.exports = {
     providerDAO.addProvider(provider, err => {
       let resultResponse = {};
       if (!err) {
-        resultResponse.code = 200;
+        resultResponse.code = StatusCode.status.Ok;
         resultResponse.message = "Provider created with success.";
       } else {
-        resultResponse.code = 400;
+        resultResponse.code = StatusCode.status.Bad_Request;
         resultResponse.message = "Something went wrong in your query.";
       }
       callback(resultResponse);
