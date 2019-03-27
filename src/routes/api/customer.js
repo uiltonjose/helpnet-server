@@ -2,6 +2,7 @@ const customerController = require("../../controller/customerController");
 const express = require("express");
 const router = express.Router();
 const { handleResult } = require("../../utils/APIUtil");
+const StatusCode = require("../../utils/StatusCode");
 
 router.get("/getProviderByCustomerIdAndProviderCode", (req, res) => {
   const cpfCustomer = req.query.cpfCustomer;
@@ -12,7 +13,7 @@ router.get("/getProviderByCustomerIdAndProviderCode", (req, res) => {
     result => {
       let respCode = result.code;
       if (respCode === undefined) {
-        result.code = 200;
+        result.code = StatusCode.status.Ok;
       }
       handleResult(result, res);
     }
@@ -28,7 +29,7 @@ router.get("/getProviderByCustomerID", (req, res) => {
     result => {
       let respCode = result.code;
       if (respCode === undefined) {
-        result.code = 200;
+        result.code = StatusCode.status.Ok;
       }
       handleResult(result, res);
     }

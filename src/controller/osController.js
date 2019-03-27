@@ -4,6 +4,7 @@ const osDAO = require("../dao/osDAO");
 const StringUtil = require("../utils/StringUtil");
 const notificationController = require("../controller/notificationController");
 const Enum = require("../model/Enum");
+const StatusCode = require("../utils/StatusCode");
 
 function createOSNumber(providerId) {
   const dt = dateTime.create();
@@ -17,16 +18,15 @@ function createOSNumber(providerId) {
 module.exports = {
   registerOS: function registerOS(os, callback) {
     let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
     if (StringUtil.isNotValidNumber(os.providerId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
     } else if (StringUtil.isNotValidNumber(os.customerId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Customer Id";
       callback(resultResponse);
     } else if (StringUtil.isNotValidNumber(os.problemId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Problem Id";
       callback(resultResponse);
     } else {
@@ -35,7 +35,6 @@ module.exports = {
         if (!err) {
           osDAO.getOSData(os, (errMail, resultMail) => {
             if (errMail) {
-              resultResponse.code = 400;
               resultResponse.message = "Something went wrong in your query.";
               console.log(errMail);
             } else {
@@ -46,7 +45,7 @@ module.exports = {
                 osHtml,
                 osDescription.emailEnvioOS
               );
-              resultResponse.code = 200;
+              resultResponse.code = StatusCode.status.Ok;
               resultResponse.data = result[0].NUMERO;
               notificationController.sendNotificationForOSEvent(
                 result,
@@ -56,7 +55,6 @@ module.exports = {
             }
           });
         } else {
-          resultResponse.code = 400;
           resultResponse.message = "Something went wrong in register OS.";
           callback(resultResponse);
         }
@@ -66,21 +64,20 @@ module.exports = {
 
   canOpen: function canOpen(providerId, customerId, callback) {
     let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
     if (StringUtil.isNotValidNumber(providerId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
     } else if (StringUtil.isNotValidNumber(customerId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Customer Id";
       callback(resultResponse);
     } else {
       osDAO.canOpen(providerId, customerId, (err, result) => {
         if (err) {
-          resultResponse.code = 400;
           resultResponse.message = "Something went wrong in your query.";
         } else {
-          resultResponse.code = 200;
+          resultResponse.code = StatusCode.status.Ok;
           if (result[0].total > 0) {
             resultResponse.data = {
               canOpen: "false",
@@ -96,48 +93,39 @@ module.exports = {
   },
 
   changeSituationOS: function changeSituationOS(object, callback) {
-    const situationId = object.situationId;
-    const osNumber = object.osNumber;
-    const associateTechinical = object.userId;
-    const event = object.event;
-    const userId = event.userId;
-    const eventTypeId = event.eventTypeID;
     let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
+    const { situationId, osNumber, userId, event } = object;
+    const eventTypeId = event.eventTypeID;
+    const eventUserId = event.userId;
+
     if (
       StringUtil.isNotValidNumber(situationId) ||
       situationId < 1 ||
       situationId > 4
     ) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Situation Id";
       callback(resultResponse);
     } else if (StringUtil.isNotValidNumber(osNumber)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid OS Number";
       callback(resultResponse);
-    } else if (StringUtil.isNotValidNumber(userId)) {
-      resultResponse.code = 400;
+    } else if (StringUtil.isNotValidNumber(eventUserId)) {
       resultResponse.message = "Invalid user id from event";
       callback(resultResponse);
     } else if (StringUtil.isNotValidNumber(eventTypeId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Event type Id";
       callback(resultResponse);
-    } else if (
-      situationId === 2 &&
-      StringUtil.isNotValidNumber(associateTechinical)
-    ) {
-      resultResponse.code = 400;
+    } else if (situationId === 2 && StringUtil.isNotValidNumber(userId)) {
       resultResponse.message = "Invalid user id to associate with OS";
       callback(resultResponse);
     } else {
       osDAO.changeSituationOS(object, (err, result) => {
         if (err) {
-          resultResponse.code = 400;
           resultResponse.message = "Something went wrong in your query.";
         } else {
           const objectOS = result;
-          resultResponse.code = 200;
+          resultResponse.code = StatusCode.status.Ok;
           resultResponse.message = `Successfully updated status to OS ${
             objectOS.number
           }`;
@@ -152,34 +140,29 @@ module.exports = {
   },
 
   associateUserWithOs: function associateUserWithOs(os, callback) {
-    const userId = os.userId;
-    const osId = os.osId;
-    const event = os.event;
+    const { userId, osId, event } = os;
 
     let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
     if (StringUtil.isNotValidNumber(userId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid User Id";
       callback(resultResponse);
     } else if (StringUtil.isNotValidNumber(osId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid OS Id";
       callback(resultResponse);
     } else if (StringUtil.isNotValidNumber(event.userId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid user id from event";
       callback(resultResponse);
     } else if (StringUtil.isNotValidNumber(event.eventTypeID)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Event type Id";
       callback(resultResponse);
     } else {
       osDAO.associateUserWithOs(os, (err, result) => {
         if (err) {
-          resultResponse.code = 400;
           resultResponse.message = "Something went wrong in your query.";
         } else {
-          resultResponse.code = 200;
+          resultResponse.code = StatusCode.status.Ok;
           resultResponse.message =
             "User associated with success to OS " + result;
         }
@@ -194,12 +177,12 @@ module.exports = {
     callback
   ) {
     let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
     if (StringUtil.isNotValidNumber(situationId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Situation Id";
       callback(resultResponse);
     } else if (StringUtil.isNotValidNumber(providerId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid provider Id";
       callback(resultResponse);
     } else {
@@ -208,10 +191,9 @@ module.exports = {
         situationId,
         (err, result) => {
           if (err) {
-            resultResponse.code = 400;
             resultResponse.message = "Something went wrong in your query.";
           } else {
-            resultResponse.code = 200;
+            resultResponse.code = StatusCode.status.Ok;
             resultResponse.message = result;
           }
           callback(resultResponse);
@@ -225,17 +207,17 @@ module.exports = {
     callback
   ) {
     let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
     if (StringUtil.isNotValidNumber(providerId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid provider Id";
       callback(resultResponse);
     } else {
       osDAO.listOsByProviderIdAndSituationOpened(providerId, (err, result) => {
         if (err) {
-          resultResponse.code = 400;
           resultResponse.message = "Something went wrong in your query.";
         } else {
-          resultResponse.code = 200;
+          resultResponse.code = StatusCode.status.Ok;
           resultResponse.message = result;
         }
         callback(resultResponse);
@@ -248,17 +230,17 @@ module.exports = {
     callback
   ) {
     let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
     if (StringUtil.isNotValidNumber(providerId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid provider Id";
       callback(resultResponse);
     } else {
       osDAO.listOsByProviderIdAndSituationClosed(providerId, (err, result) => {
         if (err) {
-          resultResponse.code = 400;
           resultResponse.message = "Something went wrong in your query.";
         } else {
-          resultResponse.code = 200;
+          resultResponse.code = StatusCode.status.Ok;
           resultResponse.message = result;
         }
         callback(resultResponse);
@@ -271,17 +253,17 @@ module.exports = {
     callback
   ) {
     let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
     if (StringUtil.isNotValidNumber(providerId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid provider Id";
       callback(resultResponse);
     } else {
       osDAO.listOsByProviderIdAndInProgress(providerId, (err, result) => {
         if (err) {
-          resultResponse.code = 400;
           resultResponse.message = "Something went wrong in your query.";
         } else {
-          resultResponse.code = 200;
+          resultResponse.code = StatusCode.status.Ok;
           resultResponse.message = result;
         }
         callback(resultResponse);
@@ -291,18 +273,18 @@ module.exports = {
 
   listOsByProviderId: function listOsByProviderId(providerId, callback) {
     let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
     if (StringUtil.isNotValidNumber(providerId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
     } else {
       osDAO.listOsByProviderId(providerId, (err, result) => {
         let resultResponse = {};
         if (err) {
-          resultResponse.code = 400;
           resultResponse.message = "Something went wrong in your query.";
         } else {
-          resultResponse.code = 200;
+          resultResponse.code = StatusCode.status.Ok;
           resultResponse.message = result;
         }
         callback(resultResponse);
@@ -316,12 +298,12 @@ module.exports = {
     callback
   ) {
     let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
     if (StringUtil.isNotValidNumber(providerId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Provider Id";
       callback(resultResponse);
     } else if (StringUtil.isNotValidNumber(customerId)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Customer Id";
       callback(resultResponse);
     } else {
@@ -331,10 +313,9 @@ module.exports = {
       ) {
         let resultResponse = {};
         if (err) {
-          resultResponse.code = 400;
           resultResponse.message = "Occur a problem during the create list.";
         } else {
-          resultResponse.code = 200;
+          resultResponse.code = StatusCode.status.Ok;
           resultResponse.message = result;
         }
         callback(resultResponse);
@@ -346,10 +327,10 @@ module.exports = {
     osDAO.listAllSituationOS((err, result) => {
       let resultResponse = {};
       if (err) {
-        resultResponse.code = 400;
+        resultResponse.code = StatusCode.status.Bad_Request;
         resultResponse.message = "Occur a problem during the create list.";
       } else {
-        resultResponse.code = 200;
+        resultResponse.code = StatusCode.status.Ok;
         resultResponse.message = result;
       }
       callback(resultResponse);
@@ -357,15 +338,16 @@ module.exports = {
   },
 
   getOsByNumber: function getOsByNumber(numberOS, callback) {
+    let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
     if (StringUtil.isNotValidNumber(numberOS)) {
-      resultResponse.code = 400;
       resultResponse.message = "Invalid Number OS";
       callback(resultResponse);
     } else {
       osDAO.getOsByNumber(numberOS, (err, result) => {
         let resultResponse = {};
         if (err) {
-          resultResponse.code = 400;
           resultResponse.message = "Occur a problem during the get OS.";
           callback(resultResponse);
         } else {
@@ -377,11 +359,10 @@ module.exports = {
 
           osDAO.getOSData(os, (errOsData, result) => {
             if (errOsData) {
-              resultResponse.code = 400;
               resultResponse.message = "Something went wrong in your query.";
               console.log(errOsData);
             } else {
-              resultResponse.code = 200;
+              resultResponse.code = StatusCode.status.Ok;
               resultResponse.data = result;
             }
             callback(resultResponse);
