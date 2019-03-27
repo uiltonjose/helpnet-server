@@ -102,8 +102,8 @@ module.exports = {
 
     if (
       StringUtil.isNotValidNumber(situationId) ||
-      situationId < 1 ||
-      situationId > 4
+      situationId < Enum.Situations.OPEN ||
+      situationId > Enum.Situations.CONCLUDED
     ) {
       resultResponse.message = "Invalid Situation Id";
       callback(resultResponse);
@@ -116,7 +116,10 @@ module.exports = {
     } else if (StringUtil.isNotValidNumber(eventTypeId)) {
       resultResponse.message = "Invalid Event type Id";
       callback(resultResponse);
-    } else if (situationId === 2 && StringUtil.isNotValidNumber(userId)) {
+    } else if (
+      situationId === Enum.Situations.WORK_IN_PROGRESS &&
+      StringUtil.isNotValidNumber(userId)
+    ) {
       resultResponse.message = "Invalid user id to associate with OS";
       callback(resultResponse);
     } else {
