@@ -134,6 +134,7 @@ module.exports = {
           }`;
           notificationController.sendNotificationForOSEvent(
             objectOS,
+            object.messageToCustomer,
             eventTypeId
           );
         }
