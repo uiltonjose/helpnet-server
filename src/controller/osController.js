@@ -49,7 +49,7 @@ module.exports = {
               resultResponse.data = result[0].NUMERO;
               notificationController.sendNotificationForOSEvent(
                 result,
-                undefined,
+                null,
                 Enum.EventType.OPEN_OS
               );
               callback(resultResponse);

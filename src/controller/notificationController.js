@@ -144,12 +144,11 @@ const sendNotificationForOSEvent = (
   if (eventTypeId === Enum.EventType.OPEN_OS) {
     title = `Sua OS foi aberta com o número ${osObject[0].NUMERO}`;
     message = `Estamos trabalhando para resolver o seu problema, entraremos em contato assim que o problema for solucionado.`;
-    builderNotification(osObject, messageToCustomer, title, message, callback);
   } else if (eventTypeId === Enum.EventType.CLOSED_OS) {
     title = `Sua OS  ${osObject[0].NUMERO} foi finalizada`;
     message = `Seu problema foi resolvido e sua internet está disponível novamente.`;
-    builderNotification(osObject, messageToCustomer, title, message, callback);
   }
+  builderNotification(osObject, messageToCustomer, title, message, callback);
 };
 
 module.exports = {
@@ -174,8 +173,8 @@ function builderNotification(
   notificationObj.title = title;
   notificationObj.message = message;
   notificationObj.userId = customerId;
-  if (messageToCustomer != undefined) {
-    notificationObj.message = message + " " + messageToCustomer;
+  if (messageToCustomer != null) {
+    notificationObj.message = `${message}  ${messageToCustomer}`;
   }
   notificationObj.blockNotification = "false";
   notificationObj.tags = [{}];
