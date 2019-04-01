@@ -133,18 +133,22 @@ const listDefaultMessageForNotification = callback => {
  * @param {*} osObject
  * @param {*} eventTypeId
  */
-const sendNotificationForOSEvent = (osObject, eventTypeId, callback) => {
+const sendNotificationForOSEvent = (
+  osObject,
+  messageToCustomer,
+  eventTypeId,
+  callback
+) => {
   let message = "";
   let title = "";
   if (eventTypeId === Enum.EventType.OPEN_OS) {
     title = `Sua OS foi aberta com o número ${osObject[0].NUMERO}`;
     message = `Estamos trabalhando para resolver o seu problema, entraremos em contato assim que o problema for solucionado.`;
-    builderNotification(osObject, title, message, callback);
   } else if (eventTypeId === Enum.EventType.CLOSED_OS) {
     title = `Sua OS  ${osObject[0].NUMERO} foi finalizada`;
     message = `Seu problema foi resolvido e sua internet está disponível novamente.`;
-    builderNotification(osObject, title, message, callback);
   }
+  builderNotification(osObject, messageToCustomer, title, message, callback);
 };
 
 module.exports = {
@@ -156,13 +160,22 @@ module.exports = {
   sendNotificationForOSEvent: sendNotificationForOSEvent
 };
 
-function builderNotification(osObject, title, message, callback) {
+function builderNotification(
+  osObject,
+  messageToCustomer,
+  title,
+  message,
+  callback
+) {
   const providerId = osObject[0].PROVEDOR_ID;
   const customerId = osObject[0].CLIENTE_ID;
   let notificationObj = {};
   notificationObj.title = title;
   notificationObj.message = message;
   notificationObj.userId = customerId;
+  if (messageToCustomer != null) {
+    notificationObj.message = `${message}  ${messageToCustomer}`;
+  }
   notificationObj.blockNotification = "false";
   notificationObj.tags = [{}];
   notificationObj.tags[0].key = `${providerId}_${customerId}`;
