@@ -361,16 +361,24 @@ module.exports = {
           os.providerId = result[0].PROVEDOR_ID;
           os.id = result[0].ID;
           os.customerId = result[0].CLIENTE_ID;
-
           osDAO.getOSData(os, (errOsData, result) => {
             if (errOsData) {
               resultResponse.message = "Something went wrong in your query.";
               console.log(errOsData);
             } else {
-              resultResponse.code = StatusCode.status.Ok;
-              resultResponse.data = result;
+              osDAO.listEventFromOS(os.id, (errEventData, resultEvent) => {
+                if (errEventData) {
+                  resultResponse.message =
+                    "Something went wrong in your query.";
+                  console.log(errEventData);
+                } else {
+                  resultResponse.code = StatusCode.status.Ok;
+                  result.event = resultEvent;
+                  resultResponse.data = result;
+                  callback(resultResponse);
+                }
+              });
             }
-            callback(resultResponse);
           });
         }
       });

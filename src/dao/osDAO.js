@@ -386,6 +386,22 @@ module.exports = {
     dbConfig.runQuery(sql, callback.bind(this));
   },
 
+  listEventFromOS: function listEventFromOS(osId, callback) {
+    const sql = util.format(
+      `SELECT ev.DATA_HORA AS "Data hora do evento", us.login AS "Usuário que executou o evento", 
+        ev.OBSERVACAO AS "Observação", te.DESCRICAO AS "Descrição do evento",
+        usResp.login AS "Responsável pela OS"
+        FROM evento ev 
+        LEFT JOIN tipo_evento te ON ev.TIPO_EVENTO_ID = te.ID  
+        LEFT JOIN usuario us ON ev.USUARIO_ID = us.id 
+        LEFT JOIN os os ON os.ID = ev.OS_ID  
+        LEFT JOIN usuario usResp ON ev.USUARIO_RESPONSAVEL_ID = usResp.id  
+        WHERE ev.OS_ID = %d`,
+      osId
+    );
+    dbConfig.runQuery(sql, callback.bind(this));
+  },
+
   getOsById: getOsById,
   getOsByNumber: getOsByNumber,
   changeSituationOS: changeSituationOS
@@ -396,12 +412,18 @@ function saveEvent(object, os, callback) {
   let event = object.event;
   event.osId = os.ID;
   console.log(`A OS com o ID ${event.osId} foi atualizada`);
+
+  let responsableUser = object.userId;
+  if (responsableUser == undefined) {
+    responsableUser = os.USUARIO_ID;
+  }
   sql = util.format(
-    "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID, OBSERVACAO, USUARIO_ID) VALUES (NOW(), %s, '%s','%s', %s)",
+    "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID, OBSERVACAO, USUARIO_ID, USUARIO_RESPONSAVEL_ID) VALUES (NOW(), %s, '%s','%s', %s, %s)",
     event.osId,
     event.eventTypeID,
     event.description,
-    event.userId
+    event.userId,
+    responsableUser
   );
   dbConfig.getConnection.query(sql, function(err, result) {
     if (err) {
