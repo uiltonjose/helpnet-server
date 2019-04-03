@@ -388,8 +388,8 @@ module.exports = {
 
   listEventFromOS: function listEventFromOS(osId, callback) {
     const sql = util.format(
-      `SELECT ev.DATA_HORA AS "Data hora do evento", us.login AS "Usuário que executou o evento", 
-        ev.OBSERVACAO AS "Observação", te.DESCRICAO AS "Descrição do evento",
+      `SELECT ev.DATA_HORA AS "Data hora do evento", te.DESCRICAO AS "Descrição do evento", us.login AS "Usuário do evento", 
+        ev.OBSERVACAO AS "Observação",
         usResp.login AS "Responsável pela OS"
         FROM evento ev 
         LEFT JOIN tipo_evento te ON ev.TIPO_EVENTO_ID = te.ID  
