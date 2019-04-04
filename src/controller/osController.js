@@ -364,20 +364,8 @@ module.exports = {
           osDAO.getOSData(os, (errOsData, result) => {
             if (errOsData) {
               resultResponse.message = "Something went wrong in your query.";
-              console.log(errOsData);
             } else {
-              osDAO.listEventFromOS(os.id, (errEventData, resultEvent) => {
-                if (errEventData) {
-                  resultResponse.message =
-                    "Something went wrong in your query.";
-                  console.log(errEventData);
-                } else {
-                  resultResponse.code = StatusCode.status.Ok;
-                  result.event = resultEvent;
-                  resultResponse.data = result;
-                  callback(resultResponse);
-                }
-              });
+              listEventsFromOs(os, resultResponse, result, callback);
             }
           });
         }
@@ -385,3 +373,16 @@ module.exports = {
     }
   }
 };
+
+function listEventsFromOs(os, resultResponse, result, callback) {
+  osDAO.listEventFromOS(os.id, (errEventData, resultEvent) => {
+    if (errEventData) {
+      resultResponse.message = "Something went wrong in your query.";
+    } else {
+      resultResponse.code = StatusCode.status.Ok;
+      result.event = resultEvent;
+      resultResponse.data = result;
+      callback(resultResponse);
+    }
+  });
+}

@@ -414,7 +414,7 @@ function saveEvent(object, os, callback) {
   console.log(`A OS com o ID ${event.osId} foi atualizada`);
 
   let responsableUser = object.userId;
-  if (responsableUser == undefined) {
+  if (responsableUser == null) {
     responsableUser = os.USUARIO_ID;
   }
   sql = util.format(
