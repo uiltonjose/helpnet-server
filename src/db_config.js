@@ -1,12 +1,18 @@
-
 const mysql = require("mysql");
 const EncryptUtil = require("./utils/EncryptUtil");
 
-const connection = mysql.createConnection({
-  host: process.env.BD_HOST,
-  user: process.env.BD_USER,
-  password: process.env.BD_PASSWORD,
-  database: process.env.BD_DATABASE
+// const connection = mysql.createConnection({
+//   host: process.env.BD_HOST,
+//   user: process.env.BD_USER,
+//   password: process.env.BD_PASSWORD,
+//   database: process.env.BD_DATABASE
+// });
+
+var connection = mysql.createConnection({
+  host: "lt80glfe2gj8p5n2.chr7pe7iynqr.eu-west-1.rds.amazonaws.com",
+  user: "wnxoormb91xkfef9",
+  password: "qmwan6b8lamtbp9j",
+  database: "s0xdx9gvx8au1ooc"
 });
 
 /**@description Execute a Query when there is no transaction.
@@ -19,6 +25,18 @@ const runQuery = (sql, callback) => {
       console.error(sql, err);
     }
     callback(err, result);
+  });
+};
+
+const runQueryNEW = sql => {
+  return new Promise((resolve, reject) => {
+    connection.query(sql, (err, result) => {
+      if (err) {
+        console.error(sql, err);
+        reject(err);
+      }
+      resolve(result);
+    });
   });
 };
 
@@ -35,5 +53,6 @@ const getConnectionProvider = provider => {
 module.exports = {
   getConnectionProvider: getConnectionProvider,
   getConnection: connection,
-  runQuery: runQuery
+  runQuery: runQuery,
+  runQueryNEW: runQueryNEW
 };

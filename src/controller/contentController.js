@@ -12,39 +12,27 @@ const getServerDeployVersion = () => {
   return versionObj;
 };
 
-module.exports = {
-  boot: function boot(callback) {
+const boot = () => {
+  return new Promise((resolve, reject) => {
     const boot = {};
-    contentDAO.listAllProblemsOs(function(err, result) {
-      if (!err) {
+    contentDAO
+      .listAllProblemsOs()
+      .then(result => {
         boot.code = StatusCode.status.Ok;
         boot.listProblems = result;
         boot.minAppVersion = getMinAppVersion();
         boot.serverVersion = getServerDeployVersion();
-        callback(boot);
-      } else {
+        resolve(boot);
+      })
+      .catch(err => {
         boot.code = StatusCode.status.Bad_Request;
         boot.message = "Error getting Problem List.";
-        callback(boot);
-      }
-    });
-  },
+        boot.error = err;
+        reject(boot);
+      });
+  });
+};
 
-  deployVersion: function deployVersion(callback) {
-    callback(getServerDeployVersion());
-  },
-
-  listAllProblemsOs: function listAllProblemsOs(callback) {
-    contentDAO.listAllProblemsOs(function(err, result) {
-      let resultResponse = {};
-      if (err) {
-        resultResponse.code = StatusCode.status.Bad_Request;
-        resultResponse.message = "Something went wrong in your query.";
-      } else {
-        resultResponse.code = StatusCode.status.Ok;
-        resultResponse.message = result;
-      }
-      callback(resultResponse);
-    });
-  }
+module.exports = {
+  boot: boot
 };
