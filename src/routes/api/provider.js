@@ -4,21 +4,21 @@ const router = express.Router();
 const { handleResult } = require("../../utils/APIUtil");
 
 router.get("/listProviders", (req, res) => {
-  providerController.listAllProviders(result => {
+  providerController.listAllProviders.then(result => {
     handleResult(result, res);
   });
 });
 
 router.put("/updateProvider", (req, res) => {
   const provider = req.body;
-  providerController.updateProvider(provider, result => {
+  providerController.updateProvider.then(provider, result => {
     handleResult(result, res);
   });
 });
 
 router.post("/addProvider", (req, res) => {
   const provider = req.body;
-  providerController.addProvider(provider, result => {
+  providerController.addProvider.then(provider, result => {
     handleResult(result, res);
   });
 });

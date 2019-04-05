@@ -13,23 +13,23 @@ const getServerDeployVersion = () => {
 };
 
 const boot = () => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const boot = {};
-    contentDAO
-      .listAllProblemsOs()
-      .then(result => {
+    contentDAO.listAllProblemsOs().then(
+      result => {
         boot.code = StatusCode.status.Ok;
         boot.listProblems = result;
         boot.minAppVersion = getMinAppVersion();
         boot.serverVersion = getServerDeployVersion();
         resolve(boot);
-      })
-      .catch(err => {
+      },
+      error => {
         boot.code = StatusCode.status.Bad_Request;
         boot.message = "Error getting Problem List.";
-        boot.error = err;
-        reject(boot);
-      });
+        boot.error = error;
+        resolve(boot);
+      }
+    );
   });
 };
 

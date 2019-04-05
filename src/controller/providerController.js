@@ -1,46 +1,66 @@
 const providerDAO = require("../dao/providerDAO");
 const StatusCode = require("../utils/StatusCode");
 
-module.exports = {
-  listAllProviders: function listAllProviders(callback) {
-    providerDAO.listAllProviders((err, result) => {
-      let resultResponse = {};
-      if (!err) {
+const listAllProviders = () => {
+  return new Promise(resolve => {
+    let resultResponse = {};
+    providerDAO.listAllProviders().then(
+      result => {
         resultResponse.code = StatusCode.status.Ok;
         resultResponse.message = result;
-      } else {
+        resolve(resultResponse);
+      },
+      error => {
         resultResponse.code = StatusCode.status.Bad_Request;
         resultResponse.message = "Something went wrong in your query.";
+        resultResponse.error = error;
+        resolve(resultResponse);
       }
-      callback(resultResponse);
-    });
-  },
-  //TODO Create Validation
-  updateProvider: function updateProvider(provider, callback) {
-    providerDAO.updateProvider(provider, err => {
-      let resultResponse = {};
-      if (!err) {
+    );
+  });
+};
+
+const updateProvider = provider => {
+  return new Promise(resolve => {
+    let resultResponse = {};
+    providerDAO.updateProvider(provider).then(
+      () => {
         resultResponse.code = StatusCode.status.Ok;
         resultResponse.message = "Provider updated with success";
-      } else {
+        resolve(resultResponse);
+      },
+      error => {
         resultResponse.code = StatusCode.status.Bad_Request;
         resultResponse.message = "Something went wrong in your query.";
+        resultResponse.error = error;
+        resolve(resultResponse);
       }
-      callback(resultResponse);
-    });
-  },
-  //TODO Create Validation
-  addProvider: function addProvider(provider, callback) {
-    providerDAO.addProvider(provider, err => {
-      let resultResponse = {};
-      if (!err) {
+    );
+  });
+};
+
+const addProvider = provider => {
+  return new Promise(resolve => {
+    let resultResponse = {};
+
+    providerDAO.addProvider(provider).then(
+      () => {
         resultResponse.code = StatusCode.status.Ok;
         resultResponse.message = "Provider created with success.";
-      } else {
+        resolve(resultResponse);
+      },
+      error => {
         resultResponse.code = StatusCode.status.Bad_Request;
         resultResponse.message = "Something went wrong in your query.";
+        resultResponse.error = error;
+        resolve(resultResponse);
       }
-      callback(resultResponse);
-    });
-  }
+    );
+  });
+};
+
+module.exports = {
+  listAllProviders: listAllProviders,
+  updateProvider: updateProvider,
+  addProvider: addProvider
 };

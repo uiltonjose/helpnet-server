@@ -1,7 +1,7 @@
 const dbConfig = require("../db_config"),
   util = require("util");
 
-const addUser = (user, callback) => {
+const addUser = user => {
   //TODO: Falta verificar se não existe o user cadastrado. Em tese isto nunca vai acontecer, pois o Firebase bloqueia.
   const sql = util.format(
     "INSERT INTO usuario (login, perfil, status) VALUES ('%s', '%s', '%s')",
@@ -10,12 +10,10 @@ const addUser = (user, callback) => {
     "Pendente"
   );
 
-  dbConfig.getConnection.query(sql, (err, result) => {
-    callback(err, result);
-  });
+  return dbConfig.executeQuery(sql);
 };
 
-const activateUserWithProvider = (user, callback) => {
+const activateUserWithProvider = user => {
   const sql = util.format(
     "UPDATE usuario SET status = '%s', provedor_id = '%s' WHERE id = '%s'",
     "Ativo",
@@ -23,30 +21,28 @@ const activateUserWithProvider = (user, callback) => {
     user.userId
   );
 
-  dbConfig.getConnection.query(sql, err => {
-    callback(err);
-  });
+  return dbConfig.executeQuery(sql);
 };
 
-const getUserInfo = (userLogin, callback) => {
+const getUserInfo = userLogin => {
   const sql = util.format(
     "SELECT * FROM usuario WHERE login = '%s'",
     userLogin
   );
-  dbConfig.runQuery(sql, callback.bind(this));
+  return dbConfig.executeQuery(sql);
 };
 
 const listAllUsers = callback => {
   const sql = util.format("SELECT * FROM usuario");
-  dbConfig.runQuery(sql, callback.bind(this));
+  return dbConfig.executeQuery(sql);
 };
 
-const listUserByProviderId = (providerId, callback) => {
+const listUserByProviderId = providerId => {
   const sql = util.format(
     "SELECT * FROM usuario WHERE provedor_id = %s",
     providerId
   );
-  dbConfig.runQuery(sql, callback.bind(this));
+  return dbConfig.executeQuery(sql);
 };
 
 module.exports = {
