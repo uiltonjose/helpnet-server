@@ -58,13 +58,23 @@ CREATE TABLE `evento` (
   `TIPO_EVENTO_ID` bigint(20) NOT NULL,
   `OBSERVACAO` varchar(255) DEFAULT NULL,
   `USUARIO_ID` bigint(20) DEFAULT NULL,
+  `USUARIO_RESPONSAVEL_ID` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `FK_OS_ID` (`OS_ID`),
   KEY `FK_TIPO_EVENTO_ID` (`TIPO_EVENTO_ID`),
-  KEY `FK_USUARIO` (`USUARIO_ID`),
+  KEY `FK_USUARIO_ID` (`USUARIO_ID`),
   CONSTRAINT `FK_OS_ID` FOREIGN KEY (`OS_ID`) REFERENCES `os` (`ID`),
-  CONSTRAINT `FK_USUARIO` FOREIGN KEY (`USUARIO_ID`) REFERENCES `usuario` (`ID`),
-  CONSTRAINT `FK_TIPO_EVENTO_ID` FOREIGN KEY (`TIPO_EVENTO_ID`) REFERENCES `tipo_evento` (`ID`)
+ CONSTRAINT `FK_TIPO_EVENTO_ID` FOREIGN KEY (`TIPO_EVENTO_ID`) REFERENCES `tipo_evento` (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*Table structure for table `mensagem_padrao_notificacao` */
+
+DROP TABLE IF EXISTS `mensagem_padrao_notificacao`;
+
+CREATE TABLE `mensagem_padrao_notificacao` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `TITULO` varchar(100) NOT NULL,
+  `DESCRICAO` varchar(255) NOT NULL,
+  PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Table structure for table `notificacao` */
@@ -110,10 +120,11 @@ CREATE TABLE `os` (
   `USUARIO_ID` bigint(20) DEFAULT NULL,
   `SITUACAO_ID` bigint(20) NOT NULL,
   `PROVEDOR_ID` bigint(20) NOT NULL,
+  `DATA_FECHAMENTO` datetime DEFAULT NULL,									  
   PRIMARY KEY (`ID`),
   KEY `FK_PROVEDOR_ID` (`PROVEDOR_ID`),
   KEY `FK_SITUACAO_ID` (`SITUACAO_ID`),
-  KEY `FK_TECNICO_ID` (`USUARIO_ID`),
+  KEY `FK_USUARIO_ID` (`USUARIO_ID`),
   KEY `FK_PROBLEMA_ID` (`PROBLEMA_ID`),
   KEY `FK_CLIENTE_ID` (`CLIENTE_ID`),
   CONSTRAINT `FK_CLIENTE_ID` FOREIGN KEY (`CLIENTE_ID`) REFERENCES `cliente` (`id`),
@@ -168,7 +179,7 @@ CREATE TABLE `provedor` (
   `EMAIL_ENVIO_OS` varchar(255) DEFAULT NULL,
   `LOGO` varchar(255) DEFAULT NULL,
   `CODIGO` int(11) DEFAULT NULL,
-  `CODIGO_CLIENTE` int(11) DEFAULT NULL,									
+  `CODIGO_CLIENTE` int(11) DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -181,17 +192,6 @@ CREATE TABLE `situacao_os` (
   `SITUACAO` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;														
-
-/*Table structure for table `mensagem_padrao_notificacao` */
-DROP TABLE IF EXISTS `mensagem_padrao_notificacao`;
-
-CREATE TABLE `mensagem_padrao_notificacao` (
-  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `TITULO` varchar(100) NOT NULL,
-  `DESCRICAO` varchar(255) NOT NULL,
-  PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
 
 /*Table structure for table `tecnico` */
 
