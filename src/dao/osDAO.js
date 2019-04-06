@@ -48,7 +48,7 @@ const getOsByNumber = osNumber => {
 
 const associateUserWithOs = os => {
   return new Promise((resolve, reject) => {
-    dbConfig.getConnection.beginTransaction(function(err) {
+    dbConfig.getConnection.beginTransaction(err => {
       console.log("Transaction beginning");
       if (err) {
         console.error("It was not possible to proceed the transaction.", err);
@@ -126,7 +126,7 @@ const saveNewEventAfterAssociateUser = (sql, os, resolve, reject) => {
  */
 const registerOS = os => {
   return new Promise((resolve, reject) => {
-    dbConfig.getConnection.beginTransaction(function(err) {
+    dbConfig.getConnection.beginTransaction(err => {
       console.log("Transaction beginning");
 
       if (err) {
