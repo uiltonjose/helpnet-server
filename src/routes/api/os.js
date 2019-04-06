@@ -4,14 +4,14 @@ const router = express.Router();
 const { handleResult } = require("../../utils/APIUtil");
 
 router.get("/listSituations", (req, res) => {
-  osController.listAllSituationOS(result => {
+  osController.listAllSituationOS().then(result => {
     handleResult(result, res);
   });
 });
 
 router.get("/listByProviderId", (req, res) => {
   const providerId = req.query.providerId;
-  osController.listOsByProviderId(providerId, result => {
+  osController.listOsByProviderId(providerId).then(result => {
     handleResult(result, res);
   });
 });
@@ -19,32 +19,30 @@ router.get("/listByProviderId", (req, res) => {
 router.get("/listBySituation", (req, res) => {
   const providerId = req.query.providerId;
   const situationId = req.query.situationId;
-  osController.listOsByProviderIdAndSituationId(
-    providerId,
-    situationId,
-    result => {
+  osController
+    .listOsByProviderIdAndSituationId(providerId, situationId)
+    .then(result => {
       handleResult(result, res);
-    }
-  );
+    });
 });
 
 router.get("/listOsByProviderIdAndSituationOpened", (req, res) => {
   const providerId = req.query.providerId;
-  osController.listOsByProviderIdAndSituationOpened(providerId, result => {
+  osController.listOsByProviderIdAndSituationOpened(providerId).then(result => {
     handleResult(result, res);
   });
 });
 
 router.get("/listOsByProviderIdAndSituationClosed", (req, res) => {
   const providerId = req.query.providerId;
-  osController.listOsByProviderIdAndSituationClosed(providerId, result => {
+  osController.listOsByProviderIdAndSituationClosed(providerId).then(result => {
     handleResult(result, res);
   });
 });
 
 router.get("/listOsByProviderIdAndInProgress", (req, res) => {
   const providerId = req.query.providerId;
-  osController.listOsByProviderIdAndInProgress(providerId, result => {
+  osController.listOsByProviderIdAndInProgress(providerId).then(result => {
     handleResult(result, res);
   });
 });
@@ -52,18 +50,16 @@ router.get("/listOsByProviderIdAndInProgress", (req, res) => {
 router.get("/listByCustomer", (req, res) => {
   const providerId = req.query.providerId;
   const customerId = req.query.customerId;
-  osController.listOsByProviderIdAndCustomerId(
-    providerId,
-    customerId,
-    result => {
+  osController
+    .listOsByProviderIdAndCustomerId(providerId, customerId)
+    .then(result => {
       handleResult(result, res);
-    }
-  );
+    });
 });
 
 router.post("/register", (req, res) => {
   const os = req.body;
-  osController.registerOS(os, result => {
+  osController.registerOS(os).then(result => {
     handleResult(result, res);
   });
 });
@@ -71,28 +67,28 @@ router.post("/register", (req, res) => {
 router.get("/canOpen", (req, res) => {
   const providerId = req.query.providerId;
   const customerId = req.query.customerId;
-  osController.canOpen(providerId, customerId, result => {
+  osController.canOpen(providerId, customerId).then(result => {
     handleResult(result, res);
   });
 });
 
 router.post("/changeSituation", (req, res) => {
   const object = req.body;
-  osController.changeSituationOS(object, result => {
+  osController.changeSituationOS(object).then(result => {
     handleResult(result, res);
   });
 });
 
 router.post("/associateUser", (req, res) => {
   const os = req.body;
-  osController.associateUserWithOs(os, result => {
+  osController.associateUserWithOs(os).then(result => {
     handleResult(result, res);
   });
 });
 
 router.get("/getOsByNumber", (req, res) => {
   const numberOS = req.query.numberOS;
-  osController.getOsByNumber(numberOS, result => {
+  osController.getOsByNumber(numberOS).then(result => {
     handleResult(result, res);
   });
 });
