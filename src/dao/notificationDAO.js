@@ -115,7 +115,6 @@ const saveNotification = notificationObj => {
  * @description Update in the server side the notification status as read.
  * @param {*} notificationId
  * @param {*} customerId
- * @param {*} callback
  */
 const updateNotificationAsRead = (notificationId, customerId) => {
   let sql = util.format(
@@ -132,7 +131,6 @@ const updateNotificationAsRead = (notificationId, customerId) => {
 /**
  * @description List all customer's notifications
  * @param {*} customerId
- * @param {*} callback
  */
 const listNotificationsByCustomerId = customerId => {
   const sql = util.format(
@@ -148,7 +146,6 @@ const listNotificationsByCustomerId = customerId => {
 /**
  * @description List all Provider's notifications
  * @param  {} providerId
- * @param  {} callback
  */
 const listNotificationsByProviderId = providerId => {
   const sql = util.format(
@@ -162,7 +159,6 @@ const listNotificationsByProviderId = providerId => {
 
 /**
  * @description List all default message for notification
- * @param {*} callback
  */
 const listDefaultMessageForNotification = () => {
   const sql = util.format("SELECT * FROM mensagem_padrao_notificacao");

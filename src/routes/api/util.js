@@ -6,20 +6,26 @@ const { handleResult } = require("../../utils/APIUtil");
 const encryptUtil = require("../../utils/EncryptUtil");
 
 router.get("/users", (req, res) => {
-  userController.listAllUsers(result => {
+  userController.listAllUsers().then(result => {
+    handleResult(result, res);
+  });
+});
+
+router.get("/customers", (req, res) => {
+  customerController.listAllCustomers().then(result => {
     handleResult(result, res);
   });
 });
 
 router.get("/loadBaseCustomerFromProvider", (req, res) => {
   const providerID = req.query.providerID;
-  customerController.loadBaseCustomerFromProvider(providerID, result => {
+  customerController.loadBaseCustomerFromProvider(providerID).then(result => {
     handleResult(result, res);
   });
 });
 
 router.get("/synchronizeCustomersWithProviders", (req, res) => {
-  customerController.synchronizeCustomersWithProviders(result => {
+  customerController.synchronizeCustomersWithProviders().then(result => {
     handleResult(result, res);
   });
 });

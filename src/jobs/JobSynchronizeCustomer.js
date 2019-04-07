@@ -25,20 +25,19 @@ const cronExpress =
 /**
  * @deprecated We won't use this. Keep this class just in case for the future.
  */
+const syncCustomers = () => {
+  cron.schedule(cronExpress, function() {
+    customerController.synchronizeCustomersWithProviders().then(result => {
+      console.log(result);
+    });
+
+    console.log(
+      dateUtil.getDateString() +
+        " - Iniciada a sincronização da base de dados dos provedores com o Helpnet"
+    );
+  });
+};
 
 module.exports = {
-  syncCustomers: function syncCustomers() {
-    cron.schedule(cronExpress, function() {
-      customerController.synchronizeCustomersWithProviders(function(
-        err,
-        result
-      ) {
-        console.log(result);
-      });
-      console.log(
-        dateUtil.getDateString() +
-          " - Iniciada a sincronização da base de dados dos provedores com o Helpnet"
-      );
-    });
-  }
+  syncCustomers: syncCustomers
 };

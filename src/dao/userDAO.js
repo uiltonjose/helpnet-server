@@ -32,7 +32,7 @@ const getUserInfo = userLogin => {
   return dbConfig.executeQuery(sql);
 };
 
-const listAllUsers = callback => {
+const listAllUsers = () => {
   const sql = util.format("SELECT * FROM usuario");
   return dbConfig.executeQuery(sql);
 };

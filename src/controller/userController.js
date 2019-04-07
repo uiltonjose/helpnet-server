@@ -112,9 +112,9 @@ const getUserInfo = userLogin => {
 };
 
 const listAllUsers = () => {
-  let resultResponse = {};
-
   return new Promise(resolve => {
+    let resultResponse = {};
+
     userDAO.listAllUsers().then(
       result => {
         resultResponse.code = StatusCode.status.Ok;
