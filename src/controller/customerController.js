@@ -221,7 +221,7 @@ const listAllCustomers = () => {
 
 const synchronizeCustomersWithProviders = () => {
   return new Promise(resolve => {
-    providerDAO.listProviders().then(
+    providerDAO.listAllProviders().then(
       providers => {
         for (let i = 0; i < providers.length; i++) {
           loadBaseCustomerFromProvider(providers[i].ID);
@@ -251,7 +251,8 @@ const loadBaseCustomerFromProvider = providerID => {
           );
         } else {
           console.log(
-            `Não foram localizados clientes para o provedor ${providerID} na base do Helpnet`
+            `Não foram localizados clientes para o provedor ${providerID} na base do Helpnet`,
+            customersFromHelpnet
           );
         }
         customerDAO.getProviderData(providerID).then(

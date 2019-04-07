@@ -20,13 +20,13 @@ router.get("/customers", (req, res) => {
 router.get("/loadBaseCustomerFromProvider", (req, res) => {
   const providerID = req.query.providerID;
   customerController.loadBaseCustomerFromProvider(providerID).then(result => {
-    handleResult(result, res);
+    res.json(result);
   });
 });
 
 router.get("/synchronizeCustomersWithProviders", (req, res) => {
   customerController.synchronizeCustomersWithProviders().then(result => {
-    handleResult(result, res);
+    res.json(result);
   });
 });
 
