@@ -2,83 +2,71 @@ const dbConfig = require("../db_config");
 const util = require("util");
 const Enum = require("../model/Enum");
 
-const changeSituationOS = function changeSituationOS(object, callback) {
-  dbConfig.getConnection.beginTransaction(function(err) {
-    console.log("Transaction beginning");
+const changeSituationOS = object => {
+  return new Promise((resolve, reject) => {
+    getOsByNumber(object.osNumber).then(
+      osResult => {
+        let sql = "";
+        let os = osResult[0];
+        sql = selectSqlFromEventType(object, sql, os);
 
-    if (err) {
-      console.log("Error: It was not possible to start transaction.", err);
-      callback(err);
-    } else {
-      getOsByNumber(object.osNumber, (err, osResult) => {
-        if (err) {
-          console.log("OS not found.", err);
-          callback(err);
-        } else {
-          let sql = "";
-          let os = osResult[0];
-          sql = selectSqlFromEventType(object, sql, os);
-          dbConfig.getConnection.query(sql, function(err, result) {
-            if (err) {
-              console.log(
-                "Rollback Transaction: Problem during OS update.",
-                err
-              );
-              dbConfig.getConnection.rollback(function() {
-                callback(err);
-              });
-            } else {
-              saveEvent(object, os, callback);
-            }
-          });
-        }
-      });
-    }
+        dbConfig.executeQuery(sql).then(
+          () => {
+            saveEvent(object, os, resolve, reject);
+          },
+          error => {
+            reject(error);
+          }
+        );
+      },
+      error => {
+        reject(error);
+      }
+    );
   });
 };
 
 /**
  * @description Get the OS by id
  */
-const getOsById = (osId, callback) => {
+const getOsById = osId => {
   const sql = util.format("SELECT * FROM os WHERE ID = %s", osId);
-  dbConfig.runQuery(sql, callback.bind(this));
+  return dbConfig.executeQuery(sql);
 };
 
 /**
  * @description Get the OS by Number
  */
-const getOsByNumber = (osNumber, callback) => {
+const getOsByNumber = osNumber => {
   const sql = util.format("SELECT * FROM os WHERE NUMERO = %s", osNumber);
-  dbConfig.runQuery(sql, callback.bind(this));
+  return dbConfig.executeQuery(sql);
 };
 
-module.exports = {
-  /**
-   * @description Associate User
-   */
-  associateUserWithOs: function associateUserWithOs(os, callback) {
-    dbConfig.getConnection.beginTransaction(function(err) {
+/**
+ * @description Associate User
+ */
+
+const associateUserWithOs = os => {
+  return new Promise((resolve, reject) => {
+    dbConfig.getConnection.beginTransaction(err => {
       console.log("Transaction beginning");
       if (err) {
-        console.log("Erro. Não foi possível iniciar transação", err);
-        callback(err);
+        console.error("It was not possible to proceed the transaction.", err);
+        reject(err);
       }
+
       let sql = util.format(
         "UPDATE os SET USUARIO_ID = %s WHERE ID = %s",
         os.userId,
         os.osId
       );
-      dbConfig.getConnection.query(sql, function(err, result) {
-        if (err) {
-          console.log("Rollback Transaction: Problem during OS update.", err);
-          dbConfig.getConnection.rollback(function() {
-            callback(err);
-          });
-        } else {
+
+      dbConfig.executeQuery(sql).then(
+        () => {
           let event = os.event;
           event.osId = os.osId;
-          console.log("A OS com o ID = " + event.osId + " foi atualizada");
+          console.log(`OS with ID=${event.osId} updated successfully.`);
+
           sql = util.format(
             "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID, OBSERVACAO, USUARIO_ID) VALUES (NOW(), %s, '%s','%s', %s)",
             event.osId,
@@ -86,48 +74,71 @@ module.exports = {
             event.description,
             event.userId
           );
-          dbConfig.getConnection.query(sql, function(err, result) {
-            if (err) {
-              console.log(
-                "Rollback Transaction: Problem during Event persistence.",
-                err
-              );
-              dbConfig.getConnection.rollback(function() {
-                callback(err);
-              });
-            } else {
-              dbConfig.getConnection.commit(function(err, result) {
-                if (err) {
-                  dbConfig.getConnection.rollback(function() {
-                    console.log("Ocorreu um erro no commit da transação", err);
-                    callback(err);
-                  });
-                } else {
-                  console.log("Transaction completed.");
-                  callback(err, os.osId);
-                }
-              });
-            }
+
+          saveNewEventAfterAssociateUser(sql, os, resolve, reject);
+        },
+        error => {
+          console.error(
+            "Rollback Transaction: Problem during OS update.",
+            error
+          );
+          dbConfig.getConnection.rollback(function() {
+            reject(error);
           });
         }
-      });
+      );
     });
-  },
+  });
+};
 
-  /**
-   * @description Register new OS
-   */
-  registerOS: function registerOS(os, callback) {
-    dbConfig.getConnection.beginTransaction(function(err) {
-      console.log("iniciou transação");
+const saveNewEventAfterAssociateUser = (sql, os, resolve, reject) => {
+  dbConfig.executeQuery(sql).then(
+    () => {
+      dbConfig.getConnection.commit(function(error, result) {
+        if (error) {
+          dbConfig.getConnection.rollback(function() {
+            console.error(
+              "Problem during the commit. Rolling back transaction.",
+              error
+            );
+            reject(error);
+          });
+        } else {
+          console.log("Transaction completed.");
+          resolve(os.osId);
+        }
+      });
+    },
+    error => {
+      console.error(
+        "Rollback Transaction: Problem during Event persistence.",
+        error
+      );
+      dbConfig.getConnection.rollback(function() {
+        reject(error);
+      });
+    }
+  );
+};
+
+/**
+ * @description Register new OS
+ */
+const registerOS = os => {
+  return new Promise((resolve, reject) => {
+    dbConfig.getConnection.beginTransaction(err => {
+      console.log("Transaction beginning");
+
       if (err) {
-        console.log("Erro. Não foi possível iniciar transação", err);
-        callback(err);
+        console.error("It was not possible to proceed the transaction.", err);
+        reject(err);
       }
-      let increment =
+
+      const increment =
         "concat('" +
         os.number +
         "',(SELECT Auto_increment FROM information_schema.tables WHERE table_name='os'))";
+
       let sql = util.format(
         `INSERT INTO os (NUMERO, DATA_ABERTURA, CLIENTE_ID, PROBLEMA_ID, DETALHES, SITUACAO_ID, PROVEDOR_ID) 
           VALUES (${increment}, NOW(), %s, %s, '%s', ${
@@ -138,69 +149,85 @@ module.exports = {
         os.details,
         os.providerId
       );
-      dbConfig.getConnection.query(sql, function(err, result) {
-        if (err) {
-          console.log(
-            "Rollback Transaction: Problem during OS persistence.",
-            err
-          );
-          dbConfig.getConnection.rollback(function() {
-            callback(err);
-          });
-        } else {
+
+      dbConfig.executeQuery(sql).then(
+        result => {
           let event = {};
           os.id = result.insertId;
           event.osId = result.insertId;
-          event.eventTypeID = 1;
-          console.log("A OS foi registrada com o ID = " + event.osId);
+          event.eventTypeID = Enum.EventType.OPEN_OS;
+
+          console.log(`OS registered with ID = ${event.osId}`);
+
           sql = util.format(
             "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID) VALUES (NOW(), %s, %s)",
             event.osId,
             event.eventTypeID
           );
-          dbConfig.getConnection.query(sql, function(err, result) {
-            if (err) {
+
+          dbConfig.executeQuery(sql).then(
+            result => {
               console.log(
+                `O Evento foi registrado com o ID = ${result.insertId}`
+              );
+              dbConfig.getConnection.commit(function(err, result) {
+                if (err) {
+                  console.error(
+                    "Problem during the commit. Rolling back transaction.",
+                    err
+                  );
+                  reject(error);
+                }
+
+                console.log("Transação completa.");
+
+                getOsById(os.id).then(
+                  osResult => {
+                    resolve(osResult);
+                  },
+                  osError => {
+                    reject(osError);
+                  }
+                );
+              });
+            },
+            error => {
+              console.error(
                 "Rollback Transaction: Problem during Event persistence.",
-                err
+                error
               );
               dbConfig.getConnection.rollback(function() {
-                callback(err);
+                reject(error);
               });
             }
-
-            console.log(
-              "O Evento foi registrado com o ID = " + result.insertId
-            );
-            dbConfig.getConnection.commit(function(err, result) {
-              if (err) {
-                dbConfig.getConnection.rollback(function() {
-                  console.log("Ocorreu um erro no commit da transação", err);
-                  callback(err);
-                });
-              }
-              console.log("Transação completa.");
-              getOsById(os.id, (err, result) => {
-                callback(err, result);
-              });
-            });
+          );
+        },
+        error => {
+          console.error(
+            "Rollback Transaction: Problem during OS persistence.",
+            error
+          );
+          dbConfig.getConnection.rollback(function() {
+            reject(error);
           });
         }
-      });
+      );
     });
-  },
+  });
+};
 
-  canOpen: function canOpen(providerId, customerId, callback) {
-    const sql = util.format(
-      "SELECT count(id) as total FROM os WHERE PROVEDOR_ID = %d AND CLIENTE_ID = %s AND SITUACAO_ID = %d",
-      providerId,
-      customerId,
-      Enum.Situations.OPEN
-    );
-    dbConfig.runQuery(sql, callback);
-  },
+const canOpen = (providerId, customerId) => {
+  const sql = util.format(
+    "SELECT count(id) as total FROM os WHERE PROVEDOR_ID = %d AND CLIENTE_ID = %s AND SITUACAO_ID = %d",
+    providerId,
+    customerId,
+    Enum.Situations.OPEN
+  );
+  return dbConfig.executeQuery(sql);
+};
 
-  getOSData: function getOSData(os, callback) {
+const getOSData = os => {
+  return new Promise((resolve, reject) => {
     const sql = util.format(
       `SELECT cli.nome, cli.cpf_cnpj, cli.nome_res, cli.fone, cli.celular, cli.endereco, cli.numero,
        cli.bairro, cli.cidade, cli.estado, cli.cep, cli.cadastro, cli.email, cli.login, cli.plano, prob.titulo, os.numero as numeroOS,
@@ -216,14 +243,8 @@ module.exports = {
       os.customerId
     );
 
-    dbConfig.getConnection.query(sql, function(err, result) {
-      if (err) {
-        console.log(
-          "Ocorreu um erro ao tentar obter as informações da OS",
-          err
-        );
-        callback(err, result);
-      } else {
+    dbConfig.executeQuery(sql).then(
+      result => {
         const osResult = result[0];
         let osDescription = {};
         osDescription.numeroOS = osResult.numeroOS;
@@ -244,180 +265,165 @@ module.exports = {
         osDescription.plano = osResult.plano;
         osDescription.dataCadastroProvedor = osResult.cadastro;
         osDescription.emailEnvioOS = osResult.emailEnvioOS;
-        callback(err, osDescription);
+        resolve(osDescription);
+      },
+      error => {
+        console.error(
+          "Occurred an error trying to get OS' informations.",
+          error
+        );
+        reject(error);
       }
-    });
-  },
-
-  /**
-   * @description Listar todas as OS de um determinado provedor
-   */
-  listOsByProviderId: function listOsByProviderId(providerId, callback) {
-    const sql = util.format(
-      `SELECT service.numero AS Número, cli.nome AS Nome, pro.TITULO AS Problema, service.detalhes as Detalhe, service.data_abertura AS Data_Abertura 
-      FROM os service JOIN cliente cli ON cli.id = service.cliente_id JOIN problema_os pro ON pro.id = service.problema_id 
-      AND PROVEDOR_ID = %d ORDER BY Data_Abertura DESC`,
-      providerId
     );
-
-    dbConfig.runQuery(sql, callback.bind(this));
-  },
-
-  /**
-   * @description Listar as OS de um determinado provedor, filtrando pela situação
-   */
-  listOsByProviderIdAndSituationId: function listOsByProviderIdAndSituationId(
-    providerId,
-    situationId,
-    callback
-  ) {
-    const sql = util.format(
-      "SELECT * FROM os WHERE PROVEDOR_ID = %d AND SITUACAO_ID = %d",
-      providerId,
-      situationId
-    );
-
-    dbConfig.runQuery(sql, callback.bind(this));
-  },
-
-  /**
-   * @description List all OS by provider Id and Situation equal the Opened
-   */
-  listOsByProviderIdAndSituationOpened: function listOsByProviderIdAndSituationOpened(
-    providerId,
-    callback
-  ) {
-    const sql = util.format(
-      `SELECT
-       service.numero AS Número,
-       cli.nome AS Nome,
-       pro.TITULO AS Problema,
-       service.DETALHES as Detalhe,
-       service.DATA_ABERTURA AS 'Data Abertura'
-       FROM os service
-       LEFT JOIN cliente cli ON cli.id = service.cliente_id
-       LEFT JOIN problema_os pro ON pro.id = service.problema_id
-       WHERE service.PROVEDOR_ID = %d
-       AND service.SITUACAO_ID = ${Enum.Situations.OPEN}
-       ORDER BY service.DATA_ABERTURA DESC`,
-      providerId
-    );
-
-    dbConfig.runQuery(sql, callback.bind(this));
-  },
-
-  /**
-   * @description List all OS by ProviderId and Situation as Work in Progress.
-   */
-  listOsByProviderIdAndInProgress: function listOsByProviderIdAndInProgress(
-    providerId,
-    callback
-  ) {
-    const sql = util.format(
-      `SELECT
-       service.numero AS Número,
-       cli.nome AS Nome,
-       pro.TITULO AS Problema,
-       service.DETALHES as Detalhe,
-       service.DATA_ABERTURA AS 'Data Abertura',
-       usu.login AS Responsável
-       FROM os service
-       LEFT JOIN cliente cli ON cli.id = service.cliente_id
-       LEFT JOIN problema_os pro ON pro.id = service.problema_id
-       LEFT JOIN usuario usu ON usu.id = service.USUARIO_ID
-       WHERE service.PROVEDOR_ID = %d
-       AND service.SITUACAO_ID = ${Enum.Situations.WORK_IN_PROGRESS}
-       ORDER BY service.DATA_ABERTURA DESC`,
-      providerId
-    );
-
-    dbConfig.runQuery(sql, callback.bind(this));
-  },
-
-  /**
-   * @description List all OS by ProviderId and Situation as Closed
-   */
-  listOsByProviderIdAndSituationClosed: function listOsByProviderIdAndSituationClosed(
-    providerId,
-    callback
-  ) {
-    const sql = util.format(
-      `SELECT
-       service.numero AS Número,
-       cli.nome AS Nome,
-       pro.TITULO AS Problema,
-       service.DETALHES as Detalhe,
-       service.DATA_ABERTURA AS 'Data Abertura',
-       service.DATA_FECHAMENTO AS 'Data fechamento',
-       usu.login AS Responsável
-       FROM os service
-       LEFT JOIN cliente cli ON cli.id = service.cliente_id
-       LEFT JOIN problema_os pro ON pro.id = service.problema_id
-       LEFT JOIN usuario usu ON usu.id = service.USUARIO_ID
-       WHERE service.PROVEDOR_ID = %d
-       AND service.SITUACAO_ID = ${Enum.Situations.CLOSED}
-       ORDER BY Data_Abertura DESC`,
-      providerId
-    );
-
-    dbConfig.runQuery(sql, callback.bind(this));
-  },
-
-  listOsByProviderIdAndCustomerId: function listOsByProviderIdAndCustomerId(
-    providerId,
-    customerId,
-    callback
-  ) {
-    const sql = util.format(
-      "SELECT * FROM os WHERE PROVEDOR_ID = %d AND CLIENTE_ID = %d",
-      providerId,
-      customerId
-    );
-
-    dbConfig.runQuery(sql, callback.bind(this));
-  },
-
-  /**
-   * @description Listar todas as situações possiveis para uma OS
-   */
-  listAllSituationOS: function listAllSituationOS(callback) {
-    const sql = util.format("SELECT * FROM situacao_os");
-
-    dbConfig.runQuery(sql, callback.bind(this));
-  },
-
-  listEventFromOS: function listEventFromOS(osId, callback) {
-    const sql = util.format(
-      `SELECT ev.DATA_HORA AS "Data hora do evento", te.DESCRICAO AS "Descrição do evento", us.login AS "Usuário do evento", 
-        ev.OBSERVACAO AS "Observação",
-        usResp.login AS "Responsável pela OS"
-        FROM evento ev 
-        LEFT JOIN tipo_evento te ON ev.TIPO_EVENTO_ID = te.ID  
-        LEFT JOIN usuario us ON ev.USUARIO_ID = us.id 
-        LEFT JOIN os os ON os.ID = ev.OS_ID  
-        LEFT JOIN usuario usResp ON ev.USUARIO_RESPONSAVEL_ID = usResp.id  
-        WHERE ev.OS_ID = %d`,
-      osId
-    );
-    dbConfig.runQuery(sql, callback.bind(this));
-  },
-
-  getOsById: getOsById,
-  getOsByNumber: getOsByNumber,
-  changeSituationOS: changeSituationOS
+  });
 };
 
-function saveEvent(object, os, callback) {
-  let sql = "";
+/**
+ * @description Listar todas as OS de um determinado provedor
+ */
+const listOsByProviderId = providerId => {
+  const sql = util.format(
+    `SELECT service.numero AS Número, cli.nome AS Nome, pro.TITULO AS Problema, service.detalhes as Detalhe, service.data_abertura AS Data_Abertura 
+    FROM os service JOIN cliente cli ON cli.id = service.cliente_id JOIN problema_os pro ON pro.id = service.problema_id 
+    AND PROVEDOR_ID = %d ORDER BY Data_Abertura DESC`,
+    providerId
+  );
+
+  return dbConfig.executeQuery(sql);
+};
+
+/**
+ * @description Listar as OS de um determinado provedor, filtrando pela situação
+ */
+const listOsByProviderIdAndSituationId = (providerId, situationId) => {
+  const sql = util.format(
+    "SELECT * FROM os WHERE PROVEDOR_ID = %d AND SITUACAO_ID = %d",
+    providerId,
+    situationId
+  );
+
+  return dbConfig.executeQuery(sql);
+};
+
+/**
+ * @description List all OS by provider Id and Situation equal the Opened
+ */
+const listOsByProviderIdAndSituationOpened = providerId => {
+  const sql = util.format(
+    `SELECT
+     service.numero AS Número,
+     cli.nome AS Nome,
+     pro.TITULO AS Problema,
+     service.DETALHES as Detalhe,
+     service.DATA_ABERTURA AS 'Data Abertura'
+     FROM os service
+     LEFT JOIN cliente cli ON cli.id = service.cliente_id
+     LEFT JOIN problema_os pro ON pro.id = service.problema_id
+     WHERE service.PROVEDOR_ID = %d
+     AND service.SITUACAO_ID = ${Enum.Situations.OPEN}
+     ORDER BY service.DATA_ABERTURA DESC`,
+    providerId
+  );
+
+  return dbConfig.executeQuery(sql);
+};
+
+/**
+ * @description List all OS by ProviderId and Situation as Work in Progress.
+ */
+const listOsByProviderIdAndInProgress = providerId => {
+  const sql = util.format(
+    `SELECT
+     service.numero AS Número,
+     cli.nome AS Nome,
+     pro.TITULO AS Problema,
+     service.DETALHES as Detalhe,
+     service.DATA_ABERTURA AS 'Data Abertura',
+     usu.login AS Responsável
+     FROM os service
+     LEFT JOIN cliente cli ON cli.id = service.cliente_id
+     LEFT JOIN problema_os pro ON pro.id = service.problema_id
+     LEFT JOIN usuario usu ON usu.id = service.USUARIO_ID
+     WHERE service.PROVEDOR_ID = %d
+     AND service.SITUACAO_ID = ${Enum.Situations.WORK_IN_PROGRESS}
+     ORDER BY service.DATA_ABERTURA DESC`,
+    providerId
+  );
+
+  return dbConfig.executeQuery(sql);
+};
+
+/**
+ * @description List all OS by ProviderId and Situation as Closed
+ */
+const listOsByProviderIdAndSituationClosed = providerId => {
+  const sql = util.format(
+    `SELECT
+     service.numero AS Número,
+     cli.nome AS Nome,
+     pro.TITULO AS Problema,
+     service.DETALHES as Detalhe,
+     service.DATA_ABERTURA AS 'Data Abertura',
+     service.DATA_FECHAMENTO AS 'Data fechamento',
+     usu.login AS Responsável
+     FROM os service
+     LEFT JOIN cliente cli ON cli.id = service.cliente_id
+     LEFT JOIN problema_os pro ON pro.id = service.problema_id
+     LEFT JOIN usuario usu ON usu.id = service.USUARIO_ID
+     WHERE service.PROVEDOR_ID = %d
+     AND service.SITUACAO_ID = ${Enum.Situations.CLOSED}
+     ORDER BY Data_Abertura DESC`,
+    providerId
+  );
+
+  return dbConfig.executeQuery(sql);
+};
+
+/**
+ * @description Listar todas as situações possiveis para uma OS
+ */
+const listAllSituationOS = () => {
+  const sql = util.format("SELECT * FROM situacao_os");
+  return dbConfig.executeQuery(sql);
+};
+
+const listOsByProviderIdAndCustomerId = (providerId, customerId) => {
+  const sql = util.format(
+    "SELECT * FROM os WHERE PROVEDOR_ID = %d AND CLIENTE_ID = %d",
+    providerId,
+    customerId
+  );
+
+  return dbConfig.executeQuery(sql);
+};
+
+const listEventFromOS = osId => {
+  const sql = util.format(
+    `SELECT ev.DATA_HORA AS "Data hora do evento", te.DESCRICAO AS "Descrição do evento", us.login AS "Usuário do evento", 
+      ev.OBSERVACAO AS "Observação",
+      usResp.login AS "Responsável pela OS"
+      FROM evento ev 
+      LEFT JOIN tipo_evento te ON ev.TIPO_EVENTO_ID = te.ID  
+      LEFT JOIN usuario us ON ev.USUARIO_ID = us.id 
+      LEFT JOIN os os ON os.ID = ev.OS_ID  
+      LEFT JOIN usuario usResp ON ev.USUARIO_RESPONSAVEL_ID = usResp.id  
+      WHERE ev.OS_ID = %d`,
+    osId
+  );
+  return dbConfig.executeQuery(sql);
+};
+
+const saveEvent = (object, os, resolve, reject) => {
   let event = object.event;
   event.osId = os.ID;
-  console.log(`A OS com o ID ${event.osId} foi atualizada`);
+  console.log(`A OS com o ID ${event.osId} foi atualizada.`);
 
   let responsableUser = object.userId;
   if (responsableUser == null) {
     responsableUser = os.USUARIO_ID;
   }
-  sql = util.format(
+
+  const sql = util.format(
     "INSERT INTO evento (DATA_HORA, OS_ID, TIPO_EVENTO_ID, OBSERVACAO, USUARIO_ID, USUARIO_RESPONSAVEL_ID) VALUES (NOW(), %s, '%s','%s', %s, %s)",
     event.osId,
     event.eventTypeID,
@@ -425,33 +431,26 @@ function saveEvent(object, os, callback) {
     event.userId,
     responsableUser
   );
-  dbConfig.getConnection.query(sql, function(err, result) {
-    if (err) {
-      console.log(
-        "Rollback Transaction: Problem during Event persistence.",
-        err
-      );
-      dbConfig.getConnection.rollback(function() {
-        callback(err);
-      });
-    } else {
-      dbConfig.getConnection.commit(function(err, result) {
-        if (err) {
-          dbConfig.getConnection.rollback(function() {
-            console.log("Ocorreu um erro no commit da transação", err);
-            callback(err);
-          });
-        } else {
-          getOsById(os.ID, (err, result) => {
-            callback(err, result);
-          });
-        }
-      });
-    }
-  });
-}
 
-function selectSqlFromEventType(object, sql, os) {
+  dbConfig.executeQuery(sql).then(
+    () => {
+      getOsById(os.ID).then(
+        osResult => {
+          resolve(osResult);
+        },
+        osError => {
+          reject(osError);
+        }
+      );
+    },
+    error => {
+      console.error("Occurred an error trying to save an Event.", error);
+      reject(error);
+    }
+  );
+};
+
+const selectSqlFromEventType = (object, sql, os) => {
   switch (object.situationId) {
     case 2:
       sql = util.format(
@@ -476,4 +475,22 @@ function selectSqlFromEventType(object, sql, os) {
       );
   }
   return sql;
-}
+};
+
+module.exports = {
+  associateUserWithOs: associateUserWithOs,
+  registerOS: registerOS,
+  canOpen: canOpen,
+  getOSData: getOSData,
+  listOsByProviderId: listOsByProviderId,
+  listOsByProviderIdAndSituationId: listOsByProviderIdAndSituationId,
+  listOsByProviderIdAndSituationOpened: listOsByProviderIdAndSituationOpened,
+  listOsByProviderIdAndInProgress: listOsByProviderIdAndInProgress,
+  listOsByProviderIdAndSituationClosed: listOsByProviderIdAndSituationClosed,
+  listOsByProviderIdAndCustomerId: listOsByProviderIdAndCustomerId,
+  listAllSituationOS: listAllSituationOS,
+  listEventFromOS: listEventFromOS,
+  getOsById: getOsById,
+  getOsByNumber: getOsByNumber,
+  changeSituationOS: changeSituationOS
+};

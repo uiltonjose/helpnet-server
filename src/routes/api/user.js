@@ -5,14 +5,14 @@ const { handleResult } = require("../../utils/APIUtil");
 
 router.post("/add", (req, res) => {
   const userObj = req.body;
-  userController.addUser(userObj, result => {
+  userController.addUser(userObj).then(result => {
     handleResult(result, res);
   });
 });
 
 router.put("/activateUserWithProvider", (req, res) => {
   const userObj = req.body;
-  userController.activateUserWithProvider(userObj, result => {
+  userController.activateUserWithProvider(userObj).then(result => {
     handleResult(result, res);
   });
 });
@@ -22,14 +22,14 @@ router.put("/activateUserWithProvider", (req, res) => {
 */
 router.get("/listByProviderId", (req, res) => {
   const providerId = req.query.providerId;
-  userController.listUserByProviderId(providerId, result => {
+  userController.listUserByProviderId(providerId).then(result => {
     handleResult(result, res);
   });
 });
 
 router.get("/info", (req, res) => {
   const userLogin = req.query.userLogin;
-  userController.getUserInfo(userLogin, result => {
+  userController.getUserInfo(userLogin).then(result => {
     handleResult(result, res);
   });
 });

@@ -1,4 +1,3 @@
-
 const mysql = require("mysql");
 const EncryptUtil = require("./utils/EncryptUtil");
 
@@ -9,16 +8,16 @@ const connection = mysql.createConnection({
   database: process.env.BD_DATABASE
 });
 
-/**@description Execute a Query when there is no transaction.
- * @param  {Sql that will be executed} sql
- * @param  {Callback expected to return the result} callback
- */
-const runQuery = (sql, callback) => {
-  connection.query(sql, (err, result) => {
-    if (err) {
-      console.error(sql, err);
-    }
-    callback(err, result);
+const executeQuery = sql => {
+  return new Promise((resolve, reject) => {
+    connection.query(sql, (err, result) => {
+      if (err) {
+        console.error(sql, err);
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
   });
 };
 
@@ -35,5 +34,5 @@ const getConnectionProvider = provider => {
 module.exports = {
   getConnectionProvider: getConnectionProvider,
   getConnection: connection,
-  runQuery: runQuery
+  executeQuery: executeQuery
 };

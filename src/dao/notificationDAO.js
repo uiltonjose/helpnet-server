@@ -3,18 +3,20 @@ const status = require("../model/Enum");
 const dbConfig = require("../db_config");
 const util = require("util");
 
-module.exports = {
-  /**
-   * @description Register a new Notification. From CMS/BO to Customer (Currently Mobile)
-   */
-  saveNotification: function saveNotification(notificationObj, callback) {
-    // TODO: Refactor this method. Too complexity too understand. Make this more simple.
-    dbConfig.getConnection.beginTransaction(function(err) {
+/**
+ * @description Register a new Notification. From CMS/BO to Customer (Currently Mobile)
+ */
+const saveNotification = notificationObj => {
+  return new Promise((resolve, reject) => {
+    dbConfig.getConnection.beginTransaction(transactionError => {
       console.log("Transaction beginning");
 
-      if (err) {
-        console.log("It was not possible begin transaction.", err);
-        callback(err, null);
+      if (transactionError) {
+        console.error(
+          "It was not possible begin transaction.",
+          transactionError
+        );
+        reject(transactionError);
       }
 
       let key = notificationObj.tags[0].key;
@@ -28,15 +30,8 @@ module.exports = {
         notificationObj.userId
       );
 
-      dbConfig.getConnection.query(sql, function(err, result) {
-        if (err) {
-          console.log(
-            "Rollback transaction: Problem to persist the notification."
-          );
-          dbConfig.getConnection.rollback(function() {
-            callback(err, null);
-          });
-        } else {
+      dbConfig.executeQuery(sql).then(
+        notificationResult => {
           let customerId;
           let count = 0;
           let sqlInsert =
@@ -49,132 +44,131 @@ module.exports = {
                 sqlInsert = sqlInsert + ", ";
               }
 
-              sqlInsert = `${sqlInsert}(${result.insertId}, ${customerId}, '${
+              sqlInsert = `${sqlInsert}(${
+                notificationResult.insertId
+              }, ${customerId}, '${
                 status.NotificationStatus.SENT
               }', NOW(), NOW())`;
               count++;
 
-              customerDAO.updateCustomerOpenOS(
-                notificationObj.blockOpenNewOS,
-                customerId,
-                (error, result) => {
-                  // For now, just ignoring this result...
-                  console.log(error, result);
-                }
-              );
+              customerDAO
+                .updateCustomerOpenOS(
+                  notificationObj.blockOpenNewOS,
+                  customerId
+                )
+                .then(
+                  result => {
+                    // For now, just ignoring this result...
+                    console.log("Update of Customer Open OS", result);
+                  },
+                  error => {
+                    console.error(
+                      "Error during an Update of Customer Open OS",
+                      error
+                    );
+                  }
+                );
             }
           });
 
           const sqlNotificationCustomer = util.format(sqlInsert);
-
-          dbConfig.getConnection.query(sqlNotificationCustomer, function(
-            err,
-            result
-          ) {
-            let idResult = result.insertId;
-            if (err) {
-              console.log("Rollback Transaction", err);
+          dbConfig.executeQuery(sqlNotificationCustomer).then(
+            result => {
+              let idResult = result.insertId;
+              dbConfig.getConnection.commit(err => {
+                if (err) {
+                  dbConfig.getConnection.rollback(function() {
+                    console.error(
+                      "Occur a problem during transaction commit.",
+                      err
+                    );
+                    reject(err);
+                  });
+                }
+                console.log("Transaction Completed.");
+                resolve(idResult);
+              });
+            },
+            error => {
+              console.error("Rollback Transaction", error);
               dbConfig.getConnection.rollback(function() {
-                callback(err, null);
+                reject(error);
               });
             }
-            dbConfig.getConnection.commit(function(err) {
-              if (err) {
-                dbConfig.getConnection.rollback(function() {
-                  console.log(
-                    "Occur a problem during transaction commit.",
-                    err
-                  );
-                  callback(err, null);
-                });
-              }
-              console.log("Transaction Completed.");
-              callback(null, idResult);
-            });
+          );
+        },
+        error => {
+          console.error(
+            "Rollback transaction: Problem to persist the notification.",
+            error
+          );
+          dbConfig.getConnection.rollback(function() {
+            reject(error);
           });
         }
-      });
+      );
     });
-  },
+  });
+};
 
-  /**
-   * @description Update in the server side the notification status as read.
-   * @param {*} notificationId
-   * @param {*} customerId
-   * @param {*} callback
-   */
-  updateNotificationAsRead: function updateNotificationAsRead(
+/**
+ * @description Update in the server side the notification status as read.
+ * @param {*} notificationId
+ * @param {*} customerId
+ */
+const updateNotificationAsRead = (notificationId, customerId) => {
+  let sql = util.format(
+    `UPDATE notificacao_cliente SET status = '${
+      status.NotificationStatus.READ
+    }', dataUltimaAlteracao = NOW() WHERE notificacaoId = %s AND clienteID = %s`,
     notificationId,
-    customerId,
-    callback
-  ) {
-    let sql = util.format(
-      `UPDATE notificacao_cliente SET status = '${
-        status.NotificationStatus.READ
-      }', dataUltimaAlteracao = NOW() WHERE notificacaoId = %s AND clienteID = %s`,
-      notificationId,
-      customerId
-    );
+    customerId
+  );
 
-    dbConfig.getConnection.query(sql, function(err, result) {
-      if (err) {
-        console.log(err);
-        callback(err, result);
-      } else {
-        callback(
-          err,
-          `A Notificação ${notificationId} do cliente ${customerId} foi atualizada com sucesso.`
-        );
-      }
-    });
-  },
+  return dbConfig.executeQuery(sql);
+};
 
-  /**
-   * @description List all customer's notifications
-   * @param {*} customerId
-   * @param {*} callback
-   */
-  listNotificationsByCustomerId: function listNotificationsByCustomerId(
-    customerId,
-    callback
-  ) {
-    const sql = util.format(
-      `SELECT * FROM notificacao notif 
-        INNER JOIN notificacao_cliente notif_client 
-          ON notif.id = notif_client.notificacaoId where notif_client.clienteId = %s`,
-      customerId
-    );
+/**
+ * @description List all customer's notifications
+ * @param {*} customerId
+ */
+const listNotificationsByCustomerId = customerId => {
+  const sql = util.format(
+    `SELECT * FROM notificacao notif 
+      INNER JOIN notificacao_cliente notif_client 
+        ON notif.id = notif_client.notificacaoId where notif_client.clienteId = %s`,
+    customerId
+  );
 
-    dbConfig.runQuery(sql, callback.bind(this));
-  },
+  return dbConfig.executeQuery(sql);
+};
 
-  /**
-   * @description List all Provider's notifications
-   * @param  {} providerId
-   * @param  {} callback
-   */
-  listNotificationsByProviderId: function listNotificationsByProviderId(
-    providerId,
-    callback
-  ) {
-    const sql = util.format(
-      `SELECT titulo as Titulo, mensagem as Mensagem, data_envio as 'Data_de_Envio' 
-        FROM notificacao WHERE provider_id = %s ORDER BY data_envio DESC`,
-      providerId
-    );
+/**
+ * @description List all Provider's notifications
+ * @param  {} providerId
+ */
+const listNotificationsByProviderId = providerId => {
+  const sql = util.format(
+    `SELECT titulo as Titulo, mensagem as Mensagem, data_envio as 'Data_de_Envio' 
+      FROM notificacao WHERE provider_id = %s ORDER BY data_envio DESC`,
+    providerId
+  );
 
-    dbConfig.runQuery(sql, callback.bind(this));
-  },
+  return dbConfig.executeQuery(sql);
+};
 
-  /**
-   * @description List all default message for notification
-   * @param {*} callback
-   */
-  listDefaultMessageForNotification: function listDefaultMessageForNotification(
-    callback
-  ) {
-    const sql = util.format("SELECT * FROM mensagem_padrao_notificacao");
+/**
+ * @description List all default message for notification
+ */
+const listDefaultMessageForNotification = () => {
+  const sql = util.format("SELECT * FROM mensagem_padrao_notificacao");
+  return dbConfig.executeQuery(sql);
+};
 
-    dbConfig.runQuery(sql, callback.bind(this));
-  }
+module.exports = {
+  saveNotification: saveNotification,
+  updateNotificationAsRead: updateNotificationAsRead,
+  listNotificationsByCustomerId: listNotificationsByCustomerId,
+  listNotificationsByProviderId: listNotificationsByProviderId,
+  listDefaultMessageForNotification: listDefaultMessageForNotification
 };

@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/boot", (req, res) => {
-  contentController.boot(result => {
+  contentController.boot().then(result => {
     res.status(result.code).send(JSON.stringify(result));
   });
 });
