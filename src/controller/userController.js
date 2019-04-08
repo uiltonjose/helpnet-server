@@ -134,9 +134,9 @@ const listAllUsers = () => {
 const listUserByProviderId = providerId => {
   return new Promise(resolve => {
     let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
     if (StringUtil.isNotValidNumber(providerId)) {
-      let resultResponse = {};
-      resultResponse.code = StatusCode.status.Bad_Request;
       resultResponse.message = "Invalid Provider Id";
       resolve(resultResponse);
     } else {
@@ -147,7 +147,6 @@ const listUserByProviderId = providerId => {
           resolve(resultResponse);
         },
         error => {
-          resultResponse.code = StatusCode.status.Bad_Request;
           resultResponse.message = "Something went wrong in your query.";
           resultResponse.error = error;
           resolve(resultResponse);
