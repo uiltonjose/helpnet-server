@@ -9,7 +9,6 @@ const buildResultProviderWithCustomers = (provider, customers, resolve) => {
   let finalResult = {};
   finalResult.provider = builderProviderResult(provider, resolve);
   finalResult.customer = customers;
-  console.log("DEBUUUGGGG", finalResult);
   resolve(finalResult);
 };
 

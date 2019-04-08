@@ -12,20 +12,20 @@ const addUser = user => {
       resultResponse.message = "Invalid User Id";
       resolve(resultResponse);
     } else {
-      userDAO
-        .addUser(user)
-        .then(result => {
+      userDAO.addUser(user).then(
+        result => {
           resultResponse.code = StatusCode.status.Ok;
           resultResponse.userId = result.insertId;
           resultResponse.message = "User successfully created.";
           resolve(resultResponse);
-        })
-        .catch(err => {
+        },
+        error => {
           resultResponse.code = StatusCode.status.Bad_Request;
           resultResponse.message = "Error adding user.";
-          resultResponse.error = err;
+          resultResponse.error = error;
           resolve(resultResponse);
-        });
+        }
+      );
     }
   });
 };
