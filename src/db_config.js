@@ -22,13 +22,17 @@ const executeQuery = sql => {
 };
 
 const getConnectionProvider = provider => {
-  let connectionProvider = mysql.createConnection({
-    host: provider.BD_URL,
-    user: provider.BD_USUARIO,
-    password: EncryptUtil.decryptString(provider.BD_SENHA),
-    database: provider.BD_NOME
-  });
-  return connectionProvider;
+  try {
+    let connectionProvider = mysql.createConnection({
+      host: provider.BD_URL,
+      user: provider.BD_USUARIO,
+      password: EncryptUtil.decryptString(provider.BD_SENHA),
+      database: provider.BD_NOME
+    });
+    return connectionProvider;
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 module.exports = {

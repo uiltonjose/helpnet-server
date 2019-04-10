@@ -109,11 +109,8 @@ const getCustomerFromProvider = (provider, cpf_cnpj) => {
       table,
       cpf_cnpj
     );
-
-    connectionProvider.query(
-      sqlProvider,
-      (error,
-      customersFromProvider => {
+    try {
+      connectionProvider.query(sqlProvider, (error, customersFromProvider) => {
         if (error) {
           console.error(
             "Ocorreu um erro na consulta a base do provedor" + provider.ID,
@@ -130,8 +127,10 @@ const getCustomerFromProvider = (provider, cpf_cnpj) => {
         } else {
           resolve(null);
         }
-      })
-    );
+      });
+    } catch (err) {
+      console.log(err);
+    }
   });
 };
 
