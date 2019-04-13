@@ -130,6 +130,7 @@ const getCustomerFromProvider = (provider, cpf_cnpj) => {
       });
     } catch (err) {
       console.log(err);
+      reject(err);
     }
   });
 };

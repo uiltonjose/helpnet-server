@@ -137,7 +137,7 @@ const registerOS = os => {
       const increment =
         "concat('" +
         os.number +
-        "',(SELECT Auto_increment FROM information_schema.tables WHERE table_name='os'))";
+        "',(SELECT Auto_increment FROM information_schema.tables WHERE table_name='os' AND table_schema = DATABASE()))";
 
       let sql = util.format(
         `INSERT INTO os (NUMERO, DATA_ABERTURA, CLIENTE_ID, PROBLEMA_ID, DETALHES, SITUACAO_ID, PROVEDOR_ID) 
