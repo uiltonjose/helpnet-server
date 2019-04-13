@@ -91,7 +91,7 @@ const getProviderByCustomerCpfCnpjAndProviderCod = (
           }
         } else {
           console.log("O cliente NÃO foi localizado na base do Helpnet");
-          handleUserNotFoundHelpnetDB(providerCod, resolve);
+          handleUserNotFoundHelpnetDB(providerCod, cpfCnpjCustomer, resolve);
         }
       },
       error => {
@@ -101,7 +101,7 @@ const getProviderByCustomerCpfCnpjAndProviderCod = (
   });
 };
 
-const handleUserNotFoundHelpnetDB = (providerCod, resolve) => {
+const handleUserNotFoundHelpnetDB = (providerCod, cpfCnpjCustomer, resolve) => {
   if (typeof providerCod !== "undefined") {
     customerDAO.getProviderDataByCod(providerCod).then(
       dataProvider => {
