@@ -247,32 +247,38 @@ const getOSData = os => {
       result => {
         const osResult = result[0];
         let osDescription = {};
-        osDescription.numeroOS = osResult.numeroOS ? osResult.numeroOS : "";
+        osDescription.numeroOS =
+          osResult.numeroOS !== "null" ? osResult.numeroOS : "";
         osDescription.detalhesOS =
-          osResult.detalhes === null ? osResult.detalhes : "";
-        osDescription.nomeCliente = osResult.nome === null ? osResult.nome : "";
+          osResult.detalhes !== "null" ? osResult.detalhes : "";
+        osDescription.nomeCliente =
+          osResult.nome !== "null" ? osResult.nome : "";
         osDescription.problema =
-          osResult.titulo === null ? osResult.titulo : "";
+          osResult.titulo !== "null" ? osResult.titulo : "";
         osDescription.cpf_cnpj =
-          osResult.cpf_cnpj === null ? osResult.cpf_cnpj : "";
+          osResult.cpf_cnpj !== "null" ? osResult.cpf_cnpj : "";
         osDescription.nome_res =
-          osResult.nome_res === null ? osResult.nome_res : "";
-        osDescription.fone = osResult.fone === null ? osResult.fone : "";
+          osResult.nome_res !== "null" ? osResult.nome_res : "";
+        osDescription.fone = osResult.fone !== "null" ? osResult.fone : "";
         osDescription.celular =
-          osResult.celular === null ? osResult.celular : "";
+          osResult.celular !== "null" ? osResult.celular : "";
         osDescription.endereco =
-          osResult.endereco === null ? osResult.endereco : "";
-        osDescription.numero = osResult.numero === null ? osResult.numero : "";
-        osDescription.bairro = osResult.bairro === null ? osResult.bairro : "";
-        osDescription.cidade = osResult.cidade === null ? osResult.cidade : "";
-        osDescription.estado = osResult.estado === null ? osResult.estado : "";
-        osDescription.cep = osResult.cep === null ? osResult.cep : "";
-        osDescription.login = osResult.login === null ? osResult.login : "";
-        osDescription.plano = osResult.plano === null ? osResult.plano : "";
+          osResult.endereco !== "null" ? osResult.endereco : "";
+        osDescription.numero =
+          osResult.numero !== "null" ? osResult.numero : "";
+        osDescription.bairro =
+          osResult.bairro !== "null" ? osResult.bairro : "";
+        osDescription.cidade =
+          osResult.cidade !== "null" ? osResult.cidade : "";
+        osDescription.estado =
+          osResult.estado !== "null" ? osResult.estado : "";
+        osDescription.cep = osResult.cep !== "null" ? osResult.cep : "";
+        osDescription.login = osResult.login !== "null" ? osResult.login : "";
+        osDescription.plano = osResult.plano !== "null" ? osResult.plano : "";
         osDescription.dataCadastroProvedor =
-          osResult.cadastro === null ? osResult.cadastro : "";
+          osResult.cadastro !== "null" ? osResult.cadastro : "";
         osDescription.emailEnvioOS =
-          osResult.emailEnvioOS === null ? osResult.emailEnvioOS : "";
+          osResult.emailEnvioOS !== "null" ? osResult.emailEnvioOS : "";
         resolve(osDescription);
       },
       error => {
