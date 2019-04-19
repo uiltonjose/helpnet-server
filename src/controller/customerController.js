@@ -288,6 +288,8 @@ const loadBaseCustomerFromProvider = providerID => {
                   },
                   error => {
                     // Quando ocorre problema na consulta dos provedores, será retornado o cliente da base do Helpnet
+                    console.log(error);
+
                     const errorResponse = {};
                     errorResponse.message =
                       "Não foi possível consultar no provedor";
