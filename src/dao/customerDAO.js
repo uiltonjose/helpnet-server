@@ -4,7 +4,7 @@ const dbConfig = require("../db_config"),
 
 const updateCustomerOpenOS = (blockOpenNewOS, customerId) => {
   const sql = util.format(
-    "UPDATE cliente SET bloqueio_abrir_os ='%s' WHERE ID = %d",
+    `UPDATE cliente SET bloqueio_abrir_os ='%s' WHERE ID = %d`,
     blockOpenNewOS,
     customerId
   );
@@ -19,8 +19,8 @@ const listAllCustomers = () => {
 
 const listCustomersByProviderId = providerId => {
   const sql = util.format(
-    "SELECT id as Ident, nome as Nome, cpf_cnpj as 'CPF/CNPJ', celular as Celular, login as Login, endereco as Endereço, complemento as Complemento, bairro as Bairro, plano as Plano " +
-      "FROM cliente WHERE PROVIDER_ID = %s AND bloqueado = 'nao' AND cli_ativado = 's'",
+    `SELECT id as Ident, nome as Nome, cpf_cnpj as 'CPF/CNPJ', celular as Celular, login as Login, endereco as Endereço, complemento as Complemento, bairro as Bairro, plano as Plano
+      FROM cliente WHERE PROVIDER_ID = %s AND bloqueado = 'nao' AND cli_ativado = 's'`,
     providerId
   );
 
@@ -43,55 +43,51 @@ const getCustomersFromProviderId = (
 
     const sqlProvider = util.format("%s FROM %s ", select, table);
 
-    connectionProvider.query(
-      sqlProvider,
-      (err,
-      customersFromProvider => {
-        if (err) {
-          console.error(
-            `Ocorreu um erro na consulta a base do provedor ${provider.ID}`,
-            err
-          );
-          reject({
-            error: `Ocorreu um erro na consulta a base do provedor ${
-              provider.ID
-            }`,
-            err
-          });
-        }
+    connectionProvider.query(sqlProvider, (error, customersFromProvider) => {
+      if (error) {
+        console.error(
+          `Ocorreu um erro na consulta a base do provedor ${provider.ID}`,
+          error
+        );
+        reject({
+          error: `Ocorreu um erro na consulta a base do provedor ${
+            provider.ID
+          }`,
+          error
+        });
+      }
 
-        if (
-          typeof customersFromProvider !== "undefined" &&
-          typeof customersFromProvider[0] !== "undefined"
-        ) {
-          const response = {};
-          response.customersFromProvider = customersFromProvider;
-          response.interaction = interaction;
-          resolve(response);
+      if (
+        typeof customersFromProvider !== "undefined" &&
+        typeof customersFromProvider[0] !== "undefined"
+      ) {
+        const response = {};
+        response.customersFromProvider = customersFromProvider;
+        response.interaction = interaction;
+        resolve(response);
+      } else {
+        interaction++;
+        if (totalInteraction > interaction) {
+          getCustomersFromProviderId(
+            interaction,
+            totalInteraction,
+            providers
+          ).then(
+            result => {
+              const response = {};
+              response.customersFromProvider = result;
+              response.interaction = interaction;
+              resolve(response);
+            },
+            error => {
+              reject(error);
+            }
+          );
         } else {
-          interaction++;
-          if (totalInteraction > interaction) {
-            getCustomersFromProviderId(
-              interaction,
-              totalInteraction,
-              providers
-            ).then(
-              result => {
-                const response = {};
-                response.customersFromProvider = result;
-                response.interaction = interaction;
-                resolve(response);
-              },
-              error => {
-                reject(error);
-              }
-            );
-          } else {
-            resolve(null);
-          }
+          resolve(null);
         }
-      })
-    );
+      }
+    });
   });
 };
 
@@ -161,7 +157,7 @@ const getProviderDataByCod = providerCod => {
  */
 const getLocalCustomerFromProvider = providerID => {
   const sql = util.format(
-    "SELECT * FROM cliente WHERE PROVIDER_ID = '%s'",
+    `SELECT * FROM cliente WHERE PROVIDER_ID = '%s'`,
     providerID
   );
 
@@ -173,7 +169,7 @@ const getLocalCustomerFromProvider = providerID => {
  */
 const getLocalCustomer = cpfCustomer => {
   const sql = util.format(
-    "SELECT * FROM cliente WHERE cpf_cnpj = '%s'",
+    `SELECT * FROM cliente WHERE cpf_cnpj = '%s'`,
     cpfCustomer
   );
   return dbConfig.executeQuery(sql);
@@ -211,26 +207,26 @@ const saveCustomer = (customer, idProvider) => {
 const updateCustomer = customer => {
   const sql = util.format(
     `UPDATE cliente SET 
-      "nome ='%s', 
-      "cpf_cnpj ='%s', 
-      "nome_res ='%s', 
-      "fone = '%s', 
-      "celular ='%s', 
-      "login ='%s', 
-      "email = '%s', 
-      "endereco ='%s', 
-      "numero ='%s', 
-      "complemento ='%s', 
-      "bairro ='%s', 
-      "cidade ='%s', 
-      "estado ='%s', 
-      "cep ='%s', 
-      "bloqueado ='%s', 
-      "cli_ativado ='%s', 
-      "plano ='%s', 
-      "data_atualizacao =  NOW(), 
-      "cadastro = '%s' 
-      "WHERE ID = %d`,
+      nome ='%s', 
+      cpf_cnpj ='%s', 
+      nome_res ='%s', 
+      fone = '%s', 
+      celular ='%s', 
+      login ='%s', 
+      email = '%s', 
+      endereco ='%s', 
+      numero ='%s', 
+      complemento ='%s', 
+      bairro ='%s', 
+      cidade ='%s', 
+      estado ='%s', 
+      cep ='%s', 
+      bloqueado ='%s', 
+      cli_ativado ='%s', 
+      plano ='%s', 
+      data_atualizacao =  NOW(), 
+      cadastro = '%s' 
+      WHERE ID = %d`,
     customer.nome,
     customer.cpf_cnpj,
     customer.nome_res,
