@@ -112,9 +112,15 @@ const addProvider = provider => {
   return dbConfig.executeQuery(sql);
 };
 
+const getProviderById = providerId => {
+  const sql = util.format("SELECT * FROM provedor WHERE id = %d", providerId);
+  return dbConfig.executeQuery(sql);
+};
+
 module.exports = {
   listAllProviders: listAllProviders,
   getProviderByProvedorIdAndConfirmationCode: getProviderByProvedorIdAndConfirmationCode,
   updateProvider: updateProvider,
-  addProvider: addProvider
+  addProvider: addProvider,
+  getProviderById: getProviderById
 };
