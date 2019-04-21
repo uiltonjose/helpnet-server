@@ -35,6 +35,7 @@ app.use(cookieParser());
 const server = app.listen(process.env.PORT || 4000, function() {
   console.log("Server is Up -  Let's go!");
   if (process.env.ACTIVE_SYNC_CUSTOMERS === "S") {
+    console.log("Customers Synchronize is on");
     JobSynchronizeCustomersFromFile.syncCustomers();
   }
 });

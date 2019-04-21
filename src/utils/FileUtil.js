@@ -13,7 +13,7 @@ AWS.config.update({
 const getFileFromAWS = fileName => {
   return new Promise(resolve => {
     var s3 = new AWS.S3();
-    s3.getObject({ Bucket: "providerbackup", Key: fileName }, function(
+    s3.getObject({ Bucket: process.env.AWS_S3_NAME, Key: fileName }, function(
       error,
       data
     ) {
