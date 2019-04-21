@@ -1,5 +1,6 @@
 const providerDAO = require("../dao/providerDAO");
 const StatusCode = require("../utils/StatusCode");
+const StringUtil = require("../utils/StringUtil");
 
 const listAllProviders = () => {
   return new Promise(resolve => {
@@ -59,8 +60,35 @@ const addProvider = provider => {
   });
 };
 
+const getProviderById = providerId => {
+  return new Promise(resolve => {
+    let resultResponse = {};
+    resultResponse.code = StatusCode.status.Bad_Request;
+
+    if (StringUtil.isNotValidNumber(providerId)) {
+      resultResponse.message = "Invalid Provider ID.";
+      resolve(resultResponse);
+      return;
+    }
+
+    providerDAO.getProviderById(providerId).then(
+      result => {
+        resultResponse.code = StatusCode.status.Ok;
+        resultResponse.message = result;
+        resolve(resultResponse);
+      },
+      error => {
+        resultResponse.message = "Something went wrong in your query.";
+        resultResponse.error = error;
+        resolve(resultResponse);
+      }
+    );
+  });
+};
+
 module.exports = {
   listAllProviders: listAllProviders,
   updateProvider: updateProvider,
-  addProvider: addProvider
+  addProvider: addProvider,
+  getProviderById: getProviderById
 };

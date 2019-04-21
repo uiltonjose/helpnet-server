@@ -23,4 +23,11 @@ router.post("/addProvider", (req, res) => {
   });
 });
 
+router.get("/", (req, res) => {
+  const providerId = req.query.providerId;
+  providerController.getProviderById(providerId).then(result => {
+    handleResult(result, res);
+  });
+});
+
 module.exports = router;
