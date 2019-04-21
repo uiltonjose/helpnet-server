@@ -74,7 +74,7 @@ const getProviderById = providerId => {
     providerDAO.getProviderById(providerId).then(
       result => {
         resultResponse.code = StatusCode.status.Ok;
-        resultResponse.message = result;
+        resultResponse.data = result;
         resolve(resultResponse);
       },
       error => {
