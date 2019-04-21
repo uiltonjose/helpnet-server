@@ -29,7 +29,7 @@ const cronExpress =
  */
 const syncCustomers = () => {
   cron.schedule(cronExpress, function() {
-    customerController.loadCustomersFromFiles().then(result => {
+    customerController.syncCustomersFromFiles().then(result => {
       console.log(result);
     });
 

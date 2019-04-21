@@ -34,6 +34,8 @@ app.use(cookieParser());
 
 const server = app.listen(process.env.PORT || 4000, function() {
   console.log("Server is Up -  Let's go!");
-  JobSynchronizeCustomersFromFile.syncCustomers();
+  if (process.env.ACTIVE_SYNC_CUSTOMERS === "S") {
+    JobSynchronizeCustomersFromFile.syncCustomers();
+  }
 });
 server.timeout = 2000;

@@ -3,7 +3,9 @@ const customerDAO = require("../dao/customerDAO"),
   dateUtil = require("../utils/DateUtil"),
   StringUtil = require("../utils/StringUtil"),
   StatusCode = require("../utils/StatusCode"),
-  fs = require("fs");
+  fs = require("fs"),
+  JSZip = require("jszip");
+
 const _ = require("lodash");
 
 const buildResultProviderWithCustomers = (provider, customers, resolve) => {
@@ -238,7 +240,7 @@ const synchronizeCustomersWithProviders = () => {
   });
 };
 
-const loadCustomersFromFiles = () => {
+const syncCustomersFromFiles = () => {
   return new Promise(resolve => {
     providerDAO.listAllProviders().then(
       providers => {
@@ -255,6 +257,11 @@ const loadCustomersFromFiles = () => {
       }
     );
   });
+};
+
+const syncCustomersFromFilesByProviderId = providerId => {
+  syncronizedCustomersFromFile(providerId);
+  return "A sincronização foi iniciada, para mais detalhes verifique o log";
 };
 
 const syncronizedCustomersFromFile = providerID => {
@@ -274,39 +281,21 @@ const syncronizedCustomersFromFile = providerID => {
             customersFromHelpnet
           );
         }
-        customerDAO.getProviderData(providerID).then(
-          providers => {
-            if (typeof providers !== undefined) {
-              let totalInteration = providers.length;
-              let interation = 0;
-              // Consulta a base do primeiro provedor para buscar as informações do cliente, quando não encontra,
-              // entra em loop buscando nos outros provedores, até encontrar ou percorrer todos os provedores
-              const customersFromProvider = loadFile(providerID);
-              if (
-                typeof customersFromProvider !== "undefined" &&
-                typeof customersFromProvider[0] !== "undefined"
-              ) {
-                synchronizeCustomer(
-                  customersFromProvider,
-                  customersFromHelpnet,
-                  providerID,
-                  resolve
-                );
-              } else {
-                resolve("Nenhum cliente encontrado na base do provedor");
-              }
-            } else {
-              handleFailRequest(
-                "Problema na consulta dos dados dos provedores",
-                resolve
-              );
-            }
-          },
-          error => {
-            console.error("Ocorreu um erro na consulta do provedor", error);
-            handleFailRequest(error, resolve);
+        getCustomersFromFile(providerID).then(customersFromProvider => {
+          if (
+            typeof customersFromProvider !== "undefined" &&
+            typeof customersFromProvider[0] !== "undefined"
+          ) {
+            synchronizeCustomer(
+              customersFromProvider,
+              customersFromHelpnet,
+              providerID,
+              resolve
+            );
+          } else {
+            resolve("Arquivo não encontrado ou arquivo vazio.");
           }
-        );
+        });
       },
       error => {
         handleFailRequest(error, resolve);
@@ -420,27 +409,51 @@ const listCustomersByProviderId = providerId => {
   });
 };
 
+const getCustomersFromFile = providerID => {
+  return new Promise(resolve => {
+    try {
+      /*
+    const fileName = providerID + "_" + dateUtil.getDateToFileName() + ".maz";
+    const data = fs.readFileSync(fileName, "utf8");
+    JSZip.loadAsync(data).then(function(zip) {
+      files = Object.keys(zip.files);
+      console.log(files);
+    });
+*/
+      const fileName = providerID + "_" + dateUtil.getDateToFileName() + ".zip";
+      const data = fs.readFileSync(fileName);
+      JSZip.loadAsync(data).then(function(zip) {
+        files = Object.keys(zip.files);
+        console.log(files);
+        zip
+          .file(files[0])
+          .async("string")
+          .then(function(data) {
+            // data is "Hello World!"
+            //console.log("data");
+            resolve(builderListCustomerFromFile(data));
+          });
+
+        //const data = zip.files[files[0]].date;
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  });
+};
+
 module.exports = {
   getProviderByCustomerCpfCnpjAndProviderCod: getProviderByCustomerCpfCnpjAndProviderCod,
   synchronizeCustomersWithProviders: synchronizeCustomersWithProviders,
   loadBaseCustomerFromProvider: loadBaseCustomerFromProvider,
   listAllCustomers: listAllCustomers,
   listCustomersByProviderId: listCustomersByProviderId,
-  loadCustomersFromFiles: loadCustomersFromFiles
+  syncCustomersFromFiles: syncCustomersFromFiles,
+  syncCustomersFromFilesByProviderId: syncCustomersFromFilesByProviderId
 };
-function loadFile(providerID) {
-  try {
-    const fileName = providerID + "_" + dateUtil.getDateToFileName() + ".txt";
-    const data = fs.readFileSync(fileName, "utf8");
-    return (customersFromFile = builderListCustomerFromFile(data));
-  } catch (error) {
-    console.log(error);
-  }
-}
 
 function builderListCustomerFromFile(data) {
   let customers = [];
-
   var linhas = data.split("\n");
   var insert = "";
   var i = 0;
@@ -478,6 +491,5 @@ function builderListCustomerFromFile(data) {
     customers.push(customer);
     i = i + 1;
   });
-
   return customers;
 }

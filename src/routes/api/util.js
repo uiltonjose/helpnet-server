@@ -18,8 +18,8 @@ router.get("/customers", (req, res) => {
 });
 
 router.get("/loadBaseCustomerFromProvider", (req, res) => {
-  const providerID = req.query.providerID;
-  customerController.loadBaseCustomerFromProvider(providerID).then(result => {
+  const providerId = req.query.providerId;
+  customerController.loadBaseCustomerFromProvider(providerId).then(result => {
     res.json(result);
   });
 });
@@ -31,9 +31,17 @@ router.get("/synchronizeCustomersWithProviders", (req, res) => {
 });
 
 router.get("/startSynchronizeFile", (req, res) => {
-  customerController.loadCustomersFromFiles().then(result => {
+  customerController.syncCustomersFromFiles().then(result => {
     res.json(result);
   });
+});
+
+router.get("/syncCustomersFromFilesByProviderId", (req, res) => {
+  const providerId = req.query.providerId;
+  const result = customerController.syncCustomersFromFilesByProviderId(
+    providerId
+  );
+  res.json(result);
 });
 
 router.get("/encrypt", (req, res) => {
