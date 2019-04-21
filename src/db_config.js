@@ -2,10 +2,10 @@ const mysql = require("mysql");
 const EncryptUtil = require("./utils/EncryptUtil");
 
 const connection = mysql.createConnection({
-  host: process.env.BD_HOST,
-  user: process.env.BD_USER,
-  password: process.env.BD_PASSWORD,
-  database: process.env.BD_DATABASE
+  host: "lt80glfe2gj8p5n2.chr7pe7iynqr.eu-west-1.rds.amazonaws.com",
+  user: "wnxoormb91xkfef9",
+  password: "qmwan6b8lamtbp9j",
+  database: "s0xdx9gvx8au1ooc"
 });
 
 const executeQuery = sql => {
