@@ -30,6 +30,12 @@ router.get("/synchronizeCustomersWithProviders", (req, res) => {
   });
 });
 
+router.get("/startSynchronizeFile", (req, res) => {
+  customerController.loadCustomersFromFiles().then(result => {
+    res.json(result);
+  });
+});
+
 router.get("/encrypt", (req, res) => {
   const value = req.query.valueToEncrypt;
   const result = encryptUtil.encryptString(value);

@@ -2,7 +2,8 @@ const customerDAO = require("../dao/customerDAO"),
   providerDAO = require("../dao/providerDAO"),
   dateUtil = require("../utils/DateUtil"),
   StringUtil = require("../utils/StringUtil"),
-  StatusCode = require("../utils/StatusCode");
+  StatusCode = require("../utils/StatusCode"),
+  fs = require("fs");
 const _ = require("lodash");
 
 const buildResultProviderWithCustomers = (provider, customers, resolve) => {
@@ -237,6 +238,83 @@ const synchronizeCustomersWithProviders = () => {
   });
 };
 
+const loadCustomersFromFiles = () => {
+  return new Promise(resolve => {
+    providerDAO.listAllProviders().then(
+      providers => {
+        for (let i = 0; i < providers.length; i++) {
+          syncronizedCustomersFromFile(providers[i].ID);
+        }
+        resolve(
+          "A sincronização foi iniciada, para mais detalhes verifique o log"
+        );
+      },
+      error => {
+        console.error("Problema na sincronização dos dados", error);
+        handleFailRequest(error, resolve);
+      }
+    );
+  });
+};
+
+const syncronizedCustomersFromFile = providerID => {
+  return new Promise(resolve => {
+    customerDAO.getLocalCustomerFromProvider(providerID).then(
+      customersFromHelpnet => {
+        if (
+          typeof customersFromHelpnet !== "undefined" &&
+          typeof customersFromHelpnet[0] !== "undefined"
+        ) {
+          console.log(
+            `Foram identificados clientes na base do Helpnet para provedor ${providerID}`
+          );
+        } else {
+          console.log(
+            `Não foram localizados clientes para o provedor ${providerID} na base do Helpnet`,
+            customersFromHelpnet
+          );
+        }
+        customerDAO.getProviderData(providerID).then(
+          providers => {
+            if (typeof providers !== undefined) {
+              let totalInteration = providers.length;
+              let interation = 0;
+              // Consulta a base do primeiro provedor para buscar as informações do cliente, quando não encontra,
+              // entra em loop buscando nos outros provedores, até encontrar ou percorrer todos os provedores
+              const customersFromProvider = loadFile(providerID);
+              if (
+                typeof customersFromProvider !== "undefined" &&
+                typeof customersFromProvider[0] !== "undefined"
+              ) {
+                synchronizeCustomer(
+                  customersFromProvider,
+                  customersFromHelpnet,
+                  providerID,
+                  resolve
+                );
+              } else {
+                resolve("Nenhum cliente encontrado na base do provedor");
+              }
+            } else {
+              handleFailRequest(
+                "Problema na consulta dos dados dos provedores",
+                resolve
+              );
+            }
+          },
+          error => {
+            console.error("Ocorreu um erro na consulta do provedor", error);
+            handleFailRequest(error, resolve);
+          }
+        );
+      },
+      error => {
+        handleFailRequest(error, resolve);
+      }
+    );
+  });
+};
+
 const loadBaseCustomerFromProvider = providerID => {
   return new Promise(resolve => {
     customerDAO.getLocalCustomerFromProvider(providerID).then(
@@ -347,5 +425,59 @@ module.exports = {
   synchronizeCustomersWithProviders: synchronizeCustomersWithProviders,
   loadBaseCustomerFromProvider: loadBaseCustomerFromProvider,
   listAllCustomers: listAllCustomers,
-  listCustomersByProviderId: listCustomersByProviderId
+  listCustomersByProviderId: listCustomersByProviderId,
+  loadCustomersFromFiles: loadCustomersFromFiles
 };
+function loadFile(providerID) {
+  try {
+    const fileName = providerID + "_" + dateUtil.getDateToFileName() + ".txt";
+    const data = fs.readFileSync(fileName, "utf8");
+    return (customersFromFile = builderListCustomerFromFile(data));
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+function builderListCustomerFromFile(data) {
+  let customers = [];
+
+  var linhas = data.split("\n");
+  var insert = "";
+  var i = 0;
+  while (i < linhas.length && insert === "") {
+    if (linhas[i].substring(0, 34) === "INSERT INTO `sis_cliente` VALUES (") {
+      insert = linhas[i].substring(34);
+    }
+    i++;
+  }
+  i = 0;
+  var rows = insert.split(",(");
+  rows.forEach(row => {
+    row = row.replace(/'/g, "");
+    var itens = row.split(",");
+    let customer = {};
+    customer.id = itens[0];
+    customer.nome = itens[1];
+    customer.cpf_cnpj = itens[8];
+    customer.nome_res = itens[79];
+    customer.fone = itens[9];
+    customer.celular = itens[26];
+    customer.login = itens[14];
+    customer.email = itens[2];
+    customer.endereco = itens[3];
+    customer.numero = itens[44];
+    customer.complemento = itens[21];
+    customer.bairro = itens[4];
+    customer.cidade = itens[5];
+    customer.estado = itens[7];
+    customer.cep = itens[6];
+    customer.bloqueado = itens[27];
+    customer.cli_ativado = itens[34];
+    customer.cadastro = itens[13];
+    customer.plano = itens[32];
+    customers.push(customer);
+    i = i + 1;
+  });
+
+  return customers;
+}
