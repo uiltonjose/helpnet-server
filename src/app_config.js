@@ -4,7 +4,9 @@ const express = require("express"),
   path = require("path"),
   cookieParser = require("cookie-parser"),
   logger = require("morgan"),
-  cors = require("cors");
+  cors = require("cors"),
+  JobSynchronizeCustomersFromFile = require("../src/jobs/JobSynchronizeCustomersFromFile.js");
+
 require("dotenv").config();
 
 app.use(cors());
@@ -32,5 +34,6 @@ app.use(cookieParser());
 
 const server = app.listen(process.env.PORT || 4000, function() {
   console.log("Server is Up -  Let's go!");
+  JobSynchronizeCustomersFromFile.syncCustomers();
 });
 server.timeout = 2000;

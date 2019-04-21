@@ -2,6 +2,8 @@ const customerController = require("../controller/customerController");
 const dateUtil = require("../utils/DateUtil");
 const cron = require("node-cron");
 
+require("dotenv").config();
+
 const seconds = process.env.CRON_SEG,
   minutes = process.env.CRON_MIN,
   hour = process.env.CRON_HOU,
