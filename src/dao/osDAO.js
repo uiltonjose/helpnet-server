@@ -218,10 +218,11 @@ const registerOS = os => {
 
 const canOpen = (providerId, customerId) => {
   const sql = util.format(
-    "SELECT count(id) as total FROM os WHERE PROVEDOR_ID = %d AND CLIENTE_ID = %s AND SITUACAO_ID = %d",
+    "SELECT count(id) as total FROM os WHERE PROVEDOR_ID = %d AND CLIENTE_ID = %s AND (SITUACAO_ID = %d OR SITUACAO_ID = %d)",
     providerId,
     customerId,
-    Enum.Situations.OPEN
+    Enum.Situations.OPEN,
+    Enum.Situations.WORK_IN_PROGRESS
   );
   return dbConfig.executeQuery(sql);
 };
