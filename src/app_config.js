@@ -4,8 +4,7 @@ const express = require("express"),
   path = require("path"),
   cookieParser = require("cookie-parser"),
   logger = require("morgan"),
-  cors = require("cors"),
-  JobSynchronizeCustomersFromFile = require("../src/jobs/JobSynchronizeCustomersFromFile.js");
+  cors = require("cors");
 
 require("dotenv").config();
 
@@ -34,9 +33,5 @@ app.use(cookieParser());
 
 const server = app.listen(process.env.PORT || 4000, function() {
   console.log("Server is Up -  Let's go!");
-  if (process.env.ACTIVE_SYNC_CUSTOMERS === "S") {
-    console.log("Customers Synchronize is on");
-    JobSynchronizeCustomersFromFile.syncCustomers();
-  }
 });
 server.timeout = 2000;

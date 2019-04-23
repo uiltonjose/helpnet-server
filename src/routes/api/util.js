@@ -17,33 +17,6 @@ router.get("/customers", (req, res) => {
   });
 });
 
-router.get("/loadBaseCustomerFromProvider", (req, res) => {
-  const providerId = req.query.providerId;
-  customerController.loadBaseCustomerFromProvider(providerId).then(result => {
-    res.json(result);
-  });
-});
-
-router.get("/synchronizeCustomersWithProviders", (req, res) => {
-  customerController.synchronizeCustomersWithProviders().then(result => {
-    res.json(result);
-  });
-});
-
-router.get("/startSynchronizeFile", (req, res) => {
-  customerController.syncCustomersFromFiles().then(result => {
-    res.json(result);
-  });
-});
-
-router.get("/syncCustomersFromFilesByProviderId", (req, res) => {
-  const providerId = req.query.providerId;
-  const result = customerController.syncCustomersFromFilesByProviderId(
-    providerId
-  );
-  res.json(result);
-});
-
 router.get("/encrypt", (req, res) => {
   const value = req.query.valueToEncrypt;
   const result = encryptUtil.encryptString(value);

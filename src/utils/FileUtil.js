@@ -12,58 +12,58 @@ AWS.config.update({
 
 const getFileFromAWS = fileName => {
   return new Promise(resolve => {
-    var s3 = new AWS.S3();
-    s3.getObject({ Bucket: process.env.AWS_S3_NAME, Key: fileName }, function(
-      error,
-      data
-    ) {
-      if (error != null) {
-        console.log(error);
-      } else {
-        resolve(data.Body);
+    const s3 = new AWS.S3();
+    s3.getObject(
+      { Bucket: process.env.AWS_S3_NAME, Key: fileName },
+      (error, data) => {
+        if (error != null) {
+          resolve(error);
+        } else {
+          resolve(data.Body);
+        }
       }
-    });
+    );
   });
 };
 
 const getCustomersFromFile = providerID => {
   return new Promise(resolve => {
     try {
-      const fileName = providerID + "_" + dateUtil.getDateToFileName() + ".zip";
-      getFileFromAWS(fileName).then(function(data) {
-        JSZip.loadAsync(data).then(function(zip) {
+      const fileName = `${providerID}_${dateUtil.getDateToFileName()}.zip`;
+      getFileFromAWS(fileName).then(data => {
+        JSZip.loadAsync(data).then(zip => {
           files = Object.keys(zip.files);
-          console.log(files);
           zip
             .file(files[0])
             .async("string")
-            .then(function(data) {
+            .then(data => {
               resolve(builderListCustomerFromFile(data));
             });
         });
       });
     } catch (error) {
-      console.log(error);
+      resolve(error);
     }
   });
 };
 
-function builderListCustomerFromFile(data) {
+const builderListCustomerFromFile = data => {
   let customers = [];
-  var linhas = data.split("\n");
-  var insert = "";
-  var i = 0;
+  const linhas = data.split("\n");
+  let insert = "";
+  let i = 0;
   while (i < linhas.length && insert === "") {
-    if (linhas[i].substring(0, 34) === "INSERT INTO `sis_cliente` VALUES (") {
+    const lineIdentifier = "INSERT INTO `sis_cliente` VALUES (";
+    if (linhas[i].substring(0, 34) === lineIdentifier) {
       insert = linhas[i].substring(34);
     }
     i++;
   }
   i = 0;
-  var rows = insert.split(",(");
+  const rows = insert.split(",(");
   rows.forEach(row => {
     row = row.replace(/'/g, "");
-    var itens = row.split(",");
+    const itens = row.split(",");
     let customer = {};
     customer.id = itens[0];
     customer.nome = itens[1];
@@ -88,7 +88,7 @@ function builderListCustomerFromFile(data) {
     i = i + 1;
   });
   return customers;
-}
+};
 
 module.exports = {
   getCustomersFromFile: getCustomersFromFile

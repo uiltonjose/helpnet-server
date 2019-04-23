@@ -9,18 +9,7 @@ const seconds = process.env.CRON_SEG,
   month = process.env.CRON_MONTH,
   dayOfWeek = process.env.CRON_DAY_OF_WEEK;
 
-const cronExpress =
-  seconds +
-  " " +
-  minutes +
-  " " +
-  hour +
-  " " +
-  dayOfMonth +
-  " " +
-  month +
-  " " +
-  dayOfWeek;
+const cronExpress = `${seconds} ${minutes} ${hour} ${dayOfMonth} ${month} ${dayOfWeek}`;
 
 /**
  * @deprecated We won't use this. Keep this class just in case for the future.
