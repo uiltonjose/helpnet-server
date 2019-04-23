@@ -1,6 +1,8 @@
-const customerController = require("../controller/customerController");
-const dateUtil = require("../utils/DateUtil");
-const cron = require("node-cron");
+const synchronizeController = require("../controller/synchronizeController"),
+  dateUtil = require("../utils/DateUtil"),
+  cron = require("node-cron");
+
+require("dotenv").config();
 
 const seconds = process.env.CRON_SEG,
   minutes = process.env.CRON_MIN,
@@ -15,10 +17,12 @@ const cronExpress = `${seconds} ${minutes} ${hour} ${dayOfMonth} ${month} ${dayO
  * @deprecated We won't use this. Keep this class just in case for the future.
  */
 const syncCustomers = () => {
-  cron.schedule(cronExpress, function() {
-    customerController.synchronizeCustomersWithProviders().then(result => {
-      console.log(result);
-    });
+  cron.schedule(cronExpress, () => {
+    synchronizeController
+      .synchronizeCustomersFromFilesAllProviders()
+      .then(result => {
+        console.log(result);
+      });
 
     console.log(
       dateUtil.getDateString() +

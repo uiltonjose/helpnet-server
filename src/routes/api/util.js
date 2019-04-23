@@ -17,19 +17,6 @@ router.get("/customers", (req, res) => {
   });
 });
 
-router.get("/loadBaseCustomerFromProvider", (req, res) => {
-  const providerID = req.query.providerID;
-  customerController.loadBaseCustomerFromProvider(providerID).then(result => {
-    res.json(result);
-  });
-});
-
-router.get("/synchronizeCustomersWithProviders", (req, res) => {
-  customerController.synchronizeCustomersWithProviders().then(result => {
-    res.json(result);
-  });
-});
-
 router.get("/encrypt", (req, res) => {
   const value = req.query.valueToEncrypt;
   const result = encryptUtil.encryptString(value);
