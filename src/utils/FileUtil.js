@@ -27,20 +27,41 @@ const getFileFromAWS = fileName => {
 };
 
 const getCustomersFromFile = providerID => {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     try {
       const fileName = `${providerID}_${dateUtil.getDateToFileName()}.zip`;
-      getFileFromAWS(fileName).then(data => {
-        JSZip.loadAsync(data).then(zip => {
-          files = Object.keys(zip.files);
-          zip
-            .file(files[0])
-            .async("string")
-            .then(data => {
-              resolve(builderListCustomerFromFile(data));
-            });
-        });
-      });
+      getFileFromAWS(fileName)
+        .then(
+          data => {
+            if (data.statusCode === undefined) {
+              JSZip.loadAsync(data).then(
+                zip => {
+                  files = Object.keys(zip.files);
+                  zip
+                    .file(files[0])
+                    .async("string")
+                    .then(
+                      data => {
+                        resolve(builderListCustomerFromFile(data));
+                      },
+                      error => {
+                        console.log(error);
+                      }
+                    );
+                },
+                error => {
+                  console.log(error);
+                }
+              );
+            } else {
+              reject("File not found", data.statusCode);
+            }
+          },
+          error => {
+            console.log(error);
+          }
+        )
+        .catch(err => console.log("There was an error:" + err));
     } catch (error) {
       resolve(error);
     }

@@ -1,8 +1,8 @@
-const customerController = require("../../controller/customerController");
-const express = require("express");
-const router = express.Router();
-const { handleResult } = require("../../utils/APIUtil");
-const StatusCode = require("../../utils/StatusCode");
+const customerController = require("../../controller/customerController"),
+  express = require("express"),
+  router = express.Router(),
+  { handleResult } = require("../../utils/APIUtil"),
+  StatusCode = require("../../utils/StatusCode");
 
 router.get("/getProviderByCustomerIdAndProviderCode", (req, res) => {
   const cpfCustomer = req.query.cpfCustomer;
