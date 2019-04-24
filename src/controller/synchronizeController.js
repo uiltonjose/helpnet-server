@@ -9,8 +9,7 @@ const _ = require("lodash");
 const handleFailRequest = (error, resolve) => {
   const responseObj = {};
   responseObj.code = StatusCode.status.Bad_Request;
-  responseObj.message =
-    "Problema na consulta dos dados do provedor, entre em contato com o administrador do sistema";
+  responseObj.message = "Não foi possível carregar as informações do provedor";
   responseObj.error = error;
   resolve(responseObj);
 };
@@ -102,10 +101,6 @@ const synchronizeCustomersFromFilesAllProviders = () => {
             resolve(error);
           }
         );
-        const responseObj = {};
-        responseObj.code = StatusCode.status.Ok;
-        responseObj.message = "A sincronização foi finalizada com sucesso";
-        resolve(responseObj);
       },
       error => {
         console.error("Problema na sincronização dos dados", error);
