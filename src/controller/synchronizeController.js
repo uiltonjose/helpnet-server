@@ -22,7 +22,8 @@ const matchCustomer = (customerOne, customerTwo) => {
 const synchronizeCustomer = (
   customersFromProvider,
   customersFromHelpnet,
-  providerID
+  providerID,
+  resolve
 ) => {
   let countCustomerFromProvider = 0;
   while (countCustomerFromProvider < customersFromProvider.length) {
@@ -101,12 +102,10 @@ const synchronizeCustomersFromFilesAllProviders = () => {
             resolve(error);
           }
         );
-        /*
         const responseObj = {};
         responseObj.code = StatusCode.status.Ok;
         responseObj.message = "A sincronização foi finalizada com sucesso";
         resolve(responseObj);
-        */
       },
       error => {
         console.error("Problema na sincronização dos dados", error);
