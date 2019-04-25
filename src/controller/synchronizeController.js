@@ -9,8 +9,7 @@ const _ = require("lodash");
 const handleFailRequest = (error, resolve) => {
   const responseObj = {};
   responseObj.code = StatusCode.status.Bad_Request;
-  responseObj.message =
-    "Problema na consulta dos dados do provedor, entre em contato com o administrador do sistema";
+  responseObj.message = "Não foi possível carregar as informações do provedor";
   responseObj.error = error;
   resolve(responseObj);
 };
@@ -60,18 +59,11 @@ const synchronizeCustomer = (
       }
       countCustomerFromHelpnet++;
     }
-
     if (!customerExistInHelpnet) {
       customerDAO.saveCustomer(customerFromProvider, providerID);
     }
     countCustomerFromProvider++;
   }
-
-  resolve(
-    dateUtil.getDateString() +
-      " - Finalizada a sincronização da base de dados do provedor " +
-      providerID
-  );
 };
 
 const synchronizeCustomersWithProviders = () => {
@@ -109,11 +101,6 @@ const synchronizeCustomersFromFilesAllProviders = () => {
             resolve(error);
           }
         );
-
-        const responseObj = {};
-        responseObj.code = StatusCode.status.Ok;
-        responseObj.message = "Asincronização foi finalizada com sucesso";
-        resolve(responseObj);
       },
       error => {
         console.error("Problema na sincronização dos dados", error);
@@ -127,23 +114,33 @@ const synchronizeCustomersFromFile = providerID => {
   return new Promise(resolve => {
     customerDAO.getLocalCustomerFromProvider(providerID).then(
       customersFromHelpnet => {
-        FileUtil.getCustomersFromFile(providerID).then(
-          customersFromProvider => {
-            if (
-              typeof customersFromProvider !== "undefined" &&
-              typeof customersFromProvider[0] !== "undefined"
-            ) {
-              synchronizeCustomer(
-                customersFromProvider,
-                customersFromHelpnet,
-                providerID,
-                resolve
-              );
-            } else {
-              resolve("Arquivo não encontrado ou arquivo vazio.");
+        FileUtil.getCustomersFromFile(providerID)
+          .then(
+            customersFromProvider => {
+              if (
+                customersFromProvider !== undefined &&
+                customersFromProvider[0] !== undefined
+              ) {
+                synchronizeCustomer(
+                  customersFromProvider,
+                  customersFromHelpnet,
+                  providerID
+                );
+                let resultResponse = {};
+                resultResponse.code = StatusCode.status.Ok;
+                resultResponse.message = `Total de cliente localizados: ${
+                  customersFromProvider.length
+                }`;
+                resolve(resultResponse);
+              } else {
+                resolve("Arquivo não encontrado ou arquivo vazio.");
+              }
+            },
+            error => {
+              handleFailRequest(error, resolve);
             }
-          }
-        );
+          )
+          .catch("Arquivo não encontrado ou arquivo vazio.");
       },
       error => {
         handleFailRequest(error, resolve);
@@ -174,8 +171,6 @@ const loadBaseCustomerFromProvider = providerID => {
             if (typeof providers !== undefined) {
               let totalInteration = providers.length;
               let interation = 0;
-              // Consulta a base do primeiro provedor para buscar as informações do cliente, quando não encontra,
-              // entra em loop buscando nos outros provedores, até encontrar ou percorrer todos os provedores
               customerDAO
                 .getCustomersFromProviderId(
                   interation,

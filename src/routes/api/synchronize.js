@@ -1,6 +1,8 @@
 const synchronizeController = require("../../controller/synchronizeController");
 const express = require("express");
 const router = express.Router();
+const { handleResult } = require("../../utils/APIUtil");
+const StatusCode = require("../../utils/StatusCode");
 
 router.get("/synchronizeCustomersWithProviders", (req, res) => {
   synchronizeController.synchronizeCustomersWithProviders().then(result => {
@@ -8,16 +10,17 @@ router.get("/synchronizeCustomersWithProviders", (req, res) => {
   });
 });
 
-router.get("/startSynchronizeFile", (req, res) => {
-  synchronizeController.syncCustomersFromFiles().then(result => {
-    res.json(result);
-  });
-});
-
 router.get("/syncronizedCustomersFromFile", (req, res) => {
   const providerId = req.query.providerId;
-  const result = synchronizeController.synchronizeCustomersFromFile(providerId);
-  res.json(result);
+  synchronizeController
+    .synchronizeCustomersFromFile(providerId)
+    .then(result => {
+      let respCode = result.code;
+      if (respCode === undefined) {
+        result.code = StatusCode.status.Ok;
+      }
+      handleResult(result, res);
+    });
 });
 
 router.get("/loadBaseCustomerFromProvider", (req, res) => {
