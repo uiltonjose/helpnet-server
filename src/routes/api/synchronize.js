@@ -1,8 +1,8 @@
-const synchronizeController = require("../../controller/synchronizeController"),
-  express = require("express"),
-  router = express.Router(),
-  { handleResult } = require("../../utils/APIUtil"),
-  StatusCode = require("../../utils/StatusCode");
+const synchronizeController = require("../../controller/synchronizeController");
+const express = require("express");
+const router = express.Router();
+const { handleResult } = require("../../utils/APIUtil");
+const StatusCode = require("../../utils/StatusCode");
 
 router.get("/synchronizeCustomersWithProviders", (req, res) => {
   synchronizeController.synchronizeCustomersWithProviders().then(result => {
