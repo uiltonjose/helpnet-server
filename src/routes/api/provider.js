@@ -4,8 +4,6 @@ const router = express.Router();
 const { handleResult, validateToken } = require("../../utils/APIUtil");
 
 router.get("/listProviders", (req, res) => {
-  validateToken(req, res);
-
   providerController.listAllProviders().then(result => {
     handleResult(result, res);
   });
