@@ -29,4 +29,18 @@ router.get("/decrypt", (req, res) => {
   res.json(result);
 });
 
+router.get("/generateToken", (req, res) => {
+  const authHeader = req.header("Authorization");
+  const token = encryptUtil.generateAccessToken(authHeader);
+  res.json(token);
+});
+
+router.get("/validateToken", (req, res) => {
+  const authHeader = req.header("Authorization");
+  const isValid = encryptUtil.isValidToken(authHeader);
+  isValid.then(result => {
+    res.json(result);
+  });
+});
+
 module.exports = router;
