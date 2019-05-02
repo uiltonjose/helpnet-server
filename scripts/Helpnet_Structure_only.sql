@@ -47,26 +47,17 @@ CREATE TABLE `cliente` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `evento` */
 
-DROP TABLE IF EXISTS `evento`;
+/*Table structure for table `tipo_evento` */
 
-CREATE TABLE `evento` (
+DROP TABLE IF EXISTS `tipo_evento`;
+
+CREATE TABLE `tipo_evento` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `DATA_HORA` datetime NOT NULL,
-  `OS_ID` bigint(20) NOT NULL,
-  `TIPO_EVENTO_ID` bigint(20) NOT NULL,
-  `OBSERVACAO` varchar(255) DEFAULT NULL,
-  `USUARIO_ID` bigint(20) DEFAULT NULL,
-  `USUARIO_RESPONSAVEL_ID` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `FK_OS_ID` (`OS_ID`),
-  KEY `FK_TIPO_EVENTO_ID` (`TIPO_EVENTO_ID`),
-  KEY `FK_USUARIO_ID` (`USUARIO_ID`),
-  CONSTRAINT `FK_OS_ID` FOREIGN KEY (`OS_ID`) REFERENCES `os` (`ID`),
- CONSTRAINT `FK_TIPO_EVENTO_ID` FOREIGN KEY (`TIPO_EVENTO_ID`) REFERENCES `tipo_evento` (`ID`)
+  `EVENTO` varchar(100) NOT NULL,
+  `DESCRICAO` varchar(255) NOT NULL,
+  PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*Table structure for table `mensagem_padrao_notificacao` */
 
 DROP TABLE IF EXISTS `mensagem_padrao_notificacao`;
 
@@ -104,35 +95,6 @@ CREATE TABLE `notificacao_cliente` (
   `dataUltimaAlteracao` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;									 
-/*Table structure for table `os` */
-
-DROP TABLE IF EXISTS `os`;
-
-CREATE TABLE `os` (
-  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `NUMERO` bigint(20) NOT NULL,
-  `DATA_ABERTURA` datetime NOT NULL,
-  `CLIENTE_ID` bigint(20) NOT NULL,
-  `PROBLEMA_ID` bigint(20) DEFAULT NULL,
-  `DETALHES` varchar(255) DEFAULT NULL,
-  `OBSERVACAO` varchar(255) DEFAULT NULL,
-  `CLIENTE_NAO_CADASTRADO` varchar(255) DEFAULT NULL,
-  `USUARIO_ID` bigint(20) DEFAULT NULL,
-  `SITUACAO_ID` bigint(20) NOT NULL,
-  `PROVEDOR_ID` bigint(20) NOT NULL,
-  `DATA_FECHAMENTO` datetime DEFAULT NULL,									  
-  PRIMARY KEY (`ID`),
-  KEY `FK_PROVEDOR_ID` (`PROVEDOR_ID`),
-  KEY `FK_SITUACAO_ID` (`SITUACAO_ID`),
-  KEY `FK_USUARIO_ID` (`USUARIO_ID`),
-  KEY `FK_PROBLEMA_ID` (`PROBLEMA_ID`),
-  KEY `FK_CLIENTE_ID` (`CLIENTE_ID`),
-  CONSTRAINT `FK_CLIENTE_ID` FOREIGN KEY (`CLIENTE_ID`) REFERENCES `cliente` (`id`),
-  CONSTRAINT `FK_PROBLEMA_ID` FOREIGN KEY (`PROBLEMA_ID`) REFERENCES `problema_os` (`ID`),
-  CONSTRAINT `FK_PROVEDOR_ID` FOREIGN KEY (`PROVEDOR_ID`) REFERENCES `provedor` (`ID`),
-  CONSTRAINT `FK_SITUACAO_ID` FOREIGN KEY (`SITUACAO_ID`) REFERENCES `situacao_os` (`ID`),
-  CONSTRAINT `FK_USUARIO_ID` FOREIGN KEY (`USUARIO_ID`) REFERENCES `usuario` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Table structure for table `perfil` */
 
@@ -205,16 +167,6 @@ CREATE TABLE `tecnico` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `tipo_evento` */
-
-DROP TABLE IF EXISTS `tipo_evento`;
-
-CREATE TABLE `tipo_evento` (
-  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `EVENTO` varchar(100) NOT NULL,
-  `DESCRICAO` varchar(255) NOT NULL,
-  PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Table structure for table `usuario` */
 
@@ -231,5 +183,56 @@ CREATE TABLE `usuario` (
   CONSTRAINT `FK_PROV_ID` FOREIGN KEY (`provedor_id`) REFERENCES `provedor` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*Table structure for table `os` */
+
+DROP TABLE IF EXISTS `os`;
+
+CREATE TABLE `os` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `NUMERO` bigint(20) NOT NULL,
+  `DATA_ABERTURA` datetime NOT NULL,
+  `CLIENTE_ID` bigint(20) NOT NULL,
+  `PROBLEMA_ID` bigint(20) DEFAULT NULL,
+  `DETALHES` varchar(255) DEFAULT NULL,
+  `OBSERVACAO` varchar(255) DEFAULT NULL,
+  `CLIENTE_NAO_CADASTRADO` varchar(255) DEFAULT NULL,
+  `USUARIO_ID` bigint(20) DEFAULT NULL,
+  `SITUACAO_ID` bigint(20) NOT NULL,
+  `PROVEDOR_ID` bigint(20) NOT NULL,
+  `DATA_FECHAMENTO` datetime DEFAULT NULL,									  
+  PRIMARY KEY (`ID`),
+  KEY `FK_PROVEDOR_ID` (`PROVEDOR_ID`),
+  KEY `FK_SITUACAO_ID` (`SITUACAO_ID`),
+  KEY `FK_USUARIO_ID` (`USUARIO_ID`),
+  KEY `FK_PROBLEMA_ID` (`PROBLEMA_ID`),
+  KEY `FK_CLIENTE_ID` (`CLIENTE_ID`),
+  CONSTRAINT `FK_CLIENTE_ID` FOREIGN KEY (`CLIENTE_ID`) REFERENCES `cliente` (`id`),
+  CONSTRAINT `FK_PROBLEMA_ID` FOREIGN KEY (`PROBLEMA_ID`) REFERENCES `problema_os` (`ID`),
+  CONSTRAINT `FK_PROVEDOR_ID` FOREIGN KEY (`PROVEDOR_ID`) REFERENCES `provedor` (`ID`),
+  CONSTRAINT `FK_SITUACAO_ID` FOREIGN KEY (`SITUACAO_ID`) REFERENCES `situacao_os` (`ID`),
+  CONSTRAINT `FK_USUARIO_ID` FOREIGN KEY (`USUARIO_ID`) REFERENCES `usuario` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+/*Table structure for table `evento` */
+
+DROP TABLE IF EXISTS `evento`;
+
+CREATE TABLE `evento` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `DATA_HORA` datetime NOT NULL,
+  `OS_ID` bigint(20) NOT NULL,
+  `TIPO_EVENTO_ID` bigint(20) NOT NULL,
+  `OBSERVACAO` varchar(255) DEFAULT NULL,
+  `USUARIO_ID` bigint(20) DEFAULT NULL,
+  `USUARIO_RESPONSAVEL_ID` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `FK_OS_ID` (`OS_ID`),
+  KEY `FK_TIPO_EVENTO_ID` (`TIPO_EVENTO_ID`),
+  KEY `FK_USUARIO_ID` (`USUARIO_ID`),
+  CONSTRAINT `FK_OS_ID` FOREIGN KEY (`OS_ID`) REFERENCES `os` (`ID`),
+ CONSTRAINT `FK_TIPO_EVENTO_ID` FOREIGN KEY (`TIPO_EVENTO_ID`) REFERENCES `tipo_evento` (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*Table structure for table `mensagem_padrao_notificacao` */
+
+
