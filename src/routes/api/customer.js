@@ -1,7 +1,7 @@
 const customerController = require("../../controller/customerController");
 const express = require("express");
 const router = express.Router();
-const { handleResult } = require("../../utils/APIUtil");
+const { handleResult, validateToken } = require("../../utils/APIUtil");
 const StatusCode = require("../../utils/StatusCode");
 
 router.get("/getProviderByCustomerIdAndProviderCode", (req, res) => {
@@ -33,6 +33,8 @@ router.get("/getProviderByCustomerID", (req, res) => {
 });
 
 router.get("/listByProviderId", (req, res) => {
+  validateToken(req, res);
+
   const providerId = req.query.providerId;
   customerController.listCustomersByProviderId(providerId).then(result => {
     handleResult(result, res);

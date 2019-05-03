@@ -24,7 +24,7 @@ const sendNotification = (data, resolve) => {
 
       const responseData = JSON.parse(data);
       if (responseData.errors) {
-        resultResponse.code = StatusCode.status.Not_Acceptable;
+        resultResponse.internalCode = StatusCode.status.Not_Acceptable;
       }
       resultResponse.data = responseData;
       resolve(resultResponse);

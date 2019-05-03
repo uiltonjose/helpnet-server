@@ -1,13 +1,13 @@
-const customerDAO = require("../dao/customerDAO"),
-  StringUtil = require("../utils/StringUtil"),
-  StatusCode = require("../utils/StatusCode");
-
-const _ = require("lodash");
+const customerDAO = require("../dao/customerDAO");
+const StringUtil = require("../utils/StringUtil");
+const StatusCode = require("../utils/StatusCode");
+const encryptUtil = require("../utils/EncryptUtil");
 
 const buildResultProviderWithCustomers = (provider, customers, resolve) => {
   let finalResult = {};
   finalResult.provider = builderProviderResult(provider, resolve);
   finalResult.customer = customers;
+  finalResult.token = encryptUtil.generateAccessToken(customers[0]["cpf_cnpj"]);
   resolve(finalResult);
 };
 

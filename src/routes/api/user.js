@@ -1,7 +1,7 @@
 const userController = require("../../controller/userController");
 const express = require("express");
 const router = express.Router();
-const { handleResult } = require("../../utils/APIUtil");
+const { handleResult, validateToken } = require("../../utils/APIUtil");
 
 router.post("/add", (req, res) => {
   const userObj = req.body;
@@ -17,10 +17,12 @@ router.put("/activateUserWithProvider", (req, res) => {
   });
 });
 
-/*
-// This API lists all users that can be associated with an OS
-*/
+/**
+ * This API lists all users that can be associated with an OS
+ */
 router.get("/listByProviderId", (req, res) => {
+  validateToken(req, res);
+
   const providerId = req.query.providerId;
   userController.listUserByProviderId(providerId).then(result => {
     handleResult(result, res);

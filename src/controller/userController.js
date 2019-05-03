@@ -2,6 +2,7 @@ const userDAO = require("../dao/userDAO");
 const providerDAO = require("../dao/providerDAO");
 const StringUtil = require("../utils/StringUtil");
 const StatusCode = require("../utils/StatusCode");
+const encryptUtil = require("../utils/EncryptUtil");
 
 const addUser = user => {
   return new Promise(resolve => {
@@ -96,6 +97,7 @@ const getUserInfo = userLogin => {
       userDAO.getUserInfo(userLogin).then(
         result => {
           const userObj = result[0];
+          userObj.token = encryptUtil.generateAccessToken(userLogin);
           resultResponse.code = StatusCode.status.Ok;
           resultResponse.userInfo = userObj;
           resolve(resultResponse);
