@@ -198,7 +198,7 @@ const builderNotification = (
   if (messageToCustomer != null) {
     notificationObj.message = `${message}  ${messageToCustomer}`;
   }
-  notificationObj.blockNotification = "false";
+  notificationObj.blockOpenNewOS = "false";
   notificationObj.tags = [{}];
   notificationObj.tags[0].key = `${providerId}_${customerId}`;
   notificationObj.tags[0].relation = "=";
