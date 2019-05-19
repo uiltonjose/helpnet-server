@@ -1,5 +1,4 @@
-const fs = require("fs"),
-  JSZip = require("jszip"),
+const JSZip = require("jszip"),
   dateUtil = require("../utils/DateUtil"),
   AWS = require("aws-sdk");
 
