@@ -1,7 +1,7 @@
 const synchronizeController = require("../../controller/synchronizeController");
 const express = require("express");
 const router = express.Router();
-const { handleResult } = require("../../utils/APIUtil");
+const { handleResult, validateToken } = require("../../utils/APIUtil");
 const StatusCode = require("../../utils/StatusCode");
 
 router.get("/synchronizeCustomersWithProviders", (req, res) => {
@@ -11,14 +11,12 @@ router.get("/synchronizeCustomersWithProviders", (req, res) => {
 });
 
 router.get("/syncronizedCustomersFromFile", (req, res) => {
+  validateToken(req, res);
+
   const providerId = req.query.providerId;
   synchronizeController
     .synchronizeCustomersFromFile(providerId)
     .then(result => {
-      let respCode = result.code;
-      if (respCode === undefined) {
-        result.code = StatusCode.status.Ok;
-      }
       handleResult(result, res);
     });
 });
